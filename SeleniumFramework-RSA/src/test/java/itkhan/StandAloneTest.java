@@ -1,6 +1,7 @@
 package itkhan;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import itkhan.pageobjects.LandingPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -22,6 +23,7 @@ public class StandAloneTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
         driver.get("https://www.rahulshettyacademy.com/client");
+        LandingPage landingPage = new LandingPage(driver);
 
         String productName = "ZARA COAT 3";
 
