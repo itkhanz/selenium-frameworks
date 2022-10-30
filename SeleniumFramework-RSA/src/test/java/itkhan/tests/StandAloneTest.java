@@ -1,4 +1,4 @@
-package itkhan;
+package itkhan.tests;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import itkhan.pageobjects.LandingPage;
