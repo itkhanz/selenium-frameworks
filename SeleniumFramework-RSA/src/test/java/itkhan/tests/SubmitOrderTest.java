@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class SubmitOrderTest extends BaseTest {
     String productName = "ZARA COAT 3";
-    @Test
+    @Test(groups= {"Purchase"})
     public void submitOrder() throws InterruptedException, IOException {
 
         ProductCatalogue productCatalogue = landingPage.loginApplication("anshika@gmail.com","Iamking@000");
