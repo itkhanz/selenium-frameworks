@@ -22,4 +22,9 @@ public class OrderPage extends AbstractComponent {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
+
+    public Boolean VerifyOrderDisplay(String productName) {
+        Boolean match = productNames.stream().anyMatch(product -> product.getText().equalsIgnoreCase(productName));
+        return match;
+    }
 }
