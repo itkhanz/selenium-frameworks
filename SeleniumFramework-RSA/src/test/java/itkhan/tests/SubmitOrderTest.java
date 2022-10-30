@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public class SubmitOrderTest extends BaseTest {
     String productName = "ZARA COAT 3";
@@ -40,13 +41,13 @@ public class SubmitOrderTest extends BaseTest {
     }
 
     @DataProvider
-    public Object[][] getData() {
+    public Object[][] getData() throws IOException {
         /*return new Object[][] {
                 {"anshika@gmail.com", "Iamking@000", "ZARA COAT 3"},
                 {"shetty@gmail.com", "Iamking@000", "ADIDAS ORIGINAL"}
         };*/
 
-        HashMap<String, String> map1 = new HashMap<String, String>();
+       /* HashMap<String, String> map1 = new HashMap<String, String>();
         map1.put("email", "anshika@gmail.com");
         map1.put("password", "Iamking@000");
         map1.put("product", "ZARA COAT 3");
@@ -56,6 +57,9 @@ public class SubmitOrderTest extends BaseTest {
         map2.put("password", "Iamking@000");
         map2.put("product", "ADIDAS ORIGINAL");
 
-        return new Object[][] { {map1}, {map2} };
+        return new Object[][] { {map1}, {map2} };*/
+
+        List<HashMap<String,String>> data = getJsonDataToMap(System.getProperty("user.dir")+"//src//test//java//itkhan//data//purchaseOrder.json");
+        return new Object[][] {{data.get(0)}, {data.get(1)}};
     }
 }
