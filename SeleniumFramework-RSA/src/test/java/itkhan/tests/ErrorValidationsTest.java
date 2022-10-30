@@ -1,6 +1,7 @@
 package itkhan.tests;
 
 import itkhan.TestComponents.BaseTest;
+import itkhan.TestComponents.Retry;
 import itkhan.pageobjects.CartPage;
 import itkhan.pageobjects.ProductCatalogue;
 import org.testng.Assert;
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 public class ErrorValidationsTest extends BaseTest {
 
-    @Test(groups= {"ErrorHandling"})
+    @Test(groups= {"ErrorHandling"},retryAnalyzer= Retry.class)
     public void LoginErrorValidation() throws IOException, InterruptedException {
         landingPage.loginApplication("anshika@gmail.com", "Iamki000");
         Assert.assertEquals("Incorrect email orr password.", landingPage.getErrorMessage());
