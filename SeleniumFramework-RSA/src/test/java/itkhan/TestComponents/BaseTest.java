@@ -83,15 +83,16 @@ public class BaseTest {
 
     public String getScreenshot(String testCaseName, WebDriver driver) throws IOException
     {
-        TakesScreenshot ts = (TakesScreenshot) driver;
+        //String dateName = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
 
-        File sourceFile = ts.getScreenshotAs(OutputType.FILE);
+        /*Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat formater = new SimpleDateFormat("dd_MM_yyy_hh_mm_ss");
+        String dateName = formater.format(calendar.getTime());*/
 
-        String destFilePath = System.getProperty("user.dir") + "//test-reports//" + testCaseName + ".png";
-        File destFile = new File(destFilePath);
-
-        FileUtils.copyFile(sourceFile, destFile);
-
-        return destFilePath;
+        TakesScreenshot ts = (TakesScreenshot)driver;
+        File source = ts.getScreenshotAs(OutputType.FILE);
+        File file = new File(System.getProperty("user.dir") + "//reports//" + testCaseName + ".png");
+        FileUtils.copyFile(source, file);
+        return System.getProperty("user.dir") + "//reports//" + testCaseName + ".png";
     }
 }

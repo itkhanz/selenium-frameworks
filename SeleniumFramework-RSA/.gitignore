@@ -1,5 +1,5 @@
 test-output/
-test-reports/
+testReports/
 
 # Compiled class file
 *.class

@@ -28,8 +28,9 @@ public class Listeners extends BaseTest implements ITestListener {
 
     @Override
     public void onTestFailure(ITestResult result) {
-        extentTest.get().fail(result.getThrowable());//
+        extentTest.get().fail(result.getThrowable());
 
+        //get driver object
         try {
             driver = (WebDriver) result.getTestClass().getRealClass().getField("driver")
                     .get(result.getInstance());
@@ -37,7 +38,7 @@ public class Listeners extends BaseTest implements ITestListener {
             e1.printStackTrace();
         }
 
-
+        //Screenshot, Attach to report
         String filePath = null;
         try {
             filePath = getScreenshot(result.getMethod().getMethodName(),driver);
@@ -45,8 +46,6 @@ public class Listeners extends BaseTest implements ITestListener {
             e.printStackTrace();
         }
         extentTest.get().addScreenCaptureFromPath(filePath, result.getMethod().getMethodName());
-
-        //Screenshot, Attach to report
 
     }
 
