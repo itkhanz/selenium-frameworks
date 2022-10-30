@@ -13,7 +13,7 @@ public class SubmitOrderTest extends BaseTest {
     public void submitOrder() throws InterruptedException, IOException {
 
         String productName = "ZARA COAT 3";
-        
+
         ProductCatalogue productCatalogue = landingPage.loginApplication("anshika@gmail.com","Iamking@000");
         productCatalogue.addProductToCart(productName);
 
