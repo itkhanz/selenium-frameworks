@@ -3,16 +3,17 @@ package itkhan.tests;
 import itkhan.TestComponents.BaseTest;
 import itkhan.pageobjects.*;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 
 public class SubmitOrderTest extends BaseTest {
     String productName = "ZARA COAT 3";
-    @Test(groups= {"Purchase"})
-    public void submitOrder() throws InterruptedException, IOException {
+    @Test(groups= {"Purchase"}, dataProvider = "getData")
+    public void submitOrder(String email, String password, String productName) throws InterruptedException, IOException {
 
-        ProductCatalogue productCatalogue = landingPage.loginApplication("anshika@gmail.com","Iamking@000");
+        ProductCatalogue productCatalogue = landingPage.loginApplication(email,password);
         productCatalogue.addProductToCart(productName);
 
         CartPage cartPage = productCatalogue.goToCartPage();
@@ -35,5 +36,13 @@ public class SubmitOrderTest extends BaseTest {
         ProductCatalogue productCatalogue = landingPage.loginApplication("anshika@gmail.com", "Iamking@000");
         OrderPage ordersPage = productCatalogue.goToOrdersPage();
         Assert.assertTrue(ordersPage.VerifyOrderDisplay(productName));
+    }
+
+    @DataProvider
+    public Object[][] getData() {
+        return new Object[][] {
+                {"anshika@gmail.com", "Iamking@000", "ZARA COAT 3"},
+                {"shetty@gmail.com", "Iamking@000", "ADIDAS ORIGINAL"}
+        };
     }
 }
