@@ -69,7 +69,7 @@
   <profiles>
 
     <profile>
-      <id>Regression</id>
+      <id>Regression</id>   <!--To tun this profile through command line, mvn test -PRegression-->
         <build>
           <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
@@ -141,7 +141,7 @@
           <version>3.0.0-M7</version>
           <configuration>
             <suiteXmlFiles>
-              <suiteXmlFile>testSuites/testng..xml</suiteXmlFile>
+              <suiteXmlFile>testSuites/testng.xml</suiteXmlFile>
             </suiteXmlFiles>
           </configuration>
         </plugin>

@@ -35,7 +35,10 @@ public class BaseTest {
         FileInputStream fis = new FileInputStream(System.getProperty("user.dir") + "//src//main//java//itkhan//resources//GlobalData.properties");
         prop.load(fis);
 
-        String browserName = prop.getProperty("browser");
+        //String browserName = prop.getProperty("browser");
+        //To run tests on different browsers just run mvn test -Dbrowser=firefox
+        String browserName = System.getProperty("browser")!=null ? System.getProperty("browser") :prop.getProperty("browser");
+
         if (browserName.equalsIgnoreCase("chrome")) {
             WebDriverManager.chromedriver().setup();
             driver = new ChromeDriver();
