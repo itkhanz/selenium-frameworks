@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Error Validations Test Suite" parallel="tests">
+    <listeners>
+        <listener class-name="itkhan.TestComponents.Listeners"/>
+    </listeners>
+
+    <groups>
+        <run>
+            <include name="ErrorHandling"/>
+        </run>
+    </groups>
+
+    <test thread-count="5"  name="Submit Order Test">
+        <classes>
+            <class name="itkhan.tests.SubmitOrderTest"/>
+        </classes>
+    </test>
+
+    <test thread-count="5"  name="Error Validations Test">
+        <classes>
+            <class name="itkhan.tests.ErrorValidationsTest"/>
+        </classes>
+    </test>
+</suite>
