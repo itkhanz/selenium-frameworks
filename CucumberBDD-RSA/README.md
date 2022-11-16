@@ -58,4 +58,5 @@
 * Use Factory design pattern to create objects of all the page and utility classes instead of manually instantiating them in steps.
 * WebDriverManager() method from TestBase utility will get the selenium webdriver, and pass it to PageObjectManager constructor in the TestContextSetup.
 * PageObjectManager will then delegate this driver to all the page objects classes.
+* Create Global properties file in src\test\resources because maven looks for properties file in this path.
 * 

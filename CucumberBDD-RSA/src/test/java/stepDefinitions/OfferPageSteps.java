@@ -7,6 +7,8 @@ import pageObjects.LandingPage;
 import pageObjects.OffersPage;
 import utils.TestContextSetup;
 
+import java.io.IOException;
+
 public class OfferPageSteps {
 
     public String offerPageProductName;
@@ -30,7 +32,7 @@ public class OfferPageSteps {
     }
 
     @Then("product name in offers page matches with Landing Page")
-    public void productNameInOffersPageMatchesWithLandingPage() {
+    public void productNameInOffersPageMatchesWithLandingPage() throws IOException {
         Assert.assertEquals(offerPageProductName, testContext.landingPageProductName);
         testContext.testBase.WebDriverManager().quit();
     }
