@@ -30,12 +30,27 @@
 
 ### Notes
 * Check if Cucumber for Java and Gherkin plugins are installed and enabled.
-* \src\main\resources is marked as `Test Resources Root`
-* \src\main\resources contains the `feature files`
-* \src\main\java is marked as `Test Sources Root`
-* \src\main\java contain the package `step_definitions`
-* The test runner class should contain the package `step_definitions` as `glue`
+* Folder Structure
+  * \src\main\resources is marked as `Test Resources Root`
+  * \src\main\resources contains the `feature files`
+  * \src\main\java is marked as `Test Sources Root`
+  * \src\main\java contain the package `step_definitions`
+  * The test runner class should contain the package `step_definitions` as `glue`
 * Configure the `maven surefire plugin` and `testng.xml` in pom.xml to run tests with `mvn test`
 * Individual steps results are only supported by JUnit test runner and not by TestNG
 * [Intellij Cucumber support documentation](https://www.jetbrains.com/help/idea/cucumber-support.html)
-* 
+* Dependency injection (DI)
+  * `Dependency injection (DI)` is one of the design patterns and implementations of the IoC. DI takes the dependent object creation outside of the class and provides required objects in different ways.
+  * There are many DI types that you can use, such as Constructor Injection, Property Injection, and Method Injection.
+  * In `constructor injection`, the injector provides the required dependency through the constructor. Some third-party tools would help you to implement DI on a constructor. 
+  * `Cucumber Picocontainer` is a third-party framework for providing required dependencies in your classes. This framework will make your classes loosely coupled and take all responsibility for injecting required dependencies.
+  * you are only responsible for creating constructors and reference names. The rest of the responsibility for providing objects to your class belongs to third-party dependency, Cucumber Picocontainer.
+  * After implementation, you are only responsible for creating the constructor and defining what you need in the class. Picocontainer becomes the main responsible for the rest of the assigning and injection.
+  * Cucumber scans your classes with step definitions in them, passes them to PicoContainer, then asks it to create new instances for every scenario.
+  * Further Reading:
+    * [Implementing Dependency Injection with Java-Selenium-Cucumber](https://www.kloia.com/blog/implementing-dependency-injection-with-java-selenium-cucumber)
+    * [Dependency injection in Cucumber](https://www.numpyninja.com/post/dependency-injection-in-cucumber)
+    * [SHARING STATE BETWEEN CUCUMBER STEPS WITH DEPENDENCY INJECTION](https://angiejones.tech/sharing-state-between-steps-in-cucumber-with-dependency-injection/)
+    * [Cucumber Pico-Container Use In Automation](https://medium.com/@jitendra.pisal44/cucumber-pico-container-use-in-automation-79c597d0ef04)
+    * [Share WebDriver instance in Cucumber using PicoContainer](https://www.programsbuzz.com/article/share-webdriver-instance-cucumber-using-picocontainer)
+    * [Sharing Test Context between Cucumber Step Definitions](https://www.toolsqa.com/selenium-cucumber-framework/sharing-test-context-between-cucumber-step-definitions/)
