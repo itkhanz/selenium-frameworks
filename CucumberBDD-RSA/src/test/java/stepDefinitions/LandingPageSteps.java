@@ -22,7 +22,12 @@ public class LandingPageSteps {
 
     @When("user searched with shortname {string} and extracted actual name of product")
     public void userSearchedWithShortnameNameAndExtractedActualNameOfProduct(String shortName) throws InterruptedException {
-        LandingPage landingPage = new LandingPage(testContext.driver);
+        //Not a good approach to create objects of page classes, rather we use a wrapper via page factory design pattern
+        //LandingPage landingPage = new LandingPage(testContext.driver);
+        //pageObjectManager = new PageObjectManager(testContext.driver);
+        //LandingPage landingPage = pageObjectManager.getLandingPage();
+
+        LandingPage landingPage = testContext.pageObjectManager.getLandingPage();
         landingPage.searchItem(shortName);
         Thread.sleep(2000);
         testContext.landingPageProductName = landingPage.getProductName().split("-")[0].trim();

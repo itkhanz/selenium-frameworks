@@ -2,7 +2,6 @@ package stepDefinitions;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
-import org.openqa.selenium.By;
 import org.testng.Assert;
 import pageObjects.LandingPage;
 import pageObjects.OffersPage;
@@ -24,7 +23,7 @@ public class OfferPageSteps {
     @And("user searched for shortname {string} in offers page")
     public void userSearchedForShortnameNameInOffersPage(String shortName) throws InterruptedException {
         switchToOffersPage();
-        OffersPage offersPage = new OffersPage(testContext.driver);
+        OffersPage offersPage = testContext.pageObjectManager.getOffersPage();
         offersPage.searchItem(shortName);
         Thread.sleep(2000);
         offerPageProductName = offersPage.getProductName();
@@ -39,7 +38,8 @@ public class OfferPageSteps {
     public void switchToOffersPage() {
         //skip switching to offers page, if already on the offer page
         //if (testContext.driver.getCurrentUrl().equalsIgnoreCase("https://rahulshettyacademy.com/seleniumPractise/#/offers")) return;
-        LandingPage landingPage = new LandingPage(testContext.driver);
+
+        LandingPage landingPage = testContext.pageObjectManager.getLandingPage();
         landingPage.selectTopDealsPage();
         Set<String> handles = testContext.driver.getWindowHandles();
         Iterator<String> handlesIterator = handles.iterator();

@@ -55,4 +55,5 @@
     * [Share WebDriver instance in Cucumber using PicoContainer](https://www.programsbuzz.com/article/share-webdriver-instance-cucumber-using-picocontainer)
     * [Sharing Test Context between Cucumber Step Definitions](https://www.toolsqa.com/selenium-cucumber-framework/sharing-test-context-between-cucumber-step-definitions/)
 * Each of the step definitions class should contain the steps for that particular application logic and classes should be loosely coupled.
+* Use Factory design pattern to create objects of all the page classes instead of manually instantiating them in steps.
 * 
