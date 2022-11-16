@@ -34,7 +34,6 @@ public class OfferPageSteps {
     @Then("product name in offers page matches with Landing Page")
     public void productNameInOffersPageMatchesWithLandingPage() throws IOException {
         Assert.assertEquals(offerPageProductName, testContext.landingPageProductName);
-        testContext.testBase.WebDriverManager().quit();
     }
 
     public void switchToOffersPage() {

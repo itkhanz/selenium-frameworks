@@ -59,4 +59,9 @@
 * WebDriverManager() method from TestBase utility will get the selenium webdriver, and pass it to PageObjectManager constructor in the TestContextSetup.
 * PageObjectManager will then delegate this driver to all the page objects classes.
 * Create Global properties file in src\test\resources because maven looks for properties file in this path.
+* Use Cucumber Hooks to perform setUp and tearDown actions
+* Webdriver from the TestBase can be accessible through PicoContainer constructor injection, so we have access to all the testBase object.
+* To execute any of the step in feature file, Cucumber goes to the steps definition class and execute its constructor first before executing any step. 
+* In constructor of the step definition, an instance of the TestContextSetup is being created which will automatically execute the constructor of TestContextSetup.
+* In constructor of TextContextSetup, the driver gets initialized when `testBase.WebDriverManager()` is called, therefore we dont need setUp method Hook for driver initialization.
 * 
