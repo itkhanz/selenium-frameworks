@@ -3,11 +3,12 @@ package pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class CheckoutPage{
+public class CheckoutPage extends PageObjectManager{
     public WebDriver driver;
 
     public CheckoutPage(WebDriver driver)
     {
+        super(driver);
         this.driver = driver;
     }
     private By cartBag = By.cssSelector("[alt='Cart']");
@@ -36,10 +37,12 @@ public class CheckoutPage{
     }
 
     public String getProductName() {
+        waitForElementToAppear(productCart);
         return driver.findElement(productName).getText();
     }
 
     public Integer getProductQuantity() {
+        waitForElementToAppear(productCart);
         return Integer.parseInt(driver.findElement(productQuantity).getText());
     }
 }

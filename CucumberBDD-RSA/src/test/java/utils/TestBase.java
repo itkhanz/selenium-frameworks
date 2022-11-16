@@ -35,7 +35,7 @@ public class TestBase {
             } else if (browser.equalsIgnoreCase("edge")) {
                 driver = new EdgeDriver();
             }
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
             driver.get(url);
         }
 

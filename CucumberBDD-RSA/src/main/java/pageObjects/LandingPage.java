@@ -3,11 +3,12 @@ package pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class LandingPage {
+public class LandingPage extends PageObjectManager {
     public WebDriver driver;
 
     public LandingPage(WebDriver driver)
     {
+        super(driver);
         this.driver = driver;
     }
 
@@ -50,5 +51,9 @@ public class LandingPage {
     public void addToCart()
     {
         driver.findElement(addToCart).click();
+    }
+
+    public By getProductsLocator() {
+        return productName;
     }
 }

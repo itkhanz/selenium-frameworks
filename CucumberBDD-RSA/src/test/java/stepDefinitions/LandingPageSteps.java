@@ -6,6 +6,8 @@ import org.testng.Assert;
 import pageObjects.LandingPage;
 import utils.TestContextSetup;
 
+import java.io.IOException;
+
 public class LandingPageSteps {
 
     TestContextSetup testContext;
@@ -22,16 +24,16 @@ public class LandingPageSteps {
     }
 
     @When("^user searched with shortname (.+) and extracted actual name of product$")
-    public void userSearchedWithShortnameNameAndExtractedActualNameOfProduct(String shortName) throws InterruptedException {
+    public void userSearchedWithShortnameNameAndExtractedActualNameOfProduct(String shortName) throws InterruptedException, IOException {
         //Not a good approach to create objects of page classes, rather we use a wrapper via page factory design pattern
         //LandingPage landingPage = new LandingPage(testContext.driver);
         //pageObjectManager = new PageObjectManager(testContext.driver);
         //LandingPage landingPage = pageObjectManager.getLandingPage();
 
+        //search for the product, wait until products list is shortened to single result and grab the text of first result
         landingPage.searchItem(shortName);
-        Thread.sleep(2000);
+        testContext.pageObjectManager.waitForNumberOfElementsToBeOne(landingPage.getProductsLocator());
         testContext.landingPageProductName = landingPage.getProductName().split("-")[0].trim();
-        //System.out.println(testContext.landingPageProductName +" is extracted from Home page");
     }
 
     @When("Added {string} items of the selected product to cart")

@@ -19,7 +19,7 @@ public class CheckoutPageSteps {
     public void user_proceeds_to_checkout_and_validate_the_productName_in_checkout_page(String productName) throws InterruptedException
     {
         checkoutPage.CheckoutItems();
-        //Thread.sleep(2000);
+
         //Assertion to extract name from screen and compare with name
         String checkoutProduct = checkoutPage.getProductName().split("-")[0].trim();
         Assert.assertEquals(checkoutProduct, productName);

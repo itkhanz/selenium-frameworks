@@ -3,11 +3,12 @@ package pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class OffersPage{
+public class OffersPage extends PageObjectManager{
     public WebDriver driver;
 
     public OffersPage(WebDriver driver)
     {
+        super(driver);
         this.driver = driver;
     }
     private By search = By.xpath("//input[@type='search']");
