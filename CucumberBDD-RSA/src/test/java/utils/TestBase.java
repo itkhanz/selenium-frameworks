@@ -29,12 +29,13 @@ public class TestBase {
         if (driver == null) {
             if (browser.equalsIgnoreCase("chrome")) {
                 driver = new ChromeDriver();
+
             } else if (browser.equalsIgnoreCase("firefox")) {
                 driver = new FirefoxDriver();
             } else if (browser.equalsIgnoreCase("edge")) {
                 driver = new EdgeDriver();
             }
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
             driver.get(url);
         }
 

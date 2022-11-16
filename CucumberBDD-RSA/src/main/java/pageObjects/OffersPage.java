@@ -3,7 +3,7 @@ package pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class OffersPage {
+public class OffersPage{
     public WebDriver driver;
 
     public OffersPage(WebDriver driver)

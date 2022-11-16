@@ -27,7 +27,7 @@ public class OfferPageSteps {
     public void userSearchedForShortnameNameInOffersPage(String shortName) throws InterruptedException {
         switchToOffersPage();
         offersPage.searchItem(shortName);
-        Thread.sleep(2000);
+        //Thread.sleep(2000);
         offerPageProductName = offersPage.getProductName();
     }
 
