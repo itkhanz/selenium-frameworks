@@ -21,7 +21,7 @@ public class LandingPageSteps {
         Assert.assertTrue(landingPage.getTitleLandingPage().contains("GreenKart"));
     }
 
-    @When("user searched with shortname {string} and extracted actual name of product")
+    @When("^user searched with shortname (.+) and extracted actual name of product$")
     public void userSearchedWithShortnameNameAndExtractedActualNameOfProduct(String shortName) throws InterruptedException {
         //Not a good approach to create objects of page classes, rather we use a wrapper via page factory design pattern
         //LandingPage landingPage = new LandingPage(testContext.driver);

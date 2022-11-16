@@ -64,4 +64,6 @@
 * To execute any of the step in feature file, Cucumber goes to the steps definition class and execute its constructor first before executing any step. 
 * In constructor of the step definition, an instance of the TestContextSetup is being created which will automatically execute the constructor of TestContextSetup.
 * In constructor of TextContextSetup, the driver gets initialized when `testBase.WebDriverManager()` is called, therefore we dont need setUp method Hook for driver initialization.
+* Put **^** at the start and **$** at the end of step annotation description if your step contains a dynamic input parameter and uses a regular expression.
+* Moreover, if your step contains a regular expression paramter, then you have to remove the surrounding commas **""** from the parameters in Examples.
 * 

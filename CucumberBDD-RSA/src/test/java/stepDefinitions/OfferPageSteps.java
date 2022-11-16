@@ -23,7 +23,7 @@ public class OfferPageSteps {
         this.offersPage = testContext.pageObjectManager.getOffersPage();
     }
 
-    @And("user searched for shortname {string} in offers page")
+    @And("^user searched for shortname (.+) in offers page$")
     public void userSearchedForShortnameNameInOffersPage(String shortName) throws InterruptedException {
         switchToOffersPage();
         offersPage.searchItem(shortName);

@@ -7,5 +7,6 @@ Feature: Search and Place the order for Products
     Then product name in offers page matches with Landing Page
 
     Examples:
-      | Name  |
-      | "Tom" |
+      | Name |
+      | Tom  |
+      | Beet |
