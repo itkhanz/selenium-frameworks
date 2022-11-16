@@ -54,3 +54,5 @@
     * [Cucumber Pico-Container Use In Automation](https://medium.com/@jitendra.pisal44/cucumber-pico-container-use-in-automation-79c597d0ef04)
     * [Share WebDriver instance in Cucumber using PicoContainer](https://www.programsbuzz.com/article/share-webdriver-instance-cucumber-using-picocontainer)
     * [Sharing Test Context between Cucumber Step Definitions](https://www.toolsqa.com/selenium-cucumber-framework/sharing-test-context-between-cucumber-step-definitions/)
+* Each of the step definitions class should contain the steps for that particular application logic and classes should be loosely coupled.
+* 

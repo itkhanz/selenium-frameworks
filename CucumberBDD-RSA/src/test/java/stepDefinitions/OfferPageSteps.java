@@ -4,6 +4,8 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import org.openqa.selenium.By;
 import org.testng.Assert;
+import pageObjects.LandingPage;
+import pageObjects.OffersPage;
 import utils.TestContextSetup;
 
 import java.util.Iterator;
@@ -22,9 +24,10 @@ public class OfferPageSteps {
     @And("user searched for shortname {string} in offers page")
     public void userSearchedForShortnameNameInOffersPage(String shortName) throws InterruptedException {
         switchToOffersPage();
-        testContext.driver.findElement(By.xpath("//input[@type='search']")).sendKeys(shortName);
+        OffersPage offersPage = new OffersPage(testContext.driver);
+        offersPage.searchItem(shortName);
         Thread.sleep(2000);
-        offerPageProductName = testContext.driver.findElement(By.cssSelector("tr td:nth-child(1)")).getText();
+        offerPageProductName = offersPage.getProductName();
     }
 
     @Then("product name in offers page matches with Landing Page")
@@ -36,7 +39,8 @@ public class OfferPageSteps {
     public void switchToOffersPage() {
         //skip switching to offers page, if already on the offer page
         //if (testContext.driver.getCurrentUrl().equalsIgnoreCase("https://rahulshettyacademy.com/seleniumPractise/#/offers")) return;
-        testContext.driver.findElement(By.linkText("Top Deals")).click();
+        LandingPage landingPage = new LandingPage(testContext.driver);
+        landingPage.selectTopDealsPage();
         Set<String> handles = testContext.driver.getWindowHandles();
         Iterator<String> handlesIterator = handles.iterator();
         String parentWindow = handlesIterator.next();
