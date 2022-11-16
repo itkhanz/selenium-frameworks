@@ -23,4 +23,9 @@ public class OffersPage {
     {
         return driver.findElement(productName).getText();
     }
+
+    public String getPageUrl()
+    {
+        return driver.getCurrentUrl();
+    }
 }

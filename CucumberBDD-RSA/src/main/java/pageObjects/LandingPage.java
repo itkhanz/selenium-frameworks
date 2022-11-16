@@ -28,4 +28,9 @@ public class LandingPage {
     {
         driver.findElement(topDeals).click();
     }
+
+    public String getTitleLandingPage()
+    {
+        return driver.getTitle();
+    }
 }

@@ -7,23 +7,23 @@ import pageObjects.LandingPage;
 import pageObjects.OffersPage;
 import utils.TestContextSetup;
 
-import java.util.Iterator;
-import java.util.Set;
-
 public class OfferPageSteps {
 
     public String offerPageProductName;
 
     TestContextSetup testContext;
+    OffersPage offersPage;
+    LandingPage landingPage;
 
     public OfferPageSteps(TestContextSetup testContextSetup) {
         this.testContext = testContextSetup;
+        this.landingPage = testContext.pageObjectManager.getLandingPage();
+        this.offersPage = testContext.pageObjectManager.getOffersPage();
     }
 
     @And("user searched for shortname {string} in offers page")
     public void userSearchedForShortnameNameInOffersPage(String shortName) throws InterruptedException {
         switchToOffersPage();
-        OffersPage offersPage = testContext.pageObjectManager.getOffersPage();
         offersPage.searchItem(shortName);
         Thread.sleep(2000);
         offerPageProductName = offersPage.getProductName();
@@ -32,20 +32,14 @@ public class OfferPageSteps {
     @Then("product name in offers page matches with Landing Page")
     public void productNameInOffersPageMatchesWithLandingPage() {
         Assert.assertEquals(offerPageProductName, testContext.landingPageProductName);
-        testContext.driver.quit();
+        testContext.testBase.WebDriverManager().quit();
     }
 
     public void switchToOffersPage() {
         //skip switching to offers page, if already on the offer page
-        //if (testContext.driver.getCurrentUrl().equalsIgnoreCase("https://rahulshettyacademy.com/seleniumPractise/#/offers")) return;
-
-        LandingPage landingPage = testContext.pageObjectManager.getLandingPage();
+        if (offersPage.getPageUrl().equalsIgnoreCase("https://rahulshettyacademy.com/seleniumPractise/#/offers")) return;
         landingPage.selectTopDealsPage();
-        Set<String> handles = testContext.driver.getWindowHandles();
-        Iterator<String> handlesIterator = handles.iterator();
-        String parentWindow = handlesIterator.next();
-        String childWindow = handlesIterator.next();
-        testContext.driver.switchTo().window(childWindow);
+        testContext.genericUtils.SwitchWindowToChild();
     }
 
 }
