@@ -66,4 +66,13 @@
 * In constructor of TextContextSetup, the driver gets initialized when `testBase.WebDriverManager()` is called, therefore we dont need setUp method Hook for driver initialization.
 * Put **^** at the start and **$** at the end of step annotation description if your step contains a dynamic input parameter and uses a regular expression.
 * Moreover, if your step contains a regular expression paramter, then you have to remove the surrounding commas **""** from the parameters in Examples.
+* Define generic Page utilities in PageObjectManager and extend the Page classes from PageObjectManager to use the utilities in both steps definitions and page classes.
+* To adapt the cucumber results to extent reports, an external maven plugin is required to be installed `ExtentReports Cucumber7 Adapter`
+* To begin using the adapter, add the `com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter` plugin to the runner. From [Extent Report Docs](https://www.extentreports.com/docs/versions/4/java/cucumber4.html)
+* Create `extent.properties` file in /src/test/resources and configure the properties for generation of extent reports.
+* The report will be generated in /src/test-ouput/ExtentReport d-MMM-YY HH-mm-ss/SparkReport/Spark.html path as configured in extent.properties.
+* Attach a screenshot to the failed scenario by adding a new `@AfterStep` Hook, later Extent report will read the screenshot attached to scenario to display it in report.
+* To attach the screenshot to scenario, it needs to be converted into Byte format for which we can use **FileUtils** utility from `comms-io` maven plugin.
+* Lastly configure the path of screenshot in extent.properties so extent report will look for the screenshots in this path and attach it to report.
+* 
 * 

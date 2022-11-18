@@ -6,7 +6,13 @@ import org.testng.annotations.DataProvider;
 
 @CucumberOptions(features = "src/test/resources/features/",
                  glue = "stepDefinitions",
-                 monochrome = true
+                 monochrome = true,
+                 tags = "@PlaceOrder or @SearchProduct",
+                 plugin = {
+                            "html:target/cucumber.html",
+                            "json:target/cucumber.json",
+                            "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+                 }
 )
 public class TestNGTestRunner extends AbstractTestNGCucumberTests {
 
