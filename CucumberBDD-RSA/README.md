@@ -74,5 +74,6 @@
 * Attach a screenshot to the failed scenario by adding a new `@AfterStep` Hook, later Extent report will read the screenshot attached to scenario to display it in report.
 * To attach the screenshot to scenario, it needs to be converted into Byte format for which we can use **FileUtils** utility from `comms-io` maven plugin.
 * Lastly configure the path of screenshot in extent.properties so extent report will look for the screenshots in this path and attach it to report.
-* 
+* To rerun the failed scenarios, add `rerun:target/failed_scenarios.txt` plugin to the Test Runner which will output the failed scenario in text document.
+* Add another test runner and give the path of the failed features as `@target/failed_scenarios.txt`, this will run only the failed scenarios.
 * 
