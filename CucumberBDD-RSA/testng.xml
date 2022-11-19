@@ -3,7 +3,7 @@
 <suite name="Example Test Suite">
     <test name="Example test" verbose="2" preserve-order="true">
         <classes>
-            <class name="testRunners.AppRunner"/>
+            <class name="testRunners.TestNGTestRunner"/>
         </classes>
     </test>
 </suite>

@@ -24,7 +24,6 @@ public class TestBase {
         String browser_maven=System.getProperty("browser");
         String browser = browser_maven!=null ? browser_maven : browser_properties;
 
-
         //create new webdriver only if driver is not initialized previously otherwise it creates a new driver each time method is called
         if (driver == null) {
             if (browser.equalsIgnoreCase("chrome")) {

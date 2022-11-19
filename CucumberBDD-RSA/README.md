@@ -7,6 +7,16 @@
 * suitable IDE (IntelliJ used in project)
 * Jenkins (only required for remote execution)
 
+### Run Instructions
+* Run the tests by right clicking on Runner file and select run as.
+* Or install the maven in system and set as system path variable and then run  through command line with `mvn test`
+* You can override the Cucumber Options defined in test runners through command line. See [Cucumber Options Docs](https://cucumber.io/docs/cucumber/api/?lang=java#options)
+* For example, if you are using Maven and want to run a subset of scenarios tagged with **@PlaceOrder**: `mvn test -D"cucumber.filter.tags=@PlaceOrder"`
+* You can also run the feature file  with `mvn test -D"cucumber.features=src/test/resources/features/checkout.feature"`. [Run Cucumber Test from CMD](https://www.toolsqa.com/selenium-cucumber-framework/run-cucumber-test-from-command-line-terminal/)
+* Note that options provided by @CucumberOptions take precedence over the properties file and CLI arguments take precedence over all.
+* You can also change thr browser at runtime through command line with `mvn test -Dbrowser=firefox` and get this though `System.getProperty("browser");`
+* 
+
 ### Key Concepts covered
 * Build `Maven` Project with all the framework dependencies
 * Develop `End-to-End` Selenium web scenarios in the feature file
