@@ -2,7 +2,13 @@
 ### TestNG, Page Objects, Maven, Jenkins, Datadriven, Cucumber, Extent reports
 > This project was done as part of the Selenium WebDriver with Java -Basics to Advanced+Frameworks course by Rahul Shetty.
 
-Key concepts implemented in this project include:
+### Framework Architecture
+![architecture](documentation/framework-architecture.jpg)
+
+### Project Folder Structure
+![directory tree](documentation/folder-tree.JPG)
+
+### Key concepts implemented in this project include:
 
 * Why Framework? Its advantages
 * created **MAVEN** structured frameowrk with all necessary automation dependencies
