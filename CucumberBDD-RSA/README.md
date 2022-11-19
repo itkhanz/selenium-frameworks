@@ -1,6 +1,14 @@
 # Cucumber BDD Framework
 ### BDD, Cucumber, Selenium, Java, TestNG, Maven, Extent reports, Jenkins
 
+### Framework Architecture
+
+![architecture](documentation/framework-architecture.jpg)
+
+### Folder Structure
+
+![tree](documentation/folder-tree.JPG)
+
 ### Installation Requirements
 * JAVA JDK (version 17 used in project)
 * Maven
@@ -15,6 +23,7 @@
 * You can also run the feature file  with `mvn test -D"cucumber.features=src/test/resources/features/checkout.feature"`. [Run Cucumber Test from CMD](https://www.toolsqa.com/selenium-cucumber-framework/run-cucumber-test-from-command-line-terminal/)
 * Note that options provided by @CucumberOptions take precedence over the properties file and CLI arguments take precedence over all.
 * You can also change thr browser at runtime through command line with `mvn test -Dbrowser=firefox` and get this though `System.getProperty("browser");`
+* You can also create a parameterized Jenkins Job by adding choice parameters and invoke top-level Maven targets `test -Dcucumber.filter.tags="@"$tags"" -Dbrowser="$browser"`
 * 
 
 ### Key Concepts covered
