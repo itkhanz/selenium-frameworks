@@ -298,8 +298,103 @@ public Product product(String name){       // type, name (from method)
 
 ### Data Tables
 
-*
----
+* Data tables from Gherkin can be accessed by using the DataTable object as the last parameter in a step
+  definition. [Read more](https://github.com/cucumber/cucumber-jvm/tree/main/cucumber-java#data-tables)
+* Cucumber DataTable supports the following collections:
+    * `List<List<String>> table`
+    * `List<Map<String, String>> table`
+    * `Map<String, String> table`
+    * `Map<String, List<String>> table`
+    * `Map<String, Map<String, String>> table`
+* Cucumber can map step arguments as datatable list if the arguments are provided vertically with single column ny using DataTable `asList()` method.
+  This datatable will be converted to List<String>.
+
+```
+  Scenario: single row with no header
+  Given my credentials
+  | john |
+  | john123 |
+```
+
+* In case of horizontal parameters, use the DataTable `values()` method. use `row(0)` if you want to fetch the first row or `rows(startRow, endRow)`
+  for multiple rows
+* Use `asLists()` if you want to get `List<List<String>>` table and have multiple rows. It can also work with single row but then the
+  code `creds.get(0).get(0)` is not readable.
+* Instead of using Datatable datatable, you can directly use the collection in step definition argument also.
+
+```java
+@Given("many credentials")
+public void manyCredentials(List<List<String>>creds){
+        //List<List<String>> creds = dataTable.asLists(); //returns list of list
+        System.out.println("ROW 0 USERNAME = "+creds.get(0).get(0));
+        System.out.println("ROW 0 PASSWORD = "+creds.get(0).get(1));
+        System.out.println("ROW 1 USERNAME = "+creds.get(1).get(0));
+        System.out.println("ROW 1 PASSWORD = "+creds.get(1).get(1));
+        }
+```
+
+* To make code more readable, we can create a transformer function to transform the datatable into domain object.
+* In our case, we are pasing username and password to the step so we pass List<String> to the transformer method parameter. It gets values from
+  Gherkin step as a List of strings and returns a new object of Customer. Therefore, we can now use Customer domain object directly in our step
+  parameter instead of creating the object manually by `Customer customer = new Customer(creds.get(0).get(0), creds.get(0).get(1));`. Change the step
+  parameter to use customer domain object instead.
+* Cucumber supports the following parameter types for `@DataTableType`
+  ![datatabletype](doc/datatabletype.png)
+* Here is how the transformer function can transform the step arguments to the customer object.
+
+```java
+ @DataTableType
+public Customer customerEntry(List<String> entry){
+        return new Customer(entry.get(0),entry.get(0));
+        }
+
+@Given("my credentials")
+public void myCredentials(Customer customer){
+
+        //BAD Practice, use custom domain object instead
+        //Customer customer = new Customer(creds.get(0).get(0), creds.get(0).get(1));
+        //System.out.println("USERNAME = " + creds.get(0).get(0));
+        //System.out.println("PASSWORD = " + creds.get(0).get(1));
+
+        //Use this if you are passing customer domain object as step argument
+        //GOOD practice, use domain objects with cucumber dataTable transformer
+        System.out.println("USERNAME = "+customer.getUsername());
+        System.out.println("PASSWORD = "+customer.getPassword());
+
+        }
+```
+
+* If you have Gherkin step with multiple rows datatable then you cannot supply `List<List<String>>` to your transformer function annotated with
+  `@DataTableType` because it is not supported as valid type. To solve this you can use `List<Customer> customers` in your step argument and access
+  the index.
+* This is how you can use the @DataTableType to directly map the data table to our domain object. Depending upon the shape of table, you have to
+  implement the logic in transformer method and then return your domain object.
+* If the Gherkin step datatable is of **single row with header** then you can use `List<List<String>>` or `List<Map<String, String>>`
+* If the Gherkin step datatable is of **multiple rows with header** then you can again use `List<Map<String, String>>` and access the corresponding
+  row.
+* To further simplify instead of using List or Map collection, you can use use custom domain object as step argument with @DataTableType transformer.
+* if the gherkin step datatable is of **single column with no header**, then either you can use collection` List<String>` or you can use Cucumber
+  datatable and extract the List of strings with `datatable.asList()`
+* If the Gherkin step has datatable of **single column with header**, then you can use DataTable and asMap() method to extract
+  to `Map<String, String>` collection.
+
+> You can either use DataTable as step argument and then transform it to collection within step like `List<String> cred = datatable.asList();` or you
+> can directly use the collection `List<String> cred` as an argument in step. Only supported collections listed above can be used as step argument in
+> step definition method. In case of using datatable we have the advantage of many methods that come with it.
+
+* If the Gherkin step has datatable of **single column with no header DataTableType**, then you can map it to domain object and use `@Transpose`
+  annotation in the step definition argument to convert the credentials to list of strings (rows).
+
+> We use `@Transpose` because Cucumber understands the first row as header, so we need to take the transpose of the data table to convert column to
+> row.
+
+> You can also use DataTable as argument in transformer method instead of collection and access values with `dataTable.row(0).get(1)` for username
+> and `dataTable.row(1).get(1)` for password and hence you do not need to take the transpose in step definition argument later.
+
+* If the Gherkin step has datatable of **single column with header DataTableType**, then you can use the `Map<String, String>` in transformer method
+  and return the customer object that can then be used in step definition with the `@Transpose` annotation in front of the argument.
+* If the Gherkin step has datatable of **multiple column with header DataTableType**, then you can use the same concept as above but this time the
+  argument to the step definition will be `List<Customer>`
 
 ### Hooks
 
