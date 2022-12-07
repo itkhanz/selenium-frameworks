@@ -161,11 +161,23 @@ public class DataTableStepDefs {
         System.out.println("PASSWORD = " + customer.getPassword());
     }
 
-    @Given("my credentials for multiple columns with header data table type")
+    /*@Given("my credentials for multiple columns with header data table type")
     public void myCredentialsForMultipleColumnsWithHeaderDataTableType(@Transpose List<Customer> customers) {
         System.out.println("COLUMN 0 USERNAME = " + customers.get(0).getUsername());
         System.out.println("COLUMN 0 PASSWORD = " + customers.get(0).getPassword());
         System.out.println("COLUMN 1 USERNAME = " + customers.get(1).getUsername());
         System.out.println("COLUMN 1 PASSWORD = " + customers.get(1).getPassword());
+    }*/
+
+    //Alternatively you can achieve the same output using DataTable as step argument instead of using custom data type as in above step definition.
+    @Given("my credentials for multiple columns with header data table type")
+    public void myCredentialsForMultipleColumnsWithHeaderDataTableType(DataTable dataTable) {
+        List<Map<String, String>> cred = dataTable.transpose().asMaps();
+        System.out.println("COLUMN 0 USERNAME = " + cred.get(0).get("username"));
+        System.out.println("COLUMN 0 PASSWORD = " + cred.get(0).get("password"));
+        System.out.println("COLUMN 1 USERNAME = " + cred.get(1).get("username"));
+        System.out.println("COLUMN 1 PASSWORD = " + cred.get(1).get("password"));
     }
+
+
 }

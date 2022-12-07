@@ -339,7 +339,7 @@ public void manyCredentials(List<List<String>>creds){
   parameter instead of creating the object manually by `Customer customer = new Customer(creds.get(0).get(0), creds.get(0).get(1));`. Change the step
   parameter to use customer domain object instead.
 * Cucumber supports the following parameter types for `@DataTableType`
-  ![datatabletype](doc/datatabletype.png)
+* ![datatabletype](doc/datatabletype.png)
 * Here is how the transformer function can transform the step arguments to the customer object.
 
 ```java
@@ -396,7 +396,28 @@ public void myCredentials(Customer customer){
 * If the Gherkin step has datatable of **multiple column with header DataTableType**, then you can use the same concept as above but this time the
   argument to the step definition will be `List<Customer>`
 
+---
+
 ### Hooks
+
+* [Official Cucumber Hooks Docs](https://cucumber.io/docs/cucumber/api/?lang=java#hooks)
+* `@Before` and `@After` hook will execute for each of the example in scenario outline.
+* Import the Hook from `io.cucumber` library and not from the jUnit or TestNG.
+* You can pass the `Scenario` class object as argument to the `@Before` and `@After` hooks and can perform different actions on the scenario like
+  getting the scenario name, status, tag name, and `attach()` method for creating screenshot etc. The `scenario` parameter is optional. If you use it,
+  you can inspect the status of the scenario. For example, you can take a screenshot with WebDriver for failed scenarios and embed them in Cucumber’s
+  report.
+* `@After` hooks run after the last step of each scenario, even when the step result is `failed`, `undefined`, `pending`, or `skipped`.
+* In case of UI Automation, hooks can be used to set up and teardown webdriver and in case of API automation you can put the request specification in
+  before hook.
+* Hooks should only contain low level technical details and not the business logic.
+* You can also specify the order for hooks. Higher order hook will execute first.
+* Hooks can be conditionally selected for execution based on the tags of the scenario. To run a particular hook only for certain scenarios, you can
+  associate a `Before` or `After` hook with a tag expression.
+* Global hooks `BeforeAll` and `Afterall` will run once before any scenario is run or after all scenario have been run.
+* Step hooks invoked before and after a step. The hooks have ‘invoke around’ semantics. Meaning that if a `BeforeStep` hook is executed the `AfterStep`
+  hooks will also be executed regardless of the result of the step. If a step did not pass, the following step and its hooks will be skipped.
+* 
 
 ---
 

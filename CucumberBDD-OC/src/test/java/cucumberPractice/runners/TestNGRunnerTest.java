@@ -15,7 +15,7 @@ import static io.cucumber.testng.CucumberOptions.SnippetType.CAMELCASE;
         tags = "@smoke and not @dummy"
 )
 public class TestNGRunnerTest extends AbstractTestNGCucumberTests {
-    //Use either TestNG @BeforeClass @AfterClass or Cucumber @BeforeAll @AfterAll, both run after each of the cucumber scenario.
+    //Use either TestNG @BeforeClass @AfterClass or Cucumber @BeforeAll @AfterAll, both run before and after all the scenarios get executed
     /*@BeforeClass
     public static void setup() {
         System.out.println("Before Class");
