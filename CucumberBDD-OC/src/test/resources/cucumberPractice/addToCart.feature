@@ -11,9 +11,15 @@ Feature: Add to cart
       Given I'm on the Store Page
       When I add a "<product_name>" to the cart
       Then I should see 1 "<product_name>" in the cart
+
+      @stage
+      Examples:
+        | product_name |
+        | Blue Shoes   |
+
+      @prod
       Examples:
         | product_name    |
-        | Blue Shoes      |
         | Anchor Bracelet |
 
     Scenario: Add the product already in the cart

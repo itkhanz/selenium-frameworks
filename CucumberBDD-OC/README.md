@@ -423,6 +423,33 @@ public void myCredentials(Customer customer){
 
 ### Tags
 
+* [Official Cucumber Tag Docs](https://cucumber.io/docs/cucumber/api/?lang=java#tags)
+* Tags are primarily used for
+  * Running a subset of scenarios
+  * Restricting hooks to a subset of scenarios
+* A feature or scenario can have as many tags as you like. Separate them with spaces.
+* Tags can be placed above the following Gherkin elements: `Feature` `Scenario` `Scenario Outline` `Examples`
+* In `Scenario Outline`, you can use tags on different example like below:
+* It is not possible to place tags above `Background` or steps (Given, When, Then, And and But).
+
+#### Tag Inheritance
+* Tags are inherited by child elements.
+* Tags that are placed above a `Feature` will be inherited by `Scenario`, `Scenario Outline`, or `Examples`.
+* Tags that are placed above a `Scenario Outline` will be inherited by `Examples`.
+
+#### Running a subset of scenarios
+* `mvn test -Dcucumber.filter.tags="@smoke and @fast"`
+* Or changing your JUnit 4/TestNG runner class:
+'''java
+@CucumberOptions(tags = "@smoke and @fast")
+  public class RunCucumberTest {}
+'''
+
+#### Ignoring a subset of scenarios
+'''java
+@CucumberOptions(tags = "@smoke and not @fast")
+'''
+
 ---
 
 ### Selenium Webdriver Integration
