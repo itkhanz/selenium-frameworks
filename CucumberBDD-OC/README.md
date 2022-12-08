@@ -395,6 +395,8 @@ public void myCredentials(Customer customer){
   and return the customer object that can then be used in step definition with the `@Transpose` annotation in front of the argument.
 * If the Gherkin step has datatable of **multiple column with header DataTableType**, then you can use the same concept as above but this time the
   argument to the step definition will be `List<Customer>`
+* You can play around with the practice code in this repo by running the `data_table.feature` in `cucumberPractice` package and by running your
+  desired scenario.
 
 ---
 
@@ -415,9 +417,12 @@ public void myCredentials(Customer customer){
 * Hooks can be conditionally selected for execution based on the tags of the scenario. To run a particular hook only for certain scenarios, you can
   associate a `Before` or `After` hook with a tag expression.
 * Global hooks `BeforeAll` and `Afterall` will run once before any scenario is run or after all scenario have been run.
-* Step hooks invoked before and after a step. The hooks have ‘invoke around’ semantics. Meaning that if a `BeforeStep` hook is executed the `AfterStep`
+* Step hooks invoked before and after a step. The hooks have ‘invoke around’ semantics. Meaning that if a `BeforeStep` hook is executed
+  the `AfterStep`
   hooks will also be executed regardless of the result of the step. If a step did not pass, the following step and its hooks will be skipped.
-* 
+* You can play around with the practice code in this repo by running the following test runner in Intellij `cucumberPractice.runners.TestNGRunnerTest`
+  .
+  Hooks are added in glue path.
 
 ---
 
@@ -425,27 +430,30 @@ public void myCredentials(Customer customer){
 
 * [Official Cucumber Tag Docs](https://cucumber.io/docs/cucumber/api/?lang=java#tags)
 * Tags are primarily used for
-  * Running a subset of scenarios
-  * Restricting hooks to a subset of scenarios
+    * Running a subset of scenarios
+    * Restricting hooks to a subset of scenarios
 * A feature or scenario can have as many tags as you like. Separate them with spaces.
 * Tags can be placed above the following Gherkin elements: `Feature` `Scenario` `Scenario Outline` `Examples`
 * In `Scenario Outline`, you can use tags on different example like below:
 * It is not possible to place tags above `Background` or steps (Given, When, Then, And and But).
 
 #### Tag Inheritance
+
 * Tags are inherited by child elements.
 * Tags that are placed above a `Feature` will be inherited by `Scenario`, `Scenario Outline`, or `Examples`.
 * Tags that are placed above a `Scenario Outline` will be inherited by `Examples`.
 
 #### Running a subset of scenarios
+
 * `mvn test -Dcucumber.filter.tags="@smoke and @fast"`
 * Or changing your JUnit 4/TestNG runner class:
-'''java
-@CucumberOptions(tags = "@smoke and @fast")
+  '''java
+  @CucumberOptions(tags = "@smoke and @fast")
   public class RunCucumberTest {}
-'''
+  '''
 
 #### Ignoring a subset of scenarios
+
 '''java
 @CucumberOptions(tags = "@smoke and not @fast")
 '''
@@ -454,7 +462,23 @@ public void myCredentials(Customer customer){
 
 ### Selenium Webdriver Integration
 
----
+
+  <img src="https://www.selenium.dev/images/documentation/webdriver/test_framework.png" alt="drawing" width="600"/>
+
+* Selenium WebDriver communicates with the browsers via vendor specific driver executables such as ChromeDriver, Geckodriver etc. The test
+  frameworks such as jUnit, TestNG, and Cucumber are responsible for running and executing your WebDriver related steps in your
+  tests. [Read more](https://www.selenium.dev/documentation/overview/components/)
+* `addToCart.feature` in `cucumberPractice` has been automated as part of first automation scenario
+* `guest_place_an_order.feature` in `cucumberPractice` has been automated as part of second automation scenario. Good practices of Gherkin are followed in
+  second
+  feature. There are no UI actions, and we are not adding lines such as user is on home page because this is not related to the scenario instead we
+  are abstracting these details in the steps definitions. The billing details are added as part of step arguments but these can also be put in JSON or
+  CSV file and extracted directly in the step definition if the details are not important for business logic.
+* Run the automation scenarios either directly by hitting the run icon next to the feature or Scenario, or you can create a TestRunner.
+* By-default in the run configuration, Intellij also adds `cucumberPractice.hooks` in glue parameter, so if hooks are getting executed, you can remove
+  this parameter by editing the configuration.
+
+--- 
 
 ### Anti-patterns
 

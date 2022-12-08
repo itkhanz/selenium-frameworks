@@ -7,12 +7,13 @@ import static io.cucumber.testng.CucumberOptions.SnippetType.CAMELCASE;
 
 @CucumberOptions(
         features = "src/test/resources/cucumberPractice",
-        glue = {"cucumberPractice.stepdef", "cucumberPractice.hooks", "cucumberPractice.types"},
+        glue = {"cucumberPractice.stepdef",/* "cucumberPractice.hooks",*/ "cucumberPractice.types"},
         monochrome = true,
         dryRun = false,
         snippets = CAMELCASE,
         plugin = {"pretty", "html:target/cucumber.html", "summary"},
-        tags = "@smoke and not @dummy"
+        /*tags = "@smoke and not @dummy"*/
+        tags = "@checkout"
 )
 public class TestNGRunnerTest extends AbstractTestNGCucumberTests {
     //Use either TestNG @BeforeClass @AfterClass or Cucumber @BeforeAll @AfterAll, both run before and after all the scenarios get executed
