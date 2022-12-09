@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class GuestPlaceOrder_Steps {
 
-    public WebDriver driver;
+    private static WebDriver driver;
     @Given("I am a guest customer")
     public void iAmAGuestCustomer() {
         //we can keep this empty because we do not have to create or login to website with account since this is a guest checkout

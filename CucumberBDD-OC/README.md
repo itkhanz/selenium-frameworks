@@ -1,3 +1,8 @@
+<style>
+ img[alt=discovery-workshop-mapping] { width: 400px; }
+ img[alt=selenium-components] { width: 400px; }
+</style>
+
 # Cucumber BDD Framework with Selenium and Java
 
 ## Technology Stack
@@ -38,7 +43,7 @@
 * A feature can be represented by one or more user stories.
 * Scenario and Background can be put under different rules in single feature. `Rule` can be used to group several scenarios under a business rule in
   single feature.
-    * ![discovery workshop mapping](doc/rule.JPG)
+    * ![discovery-workshop-mapping](doc/rule.JPG)
     * ![rule gherkin](doc/rule%20gherkin.JPG)
 * you can put `asterisk *` to avoid writing multiple And keywords in the beginning of the step.
 * But keyword designates the negation.
@@ -462,14 +467,14 @@ public void myCredentials(Customer customer){
 
 ### Selenium Webdriver Integration
 
-
-  <img src="https://www.selenium.dev/images/documentation/webdriver/test_framework.png" alt="drawing" width="600"/>
+  <img src="https://www.selenium.dev/images/documentation/webdriver/test_framework.png" alt="selenium-components" width="600"/>
 
 * Selenium WebDriver communicates with the browsers via vendor specific driver executables such as ChromeDriver, Geckodriver etc. The test
   frameworks such as jUnit, TestNG, and Cucumber are responsible for running and executing your WebDriver related steps in your
   tests. [Read more](https://www.selenium.dev/documentation/overview/components/)
 * `addToCart.feature` in `cucumberPractice` has been automated as part of first automation scenario
-* `guest_place_an_order.feature` in `cucumberPractice` has been automated as part of second automation scenario. Good practices of Gherkin are followed in
+* `guest_place_an_order.feature` in `cucumberPractice` has been automated as part of second automation scenario. Good practices of Gherkin are
+  followed in
   second
   feature. There are no UI actions, and we are not adding lines such as user is on home page because this is not related to the scenario instead we
   are abstracting these details in the steps definitions. The billing details are added as part of step arguments but these can also be put in JSON or
@@ -482,9 +487,78 @@ public void myCredentials(Customer customer){
 
 ### Anti-patterns
 
+#### Feature coupled Step Definitions
+
+* Step definitions should be split into multiple smaller classes based on their domain. Each domain class should contain the steps that are related to
+  this domain for example, in this case the Product, Store, Checkout, Payment, and Cart could be the suitable candidates for step definitions classes.
+  All
+  the steps that are to be performed on this domain should be placed into the respective domain classes.
+
+#### Static Keyword in Step Definitions
+
+* Webdriver should be initialized only once in the step definition class, we can achieve this using `Static` keyword. This also comes with its own
+  issues like you cannot run the scenario if the driver is not already initialized by another scenario previously.
+* Another issue is parallelism, since we are using the `static`keyword, it means that all the steps are using the same driver instance and that could
+  result in conflict i.e. it is also
+  going to perform UI action in the same browser. To solve this issue, you can use Java `ThreadLocal` class, that will maintain different copies of
+  webdriver for each thread.
+  '''java
+  private static ThreadLocal<WebDriver> driver = new ThreadLocal<WebDriver>();
+  '''
+* This also has a problem if there are multiple steps definitions as you have to initialize the driver multiple times, and it nullifies the DRY (Do
+  not
+  Repeat Yourself) principle. For this, create a reusable method for instantiating driver in a separate class and call it in your step definitions.
+
+#### Duplicate UI Elements definitions
+
+* Use Page Object Model (POM) to define UI elements to avoid duplication, adn write all associate actions for it in page objects.
+
+#### Lack of Waits
+
+* It is advisable to put Explicit wait for the situations so it could wait for time before proceeding to the next set of instructions. Avoid
+  using `Thread.sleep()` that will continue to wait even if our desired waiting condition has been met. Generally API calls could take 30 seconds to
+  serve response so that can be used as standard.
+
+#### Lack of Domain Objects
+
+* It is advisable to use the Domain Objects which helps to share the state between steps. This improves the readability. BDD is all about domain
+  objects, the feature and step definitions should not be too technical, ideally they should only be used to call the methods of automation layer.
+  Instead of using Java collections as step arguments, Cucumber provides the `@ParameterType` and `@DataTableType` annotations to work with.
+  '''java
+  @When("I add a {product} to the cart")
+  public void i_add_a_to_the_cart(Product product) {
+  }
+  '''
+
+#### Dependent Scenarios
+
+* It is advisable not to share the following between different scenarios as one scenario could change the state/value that the other scenario needs,
+  so it is better to create separate test user and data so the tests could run in parallel:
+    * **Driver instance** (driver instance should not be shared in scenarios which is important for parallel execution)
+    * **Application state** (each scenario should start from clean application state, and should not start from state created by previous scenario)
+    * **User state** (one scenario might change the user state which the other scenario is not expecting)
+    * **Test data** (corruption of test data could result in failing of all the scenarios)
+
+#### Using UI for creating Application State
+
+* We are using UI for creating application state in step where product is to be added in cart (clicking on add to Cart button, and clicking on View
+  cart button). UI automation is unreliable and slow and creates maintenance overhead if the elements or work-flow change. Instead, we could use API
+  calls and inject cookies in the browser to add product to the cart which is a pre-requisite for the next steps where we are making assertions. We
+  could also create a separate customer via API with pre-provided customer billing details, so we do not have to create customer details each time.
+
+#### More Anti-patterns
+
+* base url should be put in the configuration file and the endpoint should be put in JSON file.
+* static expected text should be put in the properties file so the same text could be used for multiple assertions.
+* Webdrivermanager should be used that manages the browser binaries automatically
+* test should support cross browser testing therefore driver setup should provide support for it.
+* test suit should be able to receive the browser and base url via maven commands.
+
 ---
 
 ## Framework
+
+
 
 ### Framework - Driver Initialization
 
