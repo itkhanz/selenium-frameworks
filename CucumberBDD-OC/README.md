@@ -5,6 +5,8 @@
 
 # Cucumber BDD Framework with Selenium and Java
 
+<img src="doc/framework-architecture.png" alt="framework architecture" width="600">
+
 ## Technology Stack
 
 ![stack](doc/stack.JPG)
@@ -44,13 +46,13 @@
 * Scenario and Background can be put under different rules in single feature. `Rule` can be used to group several scenarios under a business rule in
   single feature.
     * ![discovery-workshop-mapping](doc/rule.JPG)
-    * ![rule gherkin](doc/rule%20gherkin.JPG)
+    * <img src="doc/rule-gherkin.JPG" width="400px">
 * you can put `asterisk *` to avoid writing multiple And keywords in the beginning of the step.
 * But keyword designates the negation.
 * **Steps Anti-Patterns**
     * Write the Gherkin in the form of business documents and avoid writing as user interaction steps. Stick to the core flow, and hide the
       implementation in steps definitions.
-    * ![steps anti-patterns](doc/steps-anti-patterns.JPG)
+      <img src="doc/steps-anti-patterns.JPG" alt="steps anti patterns" width="600">
 * Group the similar scenarios and different parameters with scenario outline instead of writing multiple scenarios separately.
 * Examples in scenario Outline can also be tagged to execute under different test environments or conditions.
 * In case of a String parameter in Scenario Outline, put the double quotes around the parameter brackets for it to resolve e.g. _"<product_name>"_
@@ -86,7 +88,7 @@
 * Lack of good scenario name, narratives and rules is bad practice. Here scenario can be named as _Add a product from store_. Use the description text
   to add more detail.
 * By following thr Gherkin good practices, the scenario can be refactored to:
-* ![refactored-gherkin](doc/refactored-gherkin.JPG)
+* <img src="doc/refactored-gherkin.JPG" alt="refactored-gherkin" width="400">
 
 > Gherkin serves as a Living documentation which is a single source of truth for all the stakeholders. Writing good Gherkin means a readable and
 > understandable Living documentation. The Living documentation should clearly show the current state of the system, what behaviors are working, what
@@ -558,29 +560,74 @@ public void myCredentials(Customer customer){
 
 ## Framework
 
+<img src="doc/framework-architecture.png" alt="framework architecture" width="765">
 
+* Multiple components work together to create a `robust` production-ready test automation framework which will be `maintainable`, `readable`, and `scalable`.
+* Feature files will contain Gherkin in the form of executable specifications.
+* Glue code will be in steps definitions. `Hooks` will be used to initialize and close webdriver.
+* The webdriver will be supplied by `factory`, and is sent to the Base Page in Page Objects. Base Page will initialize waits and other page factory
+  elements. Page objects will be subclasses of base page.
+* On Cucumber side, Domain objects for Customer, Product etc. will be created, and `Custom Types` will be used to directly convert Gherkin data to
+  `Domain Objects`.
+* The reusable REST-assured methods will be used to make API calls for Application and generate cookies.
+* Steps will be distributed among multiple step definition classes, and to share the webdriver, Page objects, domain objects, and cookies between test
+  steps, we will create Test Context. The `pico-container` dependency injection library will help to share the test context between steps.
+* Common Information will be stored in separate `properties` files such as cucumber info will be stored in cucumber.properties, environment info will be
+  stored in
+  environment.properties.
+* `Test data` will be stored as JSON, and constants will be stored in separate `CONSTANT` file.
+* `Utilities` such as Faker API will be used to create test data, Jackson will help to parse JSON, cookie utility will convert REST-assured cookies to
+  selenium cookies, and properties utility will be used to read the config properties file.
+* The framework will support the jUnit, TestNG, and Cucumber CLI runner.
+* As part of the `CI` process, framework will be integrated to `GitHub` and `Maven` build tool will trigger the tests through `Jenkins` with SCM polling,
+  build frequency and GitHub webhooks.
+* The Cucumber reports and `Serenity` reports will be used for reporting, `screenshot` will be captured on failing scenario and integrated into report.
+
+---
 
 ### Framework - Driver Initialization
 
+---
+
 ### Framework - Page Object Model
+
+---
 
 ### Framework - Domain Objects
 
+---
+
 ### Framework - Optimizations
+
+---
 
 ### Framework - Parallel Execution
 
+---
+
 ### Framework - Dependency Injection using Pico-container
+
+---
 
 ### Framework - Optimizations
 
+---
+
 ### Framework - API Integration using RestAssured
+
+---
 
 ### Framework - Reports
 
+---
+
 ### Framework - Maven Command Line
 
+---
+
 ### Framework - Integration with GitHub
+
+---
 
 ### Framework - CI
 
