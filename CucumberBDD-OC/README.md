@@ -634,9 +634,42 @@ public void myCredentials(Customer customer){
      }
   }
   ```
+  ```java
+  @And("my billing details are")
+    public void myBillingDetailsAre(BillingDetails billingDetails) {
+        this.billingDetails = billingDetails;
+        
+        //Instead of using instance variables, we now uuse Datatable
+        /*Map<String, String> billingDetail = billingDetails.get(0);
+        billingFirstName = billingDetail.get("firstname");
+        billingLastName =  billingDetail.get("lastname");
+        billingAddressOne =  billingDetail.get("address_line1");
+        billingCity =  billingDetail.get("city");
+        billingStateName =  billingDetail.get("state");
+        billingZip =  billingDetail.get("zip");
+        billingEmail =  billingDetail.get("email");*/
+    }
+  
+  @When("I provide billing details")
+    public void iProvideBillingDetails() {
+
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        checkoutPage.setBillingDetails(billingDetails);
+        /*checkoutPage.setBillingDetails(
+                billingFirstName,
+                billingLastName,
+                billingAddressOne,
+                billingCity,
+                billingStateName,
+                billingZip,
+                billingEmail
+        );*/
+    }
+  ```
 
 * Custom data table type will be created to directly convert the datatable from Gherkin to domain object.
-* Similarly, a custom Parameter Type for Product will also be created, and instead of `String` as step argument, we use this custom data object i.e. `product`. The
+* Similarly, a custom Parameter Type for Product will also be created, and instead of `String` as step argument, we use this custom data object
+  i.e. `product`. The
   name of the method under `@ParameterType` annotation must be the same as the name in step definition method argument.
   ```java
   public class CustomParameterType {
@@ -650,6 +683,46 @@ public void myCredentials(Customer customer){
 ---
 
 ### Framework - Optimizations
+
+#### Config Properties
+
+* We will create a global property `config.properties` under src/test/resources for the base Url, and read it using config loader
+  utility `PropertyUtils` under the `utils` package.
+* Another utility `ConfigLoader`with the private constructor is created which means that the not other class can instantiate this class. Singleton
+  design pattern is employed for achieving this. This ensures only instant for this class throughout program execution. we will load the properties in
+  constructor of this class. The `getInstance` method will return the new instance of the class if it not already created. The `getBaseUrl` will give
+  us the URL from the loaded properties.
+* So to retrieve the url. we can simply call `ConfigLoader.getInstance().getBaseUrl() + "/store/"`
+* Since the endpoint could be different, and to avoid writing the above statement at multiple places in the step definition, we can modify
+  the `load()` method in `BasePage` like this and only pass endPoint as argument:
+  ```java
+     public void load(String endPoint){
+        driver.get(ConfigLoader.getInstance().getBaseUrl() + endPoint);
+    }
+  ```
+* This utilizes the DRY principle, and we optimized our code to use the url from loaded properties via ConfigLoader and only pass the endPoint
+  to `load()`
+  method instead of complete URL:
+   ```java
+     @Given("I'm on the Store Page")
+     public void i_m_on_the_store_page() {
+        driver = DriverFactory.getDriver();
+        //new StorePage(driver).load("https://askomdch.com/store/");
+        //new StorePage(driver).load(ConfigLoader.getInstance().getBaseUrl() + "/store/");
+        new StorePage(driver).load("/store");
+        }
+  ```
+
+> yaml is good for multiple programming languages. Plus, it represents the data in hierarchical form. So, it looks good for complex set of data and if
+> you want to put everything in one file.
+
+> Properties are good for simple key value pairs and maintaining multiple files, each file representing one set of configuration.
+
+#### Constants & Enums
+
+#### Support for Mobile Browsers
+
+#### Support for Multiple Environments
 
 ---
 
