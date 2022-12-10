@@ -1,11 +1,12 @@
 package framework.pages;
 
 import framework.domainObjects.BillingDetails;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 
 public class CheckoutPage extends BasePage{
     @FindBy(id = "billing_first_name") private WebElement billingFirstnameFld;
@@ -18,6 +19,7 @@ public class CheckoutPage extends BasePage{
     @FindBy(id = "billing_email") private WebElement billingEmailFld;
     @FindBy(id = "place_order") private WebElement placeOrderBtn;
     @FindBy(css = ".woocommerce-notice") private WebElement noticeTxt;
+    private final By overlay = By.cssSelector(".blockUI.blockOverlay");
 
     public CheckoutPage(WebDriver driver) {
         super(driver);
@@ -52,8 +54,19 @@ public class CheckoutPage extends BasePage{
     }
 
     public CheckoutPage selectBillingState(String billingStateName){
-        Select select = new Select(wait.until(ExpectedConditions.visibilityOf(billingStateDropDown)));
-        select.selectByVisibleText(billingStateName);
+        //Firefox browser has the known issue of not able scroll to the dropdown state so it does not work with Selenium Select if option is not in view
+        // org.openqa.selenium.ElementNotInteractableException: Element <option> could not be scrolled into view
+
+        /*Select select = new Select(wait.until(ExpectedConditions.visibilityOf(billingStateDropDown)));
+        select.selectByVisibleText(billingStateName);*/
+
+        //First click on the dropdown element, and then use JS executor to scroll down to the option view and click on it
+        wait.until(ExpectedConditions.elementToBeClickable(alternateBillingStateDropDown)).click();
+        WebElement e = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//li[text()='" + billingStateName + "']")));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", e);
+        e.click();
+
         return this;
     }
 
@@ -96,6 +109,7 @@ public class CheckoutPage extends BasePage{
     }
 
     public CheckoutPage placeOrder(){
+        waitForOverlaysToDisappear(overlay);
         wait.until(ExpectedConditions.elementToBeClickable(placeOrderBtn)).click();
         return this;
     }

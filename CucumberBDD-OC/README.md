@@ -96,8 +96,10 @@
 ### Runners
 
 * If the cucumber feature and steps definitions are under the same root folder i.e. `src/test/java`, then Cucumber can automatically find the steps
-  for
-  the features.
+  for the features.
+
+> Runner must end with keyword "test" because this is how maven will find the test runner.
+
 * But if you move the features to another source root folder i.e. `src/test/resources`, then Cucumber will throw error. In this case, the features and
   steps must be under same package/director name e.g. `cucumberPractice`.
 * Runner helps us to define the explicit location of steps and feature files, run multiple scenarios, and tag the scenarios.
@@ -738,7 +740,16 @@ public void myCredentials(Customer customer){
 
 #### Support for Mobile Browsers
 
-* 
+* The preferred way to add a multi browser support is to enable the code to accept the browser as maven command arguments during runtime. We can also
+  send this maven command from jenkins.
+* For this purpose, we can pass the browser options as a string parameter in the `initializeDriver(String browser)` method of the `DriverFactory`.
+* We need to pass the browser as system property in before hook `System.getProperty("browser", "chrome")` with chrome as the default value.
+* Run the tests witH `BaseTestNGTestRunner` or through the command line with `mvn clean test`. By-default it runs tests in chrome.
+* To run with firefox, use command `mvn clean test -Dbrowser=firefox`, and to run with chrome use command, `mvn clean test -Dbrowser=chrome`
+* Firefox browser has known issue of not being able to scroll down to the select dropdown option if it is not in view so to get around we used
+  Javascript executor to first click on the dropdown element and then scroll down to the option and click it.
+* Another issue that occurred in Firefox tests execution because of the overlay, the place order button could not be clicked, so a method is added in
+  BasePage that waits of the overlay to disappear before proceeding to click on the element.
 
 #### Support for Multiple Environments
 
