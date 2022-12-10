@@ -611,6 +611,42 @@ public void myCredentials(Customer customer){
 
 ### Framework - Domain Objects
 
+* We can provide the billing details as part of `Given` step like `And my billing details are`, and then we can share the state between multiple steps
+  by injecting the domain objects using the dependency injection library.
+* First we will try to do this with a class instance variables, and then reuse these instance variables in different steps. This approach has many
+  problems, like if we use them as static, then we lose the parallelism advantage, also the variables will not be shared between multiple step
+  definition classes.To solve this, we use the dependency injection framework that allows us to share the state between multiple steps in different
+  step definition classes.
+* We will create domain objects for billing details, and product. This is analogs to creating a POJO class. A custom data table type will convert the
+  gherkin datatable to Billing details object.
+  ```java
+  public class CustomDataTableType { 
+     @DataTableType
+     public BillingDetails billingDetailsEntry(Map<String, String> entry){
+        return new BillingDetails(entry.get("firstname"),
+                                  entry.get("lastname"),
+                                  entry.get("address_line1"),
+                                  entry.get("city"),
+                                  entry.get("state"),
+                                  entry.get("zip"),
+                                  entry.get("email")
+        );
+     }
+  }
+  ```
+
+* Custom data table type will be created to directly convert the datatable from Gherkin to domain object.
+* Similarly, a custom Parameter Type for Product will also be created, and instead of `String` as step argument, we use this custom data object i.e. `product`. The
+  name of the method under `@ParameterType` annotation must be the same as the name in step definition method argument.
+  ```java
+  public class CustomParameterType {
+    @ParameterType(".*")
+    public Product product(String name){
+        return new Product(name.replace("\"", ""));
+    }
+  }
+  ```
+
 ---
 
 ### Framework - Optimizations

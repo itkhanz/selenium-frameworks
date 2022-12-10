@@ -1,5 +1,6 @@
 package framework.pages;
 
+import framework.domainObjects.BillingDetails;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -70,7 +71,7 @@ public class CheckoutPage extends BasePage{
         return this;
     }
 
-    public CheckoutPage setBillingDetails(String billingFirstName, String billingLastName,
+    /*public CheckoutPage setBillingDetails(String billingFirstName, String billingLastName,
                                           String billingAddressOne, String billingCity,
                                           String billingStateName, String billingZip,
                                           String billingEmail) {
@@ -82,6 +83,16 @@ public class CheckoutPage extends BasePage{
                 selectBillingState(billingStateName).
                 enterBillingZip(billingZip).
                 enterBillingEmail(billingEmail);
+    }*/
+    public CheckoutPage setBillingDetails(BillingDetails billingDetails) {
+
+        return enterBillingFirstName(billingDetails.getBillingFirstName()).
+                enterBillingLastName(billingDetails.getBillingLastName()).
+                enterBillingAddressLineOne(billingDetails.getBillingAddressOne()).
+                enterBillingCity(billingDetails.getBillingCity()).
+                selectBillingState(billingDetails.getBillingStateName()).
+                enterBillingZip(billingDetails.getBillingZip()).
+                enterBillingEmail(billingDetails.getBillingEmail());
     }
 
     public CheckoutPage placeOrder(){
