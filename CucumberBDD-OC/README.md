@@ -753,6 +753,12 @@ public void myCredentials(Customer customer){
 
 #### Support for Multiple Environments
 
+* Separate properties file with different baseUrl for production and staging environments are created.
+* ConfigLoader will accept the environment variable as system property, and load the corresponding property file. It will take by default the staging
+  environment if no value is provided for environment through maven command.
+* Use the commands `mvn clean test -Denv=PROD` and `mvn clean test -Denv=STAGE` to run the tests in production and staging environment respectively.
+* At the moment, the PROD environment url is a dummy one so the tests will fail.
+
 ---
 
 ### Framework - Parallel Execution
