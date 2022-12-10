@@ -1,5 +1,7 @@
 package framework.stepdef;
 
+import framework.constants.BaseConstants;
+import framework.constants.EndPoint;
 import framework.domainObjects.BillingDetails;
 import framework.domainObjects.Product;
 import framework.factory.DriverFactory;
@@ -20,7 +22,7 @@ public class BaseStepDefinitions {
     @Given("I'm on the Store Page")
     public void i_m_on_the_store_page() {
         driver = DriverFactory.getDriver();
-        new StorePage(driver).load("/store/");
+        new StorePage(driver).load(EndPoint.STORE.url);
     }
     @When("I add a {product} to the cart")
     public void i_add_a_to_the_cart(Product product) {
@@ -37,7 +39,7 @@ public class BaseStepDefinitions {
     @Given("I am a guest customer")
     public void iAmAGuestCustomer() {
         driver = DriverFactory.getDriver();
-        new StorePage(driver).load("/store");
+        new StorePage(driver).load(BaseConstants.STORE);
     }
 
     @And("my billing details are")

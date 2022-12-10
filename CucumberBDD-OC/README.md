@@ -720,7 +720,25 @@ public void myCredentials(Customer customer){
 
 #### Constants & Enums
 
+* As `endpoints` are constant, so we can create an `Enum` class for the endpoints and can access from there. or alternatively a class to hold
+  constants as static final class variables. [Read more on Enums](https://refreshjava.com/java/enum-in-java)
+  ```java
+     public enum EndPoint {
+        STORE("/store"), ACCOUNT("/account");
+
+        public final String url;
+
+        EndPoint(String url) {
+         this.url = url;
+        }
+    }
+  ```
+* To access the endpoints, use the `new StorePage(driver).load(EndPoint.STORE.url);` or `new StorePage(driver).load(BaseConstants.STORE);` depending
+  on whether you are using Enum or final class variables.
+
 #### Support for Mobile Browsers
+
+* 
 
 #### Support for Multiple Environments
 
