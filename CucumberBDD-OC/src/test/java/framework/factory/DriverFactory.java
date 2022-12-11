@@ -8,7 +8,7 @@ import java.time.Duration;
 
 public class DriverFactory {
     //private static WebDriver driver;
-    private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+    //private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 
     public static WebDriver initializeDriver(String browser){
         WebDriver driver;
@@ -23,11 +23,11 @@ public class DriverFactory {
         }
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        DriverFactory.driver.set(driver);   //Sets the current thread's copy of this thread-local variable to the specified value
+        //DriverFactory.driver.set(driver);   //Sets the current thread's copy of this thread-local variable to the specified value
         return driver;
     }
 
-    public static WebDriver getDriver() {
+    /*public static WebDriver getDriver() {
         return driver.get();    //Returns the value in the current thread's copy of this thread-local variable.
-    }
+    }*/
 }

@@ -2,9 +2,9 @@ package framework.stepdef;
 
 import framework.constants.BaseConstants;
 import framework.constants.EndPoint;
+import framework.context.TestContext;
 import framework.domainObjects.BillingDetails;
 import framework.domainObjects.Product;
-import framework.factory.DriverFactory;
 import framework.pages.CartPage;
 import framework.pages.CheckoutPage;
 import framework.pages.StorePage;
@@ -16,12 +16,16 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 public class BaseStepDefinitions {
-    private WebDriver driver;
+    private final WebDriver driver;
     private BillingDetails billingDetails;
+
+    public BaseStepDefinitions(TestContext context) {
+        driver = context.driver;
+    }
 
     @Given("I'm on the Store Page")
     public void i_m_on_the_store_page() {
-        driver = DriverFactory.getDriver();
+        //driver = DriverFactory.getDriver();
         new StorePage(driver).load(EndPoint.STORE.url);
     }
     @When("I add a {product} to the cart")
@@ -38,7 +42,7 @@ public class BaseStepDefinitions {
 
     @Given("I am a guest customer")
     public void iAmAGuestCustomer() {
-        driver = DriverFactory.getDriver();
+        //driver = DriverFactory.getDriver();
         new StorePage(driver).load(BaseConstants.STORE);
     }
 

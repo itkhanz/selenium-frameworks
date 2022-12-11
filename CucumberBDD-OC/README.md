@@ -817,7 +817,8 @@ public void myCredentials(Customer customer){
 #### Using TestNG Runner
 
 * Comment the JUNit Runner and POM dependency when you execute the TestNG runner. This is important to avoid conflicts.
-* Cucumber can be executed in parallel using T**estNG and Maven test execution plugins** by setting the **dataprovider parallel option to true**. In TestNG
+* Cucumber can be executed in parallel using T**estNG and Maven test execution plugins** by setting the **dataprovider parallel option to true**. In
+  TestNG
   the **scenarios and rows in a scenario outline are executed in multiple threads**.
   ````java
   import org.testng.annotations.DataProvider;
@@ -839,7 +840,8 @@ public void myCredentials(Customer customer){
 
 #### Using CLI Runner
 
-* Below command will execute the scenarios sequentially via CLI Runner, specify the package of your step definitions in glue parameter and the feature files or folder in exec.args:
+* Below command will execute the scenarios sequentially via CLI Runner, specify the package of your step definitions in glue parameter and the feature
+  files or folder in exec.args:
 * `mvn exec:java -D"exec.classpathScope=test" -D"exec.mainClass=io.cucumber.core.cli.Main" -D"exec.args=src/test/resources/framework/features --glue framework"`
 * To execute the scenarios in parallel, specify the number of threads in `exec.args` argument in command line:
 * `mvn exec:java -D"exec.classpathScope=test" -D"exec.mainClass=io.cucumber.core.cli.Main" -D"exec.args=src/test/resources/framework/features --glue framework --threads 3"`
@@ -848,6 +850,104 @@ public void myCredentials(Customer customer){
 ---
 
 ### Framework - Dependency Injection using Pico-container
+
+#### Concept
+
+* Keeping all step definitions in a single class quickly becomes impractical, so you use many classes. Cucumber supports several Dependency
+  Injection (DI) containers - it simply tells a DI container to instantiate your step definition classes and wire them up
+  correctly. [Read More] (https://cucumber.io/blog/bdd/polymorphic-step-definitions/)
+* Cucumber scans your classes with step definitions in them, passes them to PicoContainer, then asks it to create new instances for every scenario.
+  Before PicoContainer can instantiate these classes it will create an instance of AutomationApi, and then pass the same instance to both
+  constructors. Simple!
+
+````java
+public class SomeStepDefs {
+    public SomeStepDefs(AutomationApi api) {
+    }
+}
+
+public class SomeOtherStepDefs {
+    public SomeOtherStepDefs(AutomationApi api) {
+    }
+}
+````
+
+* [Sharing state between steps in Cucumber-JVM using PicoContainer](http://www.thinkcode.se/blog/2017/04/01/sharing-state-between-steps-in-cucumberjvm-using-picocontainer)
+* [GitHub Code](https://github.com/cucumber/cucumber-jvm/tree/main/cucumber-picocontainer)
+* With the DI, we can avoid writing the `static` and `ThreadLocal`.
+
+#### Example
+
+* Add the `pico-container` dependency from `io.cucumber` in your POM.
+* Create a new package `context` and new class `TestContext` inside it which holds an instance variable `scenarioName`
+
+````java
+public class TestContext {
+    public String scenarioName
+}
+````
+
+* If we want Pico-container to create the instance of `TestContext`, we can create a constructor of the Hooks class and pass TestContext as an
+  argument. Pico-container will scan the step definitions and hooks classes, and look for the constructor and then creates an instance of the
+  TestContext.
+* The scenarioName in the TestContext will be different for each Scenario because for each scenario, the new instance of TestContext will be generated
+  by Pico-container.
+
+````java
+public class BaseHooks {
+    private WebDriver driver;
+    private final TestContext context;
+
+    public BaseHooks(TestContext testContext) {
+        this.context = testContext;
+    }
+
+    @Before
+    public void setup(Scenario scenario) {
+        context.scenarioName = scenario.getName();
+        System.out.println("DI Scenario Name: " + context.scenarioName);
+    }
+}
+````
+
+* If you want to use the `context.scenarioName` in a different class, for example, in a step definitions class, we need to create a constructor of the
+  class and add TestContext as an argument to that. With this, Pico-container will not create another instance of the TestContext class, it will
+  inject the already created instance of TestContext class to the steps definitions when an instance of steps definitions is created.
+
+> Please note that we did not re-assigned the testContext in the constructor of step definition `this.context = testContext;` since we already did
+> that in Hooks
+
+````java
+public class BaseStepDefinitions {
+
+    public BaseStepDefinitions(TestContext context) {
+        System.out.println("Step Definitions DI: Scenario Name" + context.scenarioName);
+    }
+}
+````
+
+* If it prints the scenarioName, then the Pico-container is working well. In the output below, you can see that the scenarioName is getting printed in
+  steps definitions for each of the scenario. This is how the pico-container injects the object of TestContext in another class, so we can inject the
+  TestContext in any class where we want to use that. **The only requirement is class should have an empty constructor.**
+
+ <img src="doc/picocontainer-example.png" alt="pico-container output" width="765">
+
+#### Inject WebDriver
+
+* We can get rid of the `ThreadLocal Webdriver` variable, and `getDriver()` method in PageFactory.
+* Declare a Webdriver driver variable in the TestContext, and assign it in BeforeHook `context.driver = driver;`
+* In the steps definitions method, we can remove the `driver = DriverFactory.getDriver();` and use the context driver initialized in hooks as below:
+````java
+public class BaseStepDefinitions {
+  private final WebDriver driver;
+
+  public BaseStepDefinitions(TestContext context) {
+    driver = context.driver;
+  }
+}
+````
+* Pico-container will make sure that this driver is specific to the scenario, so there will be no conflict when scenarios get executed in parallel.
+* 
 
 ---
 
