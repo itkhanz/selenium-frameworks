@@ -1133,6 +1133,16 @@ public void iAmOnTheCheckoutPage(){
 
 #### Extent Reports
 
+##### Resources
+* [GitHub grasshopper7 extentreports-cucumber7-adapter](https://github.com/grasshopper7/extentreports-cucumber7-adapter)
+* [Cucumber-JVM 7 Report generation using ExtentReports Adapter plugin](https://ghchirp.online/3196/)
+* [extent.properties](https://github.com/grasshopper7/cuke7-extent-adapter-report/blob/master/cuke7-extent-adapter-report/src/test/resources/extent.properties)
+* [Extent Report 4](https://www.extentreports.com/docs/versions/4/java/cucumber4.html)
+* [Cucumber4 Adapter for Extent Framework](https://github.com/extent-framework/extentreports-cucumber4-adapter)
+* [Capture Screenshots on Failure](https://www.browserstack.com/guide/take-screenshot-for-failed-test-cases-in-cucumber)
+* [Cucumber PDF Report](http://ghchirp.online/2224/)
+* 
+
 ##### POM Dependency
 
 * Add the following maven dependencies to your POM.xml
@@ -1214,8 +1224,7 @@ screenshot.rel.path=./screenshots/
 * To attach the screenshot to scenario, it needs to be converted into Byte format for which we can use FileUtils utility
   from [comms-io](https://mvnrepository.com/artifact/commons-io/commons-io/2.11.0) maven plugin.
 * Since so far, we do not have any failing scenario, so let's add a new scenario in the `add_to_cart.feature` that fails and screenshot gets captured
-  and
-  attached to report.
+  and attached to report.
 
 ````gherkin
 Scenario: Add product from Store that does not exist
@@ -1233,13 +1242,13 @@ Then I should see 1 "Invalid Product" in the cart
 
 <img src="doc/extent-report-folder.png" alt="extent report folder" width="339">
 
-<img src="doc/extent-report-summary.png" alt="extent report summary" width="900">
+<img src="doc/extent-report-summary.png" alt="extent report summary" width="1200">
 
 
-<img src="doc/extent-report-tests.png" alt="extent report tests" width="900">
+<img src="doc/extent-report-tests.png" alt="extent report tests" width="1200">
 
 
-<img src="doc/extent-report-exception.png" alt="extent report exception" width="900">
+<img src="doc/extent-report-exception.png" alt="extent report exception" width="1200">
 
 
 ### Framework - Maven Command Line
