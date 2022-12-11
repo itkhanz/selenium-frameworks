@@ -7,7 +7,10 @@ import org.testng.annotations.DataProvider;
 @CucumberOptions(
         features = "src/test/resources/framework/features",
         glue = {"framework"},
-        plugin = {"html:target/cucumber/cucumber.html"}
+        plugin = {
+                "html:target/cucumber/cucumber.html",
+                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+        }
 )
 public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
     /*The default thread count of the dataprovider in parallel mode is 10.

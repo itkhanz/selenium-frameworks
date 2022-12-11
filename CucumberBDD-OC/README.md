@@ -1112,23 +1112,135 @@ public void iAmOnTheCheckoutPage(){
   Runner.
 * It will generate a cucumber.html report inside target/cucumber folder
 
-  <img src="doc/cucumber-report-summary.png" alt="framework architecture" width="765">
-  <img src="doc/cucumber-report-scenarios.png" alt="framework architecture" width="900">
+  <img src="doc/cucumber-report-summary.png" alt="cucumber report summary" width="765">
+  <img src="doc/cucumber-report-scenarios.png" alt="cucumber report scenarios" width="900">
 
 #### Cucumber Cloud Reports
 
 * You can Share your Cucumber Report with your team at https://reports.cucumber.io as indicated in terminal output
 
-  <img src="doc/reports-terminal.png" alt="framework architecture" width="625">
+  <img src="doc/reports-terminal.png" alt="cucumber report terminal output" width="625">
 
 * If you specify the above properties in `cucumber.properties`, then you will get the following terminal output:
 
-  <img src="doc/cucumber-cloud-reports.png" alt="framework architecture" width="827">
+  <img src="doc/cucumber-cloud-reports.png" alt="cucumber cloud report" width="827">
 
-* You can also keep the reports forever if you login on Cucumber Reports with GitHub on the cloud report, and create a collection. This will give you a
-  token`CUCUMBER_PUBLISH_TOKEN` that you can define as environment  variable before running cucumber.
+* You can also keep the reports forever if you login on Cucumber Reports with GitHub on the cloud report, and create a collection. This will give you
+  a
+  token`CUCUMBER_PUBLISH_TOKEN` that you can define as environment variable before running cucumber.
 
 ---
+
+#### Extent Reports
+
+##### POM Dependency
+
+* Add the following maven dependencies to your POM.xml
+    * To add the Extent report library, add the following dependency
+      script.[Extent Reports](https://mvnrepository.com/artifact/com.aventstack/extentreports/5.0.9)
+  ````xml
+  <!-- https://mvnrepository.com/artifact/com.aventstack/extentreports -->
+  <dependency>
+      <groupId>com.aventstack</groupId>
+      <artifactId>extentreports</artifactId>
+      <version>5.0.9</version>
+  </dependency>
+  ````
+    * The latest version
+      of [ExtentReports Cucumber7 Adapter](https://mvnrepository.com/artifact/tech.grasshopper/extentreports-cucumber7-adapter/1.9.2) dependency needs
+      to be added to the POM, to work with ExtentReports version 5.
+  ````xml
+  <dependency>
+     <groupId>tech.grasshopper</groupId>
+     <artifactId>extentreports-cucumber7-adapter</artifactId>
+     <version>1.9.2</version>
+     <scope>test</scope>
+  </dependency>
+  ````
+
+##### Plugin Configuration
+
+* The extentreports-cucumber7-adapter plugin needs to be added to the CucumberOptions annotation of the runner.
+
+````java
+@CucumberOptions(plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"})
+````
+
+##### Report Activation
+
+* First method of activating the report generation is to place `extent.properties` file in the `src/test/resources` folder
+
+````properties
+basefolder.name=test-output/ExtentReport
+basefolder.datetimepattern=d-MMM-YY HH-mm-ss
+extent.reporter.spark.start=true
+extent.reporter.spark.out=SparkReport/Spark.html
+````
+
+* The test report will be generated in a subfolder `SparkReport/Spark.html` inside the parent folder`test-output/ExtentReport d-MMM-YY HH-mm-ss`. The
+  **datetimepattern** property ensures that for each run, a new folder is created for the ExtentReport so the old report does not get replaced.
+  The `basefolder`optional and creates the report in base folder name with date time
+  format. [Read complete properties](https://github.com/grasshopper7/cuke7-extent-adapter-report/blob/master/cuke7-extent-adapter-report/src/test/resources/extent.properties)
+
+##### Report Attachments
+
+* To add attachments, like screen images, two settings need to be added to the extent.properties. First property, named `screenshot.dir`, is the
+  directory where the attachments are stored. Second is `screenshot.rel.path`, which is the relative path from the report file to the screenshot
+  directory. The screenshot gets available inside the folder where you have directed it in the extent.properties file.
+
+````properties
+extent.reporter.spark.out=SparkReport/Spark.html
+screenshot.dir=SparkReport/screenshots
+screenshot.rel.path=./screenshots/
+````
+
+* Attach a screenshot to the failed scenario by adding a new `@AfterStep` Hook, later Extent report will read the screenshot attached to scenario to
+  display it in report.
+
+````java
+    @AfterStep
+    public void AddScreenshot(Scenario scenario)throws IOException
+    {
+        if(scenario.isFailed())
+          {
+          //screenshot
+          File sourcePath=((TakesScreenshot)context.driver).getScreenshotAs(OutputType.FILE);
+          byte[]fileContent=FileUtils.readFileToByteArray(sourcePath);
+          scenario.attach(fileContent,"image/png","image");
+          }
+    }
+````
+
+* To attach the screenshot to scenario, it needs to be converted into Byte format for which we can use FileUtils utility
+  from [comms-io](https://mvnrepository.com/artifact/commons-io/commons-io/2.11.0) maven plugin.
+* Since so far, we do not have any failing scenario, so let's add a new scenario in the `add_to_cart.feature` that fails and screenshot gets captured
+  and
+  attached to report.
+
+````gherkin
+Scenario: Add product from Store that does not exist
+
+This scenario fails because it was written to capture the screenshot on failure and attach to Extent Report.
+It fails in the second step because the Invalid Product does not exist on the store page, so the scenario fails to add it to cart
+
+Given I'm on the Store Page
+When I add a "Invalid Product" to the cart
+Then I should see 1 "Invalid Product" in the cart
+````
+
+* Now run the TestNG runner, and the extent report will get generated in `test-output/ExtentReport d-MMM-YY HH-mm-ss/SparkReport/Spark.html` and the
+  screenshots will be stored in test-output/ExtentReport d-MMM-YY HH-mm-ss/SparkReport/screenshots` folder and also attached to failed scenario in report.
+
+<img src="doc/extent-report-folder.png" alt="extent report folder" width="339">
+
+<img src="doc/extent-report-summary.png" alt="extent report summary" width="900">
+
+
+<img src="doc/extent-report-tests.png" alt="extent report tests" width="900">
+
+
+<img src="doc/extent-report-exception.png" alt="extent report exception" width="900">
+
 
 ### Framework - Maven Command Line
 
