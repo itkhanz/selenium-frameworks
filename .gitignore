@@ -1,4 +1,6 @@
-**/test-output/
+*/test-output/
+test-output/
+test-output
 target/
 .idea/
 pom.xml.tag
