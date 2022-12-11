@@ -982,6 +982,58 @@ public class CustomerStepDefinitions {
 
 ### Framework - Optimizations
 
+#### Automated Driver Management
+
+* Use **WebDriverManager** dependency from `io.github.bonigarcia` that will automatically manage the webdriver binaries if browser updates.
+* Alternatively, if you are using **Selenium version 4.6.0** or higher, then you do not even need this external dependency as **Selenium Manager**
+  takes care of it.
+
+#### Page Factory Manager
+
+* In our step definition classes, we are using the `new` keyword multiple times that creates the new instance of page to perform any actions for
+  example `new CartPage(driver).checkout();`.
+* It is better to create just one instance of the Page in the beginning and maintain it throughout the program execution. Having one instance of the
+  page objects is fine in this case because we are not manipulating the page variables and methods, rather we are only using it.
+* To achieve this, we will create the class `PageFactoryManager` and initialize the page objects as static because we need to reuse and maintain them
+  throughout program execution.
+
+````java
+public class PageFactoryManager {
+    private static StorePage storePage;
+    private static CartPage cartPage;
+    private static CheckoutPage checkoutPage;
+
+    public static StorePage getStorePage(WebDriver driver) {
+        return storePage == null ? new StorePage(driver) : storePage;
+    }
+
+    public static CartPage getCartPage(WebDriver driver) {
+        return cartPage == null ? new CartPage(driver) : cartPage;
+    }
+
+    public static CheckoutPage getCheckoutPage(WebDriver driver) {
+        return checkoutPage == null ? new CheckoutPage(driver) : checkoutPage;
+    }
+}
+````
+
+* Now in the step definitions, we can directly call the static methods of `PageFactoryManager` to create the new instance or return already created
+  instance of the page objects. We can also get rid of the driver since we are not using it in step definition class.
+````java
+public class CartStepDefinitions {
+  private final CartPage cartPage;
+
+  public CartStepDefinitions(TestContext context) {
+    cartPage = PageFactoryManager.getCartPage(context.driver);
+  }
+
+  @And("I am on the checkout page")
+  public void iAmOnTheCheckoutPage() {
+    cartPage.checkout();
+  }
+}
+````
+
 ---
 
 ### Framework - API Integration using RestAssured

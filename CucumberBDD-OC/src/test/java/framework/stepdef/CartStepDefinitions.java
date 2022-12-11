@@ -3,20 +3,25 @@ package framework.stepdef;
 import framework.context.TestContext;
 import framework.domainObjects.Product;
 import framework.pages.CartPage;
+import framework.pages.PageFactoryManager;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 public class CartStepDefinitions {
-    private final WebDriver driver;
+    private final CartPage cartPage;
 
     public CartStepDefinitions(TestContext context){
-        driver = context.driver;
+        cartPage = PageFactoryManager.getCartPage(context.driver);
+    }
+
+    @And("I am on the checkout page")
+    public void iAmOnTheCheckoutPage() {
+        cartPage.checkout();
     }
 
     @Then("I should see {int} {product} in the cart")
     public void i_should_see_in_the_cart(int quantity, Product product) {
-        CartPage cartPage = new CartPage(driver);
         Assert.assertEquals(cartPage.getProductName(), product.getName());
         Assert.assertEquals(cartPage.getProductQuantity(), quantity);
     }
