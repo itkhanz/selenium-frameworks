@@ -29,10 +29,10 @@ public class BasePage {
      */
     public void waitForOverlaysToDisappear(By overlay){
         List<WebElement> overlays = driver.findElements(overlay);
-        System.out.println("OVERLAY SIZE" + overlays.size());
+        //System.out.println("OVERLAY SIZE" + overlays.size());
         if(overlays.size() > 0){
             wait.until(ExpectedConditions.invisibilityOfAllElements(overlays));
-            System.out.println("OVERLAYS INVISIBLE");
+            //System.out.println("OVERLAYS INVISIBLE");
         } else{
             System.out.println("OVERLAY NOT FOUND");
         }

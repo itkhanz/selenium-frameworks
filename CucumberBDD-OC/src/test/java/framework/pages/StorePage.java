@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 public class StorePage extends BasePage{
     @FindBy(css = "a[title='View cart']") private WebElement viewCartLink;
+    @FindBy(xpath = "//h1[normalize-space()='Store']") private WebElement titleTxt;
 
     public StorePage(WebDriver driver) {
         super(driver);
@@ -24,6 +25,7 @@ public class StorePage extends BasePage{
         String utf8Encoded = new String(bytes, StandardCharsets.UTF_8);
 
         By addToCartBtn = By.cssSelector(utf8Encoded);
+        wait.until(ExpectedConditions.visibilityOf(titleTxt));
         wait.until(ExpectedConditions.elementToBeClickable(addToCartBtn)).click();
         wait.until(ExpectedConditions.elementToBeClickable(viewCartLink)).click();
     }

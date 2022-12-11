@@ -763,6 +763,88 @@ public void myCredentials(Customer customer){
 
 ### Framework - Parallel Execution
 
+[Cucumber Parallel Execution](https://cucumber.io/docs/guides/parallel-execution/?lang=java)
+
+* For each scenario, Cucumber creates a new instance of Step definitions and hooks class so for each copy it wil get the separate copy of instance
+  variables of this class, in our case it will be driver and billingDetails. So we can still run the scenarios without having to use ThreadLocal as
+  long as we are not using the static keyword.
+* The problem with parallel occurs in DriverFactory class where driver is declared as static variable `private static WebDriver driver;`. In case of
+  parallel execution, the statement `driver = DriverFactory.initializeDriver(System.getProperty("browser", "chrome"));` in BeforeHook for the second
+  scenario will initialize a new driver, and the previous driver for first scenario will get overwritten which was declared as static in
+  DriverFactory. Hence, the first scenario loses the driver object and browser instance becomes stale.
+* We need to add `ThreadLocal` class in DriverFactory so each thread gets its own copy of the driver, so whatever scenarios are getting executed by
+  that thread they will get their own copy of the driver object.
+
+````java
+    public class DriverFactory {
+    private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+
+    public static WebDriver initializeDriver(String browser) {
+        WebDriver driver;
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        DriverFactory.driver.set(driver);  //Sets the current thread's copy of this thread-local variable to the specified value
+        return driver;
+    }
+
+    public static WebDriver getDriver() {
+        return driver.get();           //Returns the value in the current thread's copy of this thread-local variable.
+    }
+}
+````
+
+#### Using JUnit Runner
+
+* Cucumber can be executed in parallel using **JUnit and Maven test execution plugins**. In JUnit the **feature files are run in parallel rather than
+  scenarios**, which means **all the scenarios in a feature file will be executed by the same thread**.
+* Add the **Surefire plugin configuration** to the `build` section to the `POM`.
+  ```xml
+  <build>
+      <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M7</version>
+            <configuration>
+              <parallel>methods</parallel>
+              <threadCount>3</threadCount>
+            </configuration>
+          </plugin>
+  </build>
+  ```
+* Execute the tests with `mvn clean test`. It should open two browser instances to run both features in parallel, and after one scenario is finished
+  it will open the another browser window to execute the second example in Scenario Outline.
+
+#### Using TestNG Runner
+
+* Comment the JUNit Runner and POM dependency when you execute the TestNG runner. This is important to avoid conflicts.
+* Cucumber can be executed in parallel using T**estNG and Maven test execution plugins** by setting the **dataprovider parallel option to true**. In TestNG
+  the **scenarios and rows in a scenario outline are executed in multiple threads**.
+  ````java
+  import org.testng.annotations.DataProvider;
+  import io.cucumber.testng.AbstractTestNGCucumberTests;
+  
+  public class RunCucumberTest extends AbstractTestNGCucumberTests{
+  
+      @Override
+      @DataProvider(parallel = true)
+      public Object[][] scenarios() {
+          return super.scenarios();
+      }
+  }
+  ````
+* Add the **Maven Surefire plugin configuration** to the build section of the `POM`.
+* Execute the tests with `mvn clean test`. It should open the three browser instances and run them in parallel.
+
+* <img src="doc/tesng-parallel.png" alt="TestNG Runner parallel" width="738">
+
+#### Using CLI Runner
+
+* Below command will execute the scenarios sequentially via CLI Runner, specify the package of your step definitions in glue parameter and the feature files or folder in exec.args:
+* `mvn exec:java -D"exec.classpathScope=test" -D"exec.mainClass=io.cucumber.core.cli.Main" -D"exec.args=src/test/resources/framework/features --glue framework"`
+* To execute the scenarios in parallel, specify the number of threads in `exec.args` argument in command line:
+* `mvn exec:java -D"exec.classpathScope=test" -D"exec.mainClass=io.cucumber.core.cli.Main" -D"exec.args=src/test/resources/framework/features --glue framework --threads 3"`
+* Please note that for CLI Runner, maven surefire plugin is not required.
+
 ---
 
 ### Framework - Dependency Injection using Pico-container
