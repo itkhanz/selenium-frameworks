@@ -937,17 +937,46 @@ public class BaseStepDefinitions {
 * We can get rid of the `ThreadLocal Webdriver` variable, and `getDriver()` method in PageFactory.
 * Declare a Webdriver driver variable in the TestContext, and assign it in BeforeHook `context.driver = driver;`
 * In the steps definitions method, we can remove the `driver = DriverFactory.getDriver();` and use the context driver initialized in hooks as below:
+
 ````java
 public class BaseStepDefinitions {
-  private final WebDriver driver;
+    private final WebDriver driver;
 
-  public BaseStepDefinitions(TestContext context) {
-    driver = context.driver;
-  }
+    public BaseStepDefinitions(TestContext context) {
+        driver = context.driver;
+    }
 }
 ````
+
 * Pico-container will make sure that this driver is specific to the scenario, so there will be no conflict when scenarios get executed in parallel.
-* 
+
+#### Split Step Definitions using Domain Concept
+
+* Since we now have the DI setup with Pico-container, we can split the step definition classes. The billingDetails need to be shared among multiple
+  classes, so we will inject it through TestContext DI.
+* Create a new `public BillingDetails billingDetails;` in `TestContext`:
+* As we are setting the billingDetails from Gherkin in **CustomerStepDefinitions**, so we need to create an instance variable for TestContext and
+  assign it in the constructor.
+
+````java
+public class CustomerStepDefinitions {
+    private final WebDriver driver;
+    private final TestContext context;
+
+    public CustomerStepDefinitions(TestContext context) {
+        this.context = context;
+        driver = context.driver;
+    }
+
+    @And("my billing details are")
+    public void myBillingDetailsAre(BillingDetails billingDetails) {
+        context.billingDetails = billingDetails;
+    }
+}
+````
+
+* Updating the step definitions classes will now be very easy because we know which class to change if some step changes. Each step definition class
+  is focusing on specific domain, so we are following the Single Responsibility Principle (SRP). This will reduce the maintenance effort.
 
 ---
 
