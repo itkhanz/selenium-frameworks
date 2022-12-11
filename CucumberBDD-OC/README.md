@@ -1019,24 +1019,84 @@ public class PageFactoryManager {
 
 * Now in the step definitions, we can directly call the static methods of `PageFactoryManager` to create the new instance or return already created
   instance of the page objects. We can also get rid of the driver since we are not using it in step definition class.
+
 ````java
 public class CartStepDefinitions {
-  private final CartPage cartPage;
+    private final CartPage cartPage;
 
-  public CartStepDefinitions(TestContext context) {
-    cartPage = PageFactoryManager.getCartPage(context.driver);
-  }
+    public CartStepDefinitions(TestContext context) {
+        cartPage = PageFactoryManager.getCartPage(context.driver);
+    }
 
-  @And("I am on the checkout page")
-  public void iAmOnTheCheckoutPage() {
-    cartPage.checkout();
-  }
+    @And("I am on the checkout page")
+    public void iAmOnTheCheckoutPage() {
+        cartPage.checkout();
+    }
 }
 ````
 
 ---
 
 ### Framework - API Integration using RestAssured
+
+* We are creating the application state through UI by adding product to the cart, and navigating to the view cart Link by button click. **Selenium
+  should not be used to prepare a test case**. All repetitive actions and preparations for a test case, should be done through other methods.
+* [Generating application state](https://www.selenium.dev/documentation/test_practices/encouraged/generating_application_state/)
+* We use [Rest Assured](https://rest-assured.io/) to generate the application state. Add the rest
+  assured [Maven dependency](https://mvnrepository.com/artifact/io.rest-assured/rest-assured) to your `POM`
+* `CookieUtils` class will be used to convert the rest assured cookies to the Selenium cookies.
+* Now we need to create a domain object of `Cookies` that will contain the getter and setter for rest-assured cookies and a method to inject the
+  selenium cookies to browser. This method utilizes the `CookieUtils` and get the list of selenium cookies and then iterate over them and add them to
+  the browser with `driver.manage().addCookie(cookie);` command.
+* The `SpecBuilder` class under the package `apis` will hold the `RequestSpecification` and `ResponseSpecification`. Basically the common things that
+  we send as
+  part of the API Request. In this case we are setting the Base Url (read from configLoader), logging and building it. Similarity for
+  the `ResponseSpecification`, we are
+  logging the response, building it and returning the object. These methods will be used by get and post methods in `APIRequest` class to make API
+  calls.
+* The `ApiReuqest` under the package `apis` class will hold the reusable GET and POST methods. These methods are in the form of Given, When and Then.
+* The `CartApi` under the package `apis` will set the cookies in its constructor and have the separate `getCookies()` method to fetch the cookies. It
+  also has `addToCart(int productId, int quantity)` method to add product to the cart using API call from `ApiRequest` class `post` method. This
+  method makes a call to the Endpoint `ADD_TO_CART("/?wc-ajax=add_to_cart")` defined in `constants.EndPoint`. In response, we are fetching all the
+  cookies and setting it to the rest-assured `Cookies` object.
+* In the `TestContext`, define the `Cookies` domain object as class variable, and in the constructor of TestContext, and initialize the cookies object
+  and assign the `empty rest-assured Cookies` to our domain object Cookies because our scenario requires the empty cookies to be sent as part of API
+  request.
+````java
+import framework.domainObjects.BillingDetails;
+import framework.domainObjects.Cookies;
+import org.openqa.selenium.WebDriver;
+
+public class TestContext {
+
+    public Cookies cookies;
+
+    public TestContext(){
+        cookies = new Cookies();
+        cookies.setCookies(new io.restassured.http.Cookies());
+    }
+}
+````
+* Now in our step definition, instead of adding product to the cart via UI, we will make an API call.
+````java
+@And("I have a product in the cart")
+    public void iHaveAProductInTheCart() {
+        //storePage.addToCart("Blue Shoes");
+        CartApi cartApi = new CartApi(context.cookies.getCookies());        //Initialize the CartAPI with empty rest assured cookies
+        cartApi.addToCart(1215,1);                           //make post API and save the response and set the received rest-assured cookies to cookies class variable in CartAPI 
+        context.cookies.setCookies(cartApi.getCookies());   //Fetch the cookies from CartAPI and set the TestContext Cookies domain object with it
+        context.cookies.injectCookiesToBrowser(context.driver);     //injects selenium cookies to the browser. It calls the method from CookieUtils class to convert rest-assured cookies to the selenium cookies
+        }
+````
+
+* Also, we need to now directly navigate to the checkout page, because the product has been added to the cart already.
+````java
+@And("I am on the checkout page")
+    public void iAmOnTheCheckoutPage() {
+        //cartPage.checkout();
+        checkoutPage.load(EndPoint.CHECKOUT.url);
+    }
+````
 
 ---
 

@@ -1,5 +1,6 @@
 package framework.stepdef;
 
+import framework.constants.EndPoint;
 import framework.context.TestContext;
 import framework.pages.CheckoutPage;
 import framework.pages.PageFactoryManager;
@@ -30,5 +31,11 @@ public class CheckoutStepDefinitions {
     @Then("the order should be placed successfully")
     public void theOrderShouldBePlacedSuccessfully() {
         Assert.assertEquals(checkoutPage.getNotice(), "Thank you. Your order has been received.");
+    }
+
+    @And("I am on the checkout page")
+    public void iAmOnTheCheckoutPage() {
+        //cartPage.checkout();
+        checkoutPage.load(EndPoint.CHECKOUT.url);
     }
 }
