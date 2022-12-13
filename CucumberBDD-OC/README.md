@@ -27,6 +27,19 @@
 
 ## Course Notes
 
+### BDD
+
+Here is the list of some activities to look for that can indicate you are following BDD:
+
+* You are having conversations around features, user stories and coming up with clearly defined Acceptance criteria
+* You are having Discovery workshops to build shared understanding of the feature to be built.
+* Requirements are written as behaviors
+* The behaviors and not tests are driving your development.
+* You are converting acceptance criteria into executable specifications in some standard format like Gherkin.
+* You are automating executable specifications using collaboration tool like Cucumber
+
+---
+
 ### Gherkin Syntax
 
 * If you get error while executing the dummy feature, then delete the main.java and org.example package and main or app pre-generated test
@@ -150,6 +163,18 @@
   after each scenario.
 * Cucumber Hooks will also work with the CLI Runner.
 * Cucumber Main class cannot see jUnit annotations as it is not using jUnit runner for execution. It is using its own internal mechanism.
+* The default `thread count of the dataprovider` in parallel mode is 10. To change this the `dataproviderthreadcount` property needs to be added to the
+  `configuration` section of the Surefire or Failsafe plugin in the POM.
+````xml
+<configuration>
+    <properties>
+        <property>
+            <name>dataproviderthreadcount</name>
+            <value>20</value>
+        </property>
+    </properties>
+</configuration>
+````
 
 ---
 
@@ -1317,7 +1342,7 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 * If we want to use run through CLI runner, then we can give the following command as below. The
   `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --threads 2" -Dcucumber.filter.tags=@smoke`
 * Another way is to provide cucumber tags directly as part of args:
-`mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --tags @smoke --threads 2"`
+  `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --tags @smoke --threads 2"`
 
 ---
 

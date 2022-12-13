@@ -29,6 +29,11 @@ public class StoreStepDefinitions {
         storePage.addToCart(product.getName());
     }
 
+    @When("I add it again")
+    public void iAddItAgain() {
+        storePage.addToCart(context.product.getName());
+    }
+
     @And("I have a product in the cart")
     public void iHaveAProductInTheCart() {
         //storePage.addToCart("Blue Shoes");

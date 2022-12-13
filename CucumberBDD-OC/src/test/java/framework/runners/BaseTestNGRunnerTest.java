@@ -7,6 +7,7 @@ import org.testng.annotations.DataProvider;
 @CucumberOptions(
         features = "src/test/resources/framework/features",
         glue = {"framework"},
+        /*tags = "@smoke",*/
         plugin = {
                 "html:target/cucumber/cucumber.html",
                 "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
