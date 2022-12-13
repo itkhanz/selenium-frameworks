@@ -1134,6 +1134,7 @@ public void iAmOnTheCheckoutPage(){
 #### Extent Reports
 
 ##### Resources
+
 * [GitHub grasshopper7 extentreports-cucumber7-adapter](https://github.com/grasshopper7/extentreports-cucumber7-adapter)
 * [Cucumber-JVM 7 Report generation using ExtentReports Adapter plugin](https://ghchirp.online/3196/)
 * [extent.properties](https://github.com/grasshopper7/cuke7-extent-adapter-report/blob/master/cuke7-extent-adapter-report/src/test/resources/extent.properties)
@@ -1141,7 +1142,7 @@ public void iAmOnTheCheckoutPage(){
 * [Cucumber4 Adapter for Extent Framework](https://github.com/extent-framework/extentreports-cucumber4-adapter)
 * [Capture Screenshots on Failure](https://www.browserstack.com/guide/take-screenshot-for-failed-test-cases-in-cucumber)
 * [Cucumber PDF Report](http://ghchirp.online/2224/)
-* 
+*
 
 ##### POM Dependency
 
@@ -1209,16 +1210,16 @@ screenshot.rel.path=./screenshots/
 
 ````java
     @AfterStep
-    public void AddScreenshot(Scenario scenario)throws IOException
-    {
+public void AddScreenshot(Scenario scenario)throws IOException
+        {
         if(scenario.isFailed())
-          {
-          //screenshot
-          File sourcePath=((TakesScreenshot)context.driver).getScreenshotAs(OutputType.FILE);
-          byte[]fileContent=FileUtils.readFileToByteArray(sourcePath);
-          scenario.attach(fileContent,"image/png","image");
-          }
-    }
+        {
+        //screenshot
+        File sourcePath=((TakesScreenshot)context.driver).getScreenshotAs(OutputType.FILE);
+        byte[]fileContent=FileUtils.readFileToByteArray(sourcePath);
+        scenario.attach(fileContent,"image/png","image");
+        }
+        }
 ````
 
 * To attach the screenshot to scenario, it needs to be converted into Byte format for which we can use FileUtils utility
@@ -1238,7 +1239,8 @@ Then I should see 1 "Invalid Product" in the cart
 ````
 
 * Now run the TestNG runner, and the extent report will get generated in `test-output/ExtentReport d-MMM-YY HH-mm-ss/SparkReport/Spark.html` and the
-  screenshots will be stored in test-output/ExtentReport d-MMM-YY HH-mm-ss/SparkReport/screenshots` folder and also attached to failed scenario in report.
+  screenshots will be stored in test-output/ExtentReport d-MMM-YY HH-mm-ss/SparkReport/screenshots` folder and also attached to failed scenario in
+  report.
 
 <img src="doc/extent-report-folder.png" alt="extent report folder" width="339">
 
@@ -1250,8 +1252,72 @@ Then I should see 1 "Invalid Product" in the cart
 
 <img src="doc/extent-report-exception.png" alt="extent report exception" width="1200">
 
+> if you get Fatal error compiling: `java.lang.IllegalAccessError: class lombok.javac.apt.LombokProcessor`, then add the lombok maven dependency in
+> your POM
+
+### Framework - Rerun Failed Scenarios
+
+* Dealing with Test Flakiness is often challenging and the test framework should be robust to it. Cucumber provides a rerun
+  plugin option in the Runner class that generates a file which contains the information about the failed tests.
+* Add `rerun:target/failed_scenarios.txt` in the plugin. The runner file will look like this:
+
+````java
+
+@CucumberOptions(
+        features = "src/test/resources/framework/features",
+        glue = {"framework"},
+        plugin = {
+                "html:target/cucumber/cucumber.html",
+                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
+                "rerun:target/failed_scenarios.txt"
+        }
+)
+public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
+}
+````
+
+* In case of execution failure, it will generate a text file in the target folder. This text file will contain the information on the scenarios that
+  get failed.
+* `failed_scenarios.txt` will contain the path of the feature file and line number for the scenarios that failed. Here it tells us the path to failing
+  scenario and the line number next to it.
+
+````text
+file:src/test/resources/framework/features/add_to_cart.feature:13
+````
+
+* The next step is to run failed scenarios present in the text file. For this purpose, we have to create a seprate test runner and give the path to
+  failed_scenario.txt in features option like `features = "@target/failed_scenarios.txt"`
+
+````java
+
+@CucumberOptions(
+        features = "@target/failed_scenarios.txt",
+        glue = {"framework"},
+        plugin = {
+                "html:target/cucumber/cucumber.html",
+                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
+                "rerun:target/failed_scenarios.txt"
+        }
+)
+public class FailedRunnerTest extends AbstractTestNGCucumberTests {
+
+}
+````
+
+* Now we can simply run the FailedRun class after automation suite execution in case of test failures. It will execute only the failed scenarios and
+  update the text file again.
 
 ### Framework - Maven Command Line
+
+* We can use maven commands in Jenkins to run the tests as a part of CI pipeline.
+* `mvn clean test` will execute the tests in default environment i.e. STAGE and default browser i.e. chrome.
+* To customize the test run, we can add parameters like `mvn clean test -Denv=STAGE -Dbrowser=chrome`.
+* If we want to run specific scenarios, then we can provide the tags like `mvn clean test -Denv=STAGE -Dbrowser=chrome -Dcucumber.filter.tags=@smoke`,
+  this will run only the scenarios that are tagged as `@smoke`.
+* If we want to use run through CLI runner, then we can give the following command as below. The
+  `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --threads 2" -Dcucumber.filter.tags=@smoke`
+* Another way is to provide cucumber tags directly as part of args:
+`mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --tags @smoke --threads 2"`
 
 ---
 

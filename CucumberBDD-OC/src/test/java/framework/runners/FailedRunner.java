@@ -5,7 +5,7 @@ import io.cucumber.testng.CucumberOptions;
 import org.testng.annotations.DataProvider;
 
 @CucumberOptions(
-        features = "src/test/resources/framework/features",
+        features = "@target/failed_scenarios.txt",
         glue = {"framework"},
         plugin = {
                 "html:target/cucumber/cucumber.html",
@@ -13,14 +13,13 @@ import org.testng.annotations.DataProvider;
                 "rerun:target/failed_scenarios.txt"
         }
 )
-public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
-    /*The default thread count of the dataprovider in parallel mode is 10.
-    * To change this the dataproviderthreadcount property needs to be added to the configuration section of the Surefire plugin in the POM.
-    * https://cucumber.io/docs/guides/parallel-execution/?lang=java#testng
-    */
+public class FailedRunner extends AbstractTestNGCucumberTests {
+
+    /****** Uncomment below section to run the scenarios in parallel ************/
     @Override
-    @DataProvider(parallel = true)
-    public Object[][] scenarios() {
+    @DataProvider(parallel=true)
+    public Object[][] scenarios()
+    {
         return super.scenarios();
     }
 }
