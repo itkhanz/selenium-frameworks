@@ -9,7 +9,6 @@ import org.testng.annotations.DataProvider;
         glue = {"framework"},
         monochrome=true,
         dryRun = false,
-        tags = "@smoke",
         plugin = {
                 "pretty",
                 "html:target/cucumber/cucumber.html",
@@ -17,6 +16,7 @@ import org.testng.annotations.DataProvider;
                 "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
                 "rerun:target/failed_scenarios.txt"
         }
+        /*,tags = "@smoke",*/
 )
 public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
     /*The default thread count of the dataprovider in parallel mode is 10.
