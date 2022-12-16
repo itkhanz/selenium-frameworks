@@ -1446,7 +1446,7 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 * GitHub will make the post call to Jenkins via URL we provided as Payload URL in Github-webhook whenever there is a change to repo.
 * Confirm the connection by verifying the `re-deliver` option of webhook in GitHub
 
-### Jenkins - Parameterized Build
+#### Jenkins - Parameterized Build
 
 * Under General section, choose `This project is parameterized`, and in `Add parameter` dropdown, choose `Choice Parameter`
 * Now specify the maven additional parameters as key-value pairs:
@@ -1457,10 +1457,44 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 * Now in the `Goals` section, enter the goal `test -Dcucumber.filter.tags="@"$tags"" -Dbrowser="$browser" -Denv="$environment"`
 * <img src="doc/jenkins-build-steps.JPG"  alt="jenkins build steps" width="1274">
 * Now Go to the project in Jenkins, and you will see the option `Build with parameters`
+* <img src="doc/jenkins-parameterized-build.JPG"  alt="jenkins parameterized build" width="959">
 * Jenkins will trigger the build with specified parameters, and after the build is finished you can go to `Console Output` and navigate to the
   Cucumber reports URL, which will show you the result of test run.
 * <img src="doc/cucumber-jenkins-report.JPG"  alt="jenkins cucumber report" width="1296">
 * Alternatively you can navigate to the jenkins workspace directory on your PC to locate the Extent Spark reports generated in test-output folder.
 * <img src="doc/extent-report-jenkins-workspace.JPG"  alt="extent report" width="1898">
 
-### Jenkins - Parameterized Build
+#### Jenkins - Cucumber reports
+
+* If you are running your tests from Jenkins, it is important for you to the reports from CI in our case Jenkins.
+* [Cucumber reports](https://plugins.jenkins.io/cucumber-reports/) a Java Jenkins plugin which publishes html showing the results of cucumber runs.
+* To use this option, install the plugin via `Manage Jekins -> Manage plugins` and install `Cucumber Reports` plugin. After installation, restart the
+  Jenkins server.
+* <img src="doc/cucumber-reports-plugin.JPG"  alt="cucumber report plugin" width="994">
+* This plugin requires that you use cucumber library to generate a json report. The plugin uses the json report to produce html reports that are
+  available from jenkins on the build page after a build has run. So to do this, just add the following line in your `@CucumberOptions` annotation
+  inside `plugin`
+````java
+"json:target/cucumber/cucumber.json"
+````
+* Make sure to push the changes to GitHub so Jenkins can fetch these changes from git before triggering the build.
+* In Jenkins, Go to your project, click on Configure and at the very bottom in Post-build Actions, choose Cucumber reports from dropdown selector.
+* In JSON Report Location options, specify the following 2 options:
+    * Give the path of your base folder where json report will be published, in our case you can give the following in JSON Reports Path
+      `$workspace\<NAME OF YOUR PROJECT FOLDER>\target\cucumber`
+    * Name of your json report as `cucumber.json`
+* You can also ignore the above 2 parameters in which case the plugin will scan the entire workspace for build and find the files ending with .json to
+  publish the report.
+* To execute, click the “Build Now” button from the left menu for the job. The build should be successful. Instead of watching console output, select
+  “Cucumber reports” at the end of the build.
+* <img src="doc/cucumber-reports-features.JPG"  alt="cucumber report features" width="1885">
+* <img src="doc/cucumber-reports-scenarios.JPG"  alt="cucumber report scenarios" width="1891">
+* <img src="doc/cucumber-reports-steps.JPG"  alt="cucumber report steps " width="1885">
+* <img src="doc/cucumber-reports-steps-stats.JPG"  alt="cucumber report steps stats" width="1875">
+* <img src="doc/cucumber-reports-tags.JPG"  alt="cucumber report tags" width="1897">
+* <img src="doc/cucumber-reports-trends.JPG"  alt="cucumber report trends" width="1860">
+* <img src="doc/cucumber-reports-failures.JPG"  alt="cucumber report failures" width="1878">
+
+
+
+
