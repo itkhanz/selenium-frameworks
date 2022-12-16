@@ -1381,6 +1381,14 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 * Creat a new `Freestyle prject`
 * In `Source Code Management`, select `Git` so jenkins can download the source code from Git Repo and execute maven commands to run tests.
 * Provide the repo URL (HTTPS) and add GitHub credentials
+* If you want to build a specific branch, then under `Branches to Build`, specify your branch for example `*/cucumber-BDD-OC`
+* If you want Jenkins to only checkout the specific folder in Git repo and execute the build, then follow the following steps:
+    * Click on `Additional Behaviors Add` dropdown and choose `Sparse Checkout paths`
+    * Give relative path to your folder where POM.xml exists for example in this case it will be `CucumberBDD-OC/`
+    *
+  <img src="doc/git-branch.JPG"  alt="Git branch and sparse checkout" width="1285">
+* If the POM.xml is not located in the root folder of the project, then specify the location in `Goals` for-example in this case it will
+  be `$workspace\CucumberBDD-OC\pom.xml`
 * Under `Build Triggers` , there are various options for example:
     * `Build Periodically` will execute the tests after specified periodic interval
       regularly.
@@ -1437,5 +1445,23 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 * Then click on `Add webhook`
 * GitHub will make the post call to Jenkins via URL we provided as Payload URL in Github-webhook whenever there is a change to repo.
 * Confirm the connection by verifying the `re-deliver` option of webhook in GitHub
-* 
+
+### Jenkins - Parameterized Build
+
+* Under General section, choose `This project is parameterized`, and in `Add parameter` dropdown, choose `Choice Parameter`
+* Now specify the maven additional parameters as key-value pairs:
+    * for different browsers support, enter `browser` as Name, and give firefox and chrome as choices as these are configured in DriverFactory.
+    * for different environment support, enter `environment` as Name, and give PROD and STAGE as choices as these are configured in ConfigLoader to
+      load url.
+    * Similarly, you can also add a choice parameter for tags
+* Now in the `Goals` section, enter the goal `test -Dcucumber.filter.tags="@"$tags"" -Dbrowser="$browser" -Denv="$environment"`
+* <img src="doc/jenkins-build-steps.JPG"  alt="jenkins build steps" width="1274">
+* Now Go to the project in Jenkins, and you will see the option `Build with parameters`
+* Jenkins will trigger the build with specified parameters, and after the build is finished you can go to `Console Output` and navigate to the
+  Cucumber reports URL, which will show you the result of test run.
+* <img src="doc/cucumber-jenkins-report.JPG"  alt="jenkins cucumber report" width="1296">
+* Alternatively you can navigate to the jenkins workspace directory on your PC to locate the Extent Spark reports generated in test-output folder.
+* <img src="doc/extent-report-jenkins-workspace.JPG"  alt="extent report" width="1898">
+
+
 
