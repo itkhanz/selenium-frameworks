@@ -163,9 +163,12 @@ Here is the list of some activities to look for that can indicate you are follow
   after each scenario.
 * Cucumber Hooks will also work with the CLI Runner.
 * Cucumber Main class cannot see jUnit annotations as it is not using jUnit runner for execution. It is using its own internal mechanism.
-* The default `thread count of the dataprovider` in parallel mode is 10. To change this the `dataproviderthreadcount` property needs to be added to the
+* The default `thread count of the dataprovider` in parallel mode is 10. To change this the `dataproviderthreadcount` property needs to be added to
+  the
   `configuration` section of the Surefire or Failsafe plugin in the POM.
+
 ````xml
+
 <configuration>
     <properties>
         <property>
@@ -176,6 +179,9 @@ Here is the list of some activities to look for that can indicate you are follow
 </configuration>
 ````
 
+> The `dataproviderthreadcount` attribute that you have set in your pom file is going to be applicable and relevant only when you are running your
+> test
+> via mvn clean test. If you are trying to run this test class from within the IDE (IntelliJ or Eclipse for that matter) its not going take affect.
 ---
 
 ### Cucumber Options
@@ -1348,7 +1354,88 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 
 ### Framework - Integration with GitHub
 
+* Create a GitHub Repository
+* Initialize the git repo locally and set a remote origin to your GitHub repo
+* Add git files for staging
+* Commit the code wih a message
+* Push changes to remote repo
+
 ---
 
 ### Framework - CI
+
+[Jenkins Tutorial] (https://www.guru99.com/jenkins-tutorial.html)
+
+#### Windows. Install and Configure Jenkins
+
+* Download site: https://www.jenkins.io/download/
+* Open CMD prompt from directory where .war file is placed and type `java -jar jenkins.war`
+* Launch `http://localhost:8080`
+    * If the default port is occupied, you can also change the port via `java -jar jenkins.war --httpPort=8085`
+* Unlock Jenkins by copying the Admin Password from the address shown in installation window. Usually in **Jenkins\secrets\initalAdminPassword**
+  location.
+* Create first admin user and login
+
+#### Create Automation Jenkins Job
+
+* Creat a new `Freestyle prject`
+* In `Source Code Management`, select `Git` so jenkins can download the source code from Git Repo and execute maven commands to run tests.
+* Provide the repo URL (HTTPS) and add GitHub credentials
+* Under `Build Triggers` , there are various options for example:
+    * `Build Periodically` will execute the tests after specified periodic interval
+      regularly.
+    * [Schedule Jenkins build periodically - hourly, daily, weekly. Jenkins schedule format](https://www.lenar.io/jenkins-schedule-build-periodically/)
+      <img src="doc/jenkins-schedule-format.JPG"  alt="jenkins build schedule format" width="600">
+
+    * `Poll SCM` will poll the GitHub with a specified frequency for any code changes and trigger build
+    * `Github hook trigger for GITScm polling` will trigger the Jenkins build on every commit
+    * `Build after other projects are built` will trigger after another specified Jenkins job is triggered
+* Under `Build` option, choose `Invoke top-level Maven targets` since we will use Maven commands to run our tests
+    * Under `Goals`, provide the maven command that will run the tests for example, `test`. (do no need to write mvn test, because Jenkins
+      automatically adds it)
+    * you can also add optional parameters like `mvn clean test -Denv=STAGE -Dbrowser=chrome` by clicking on advanced section and the under
+      properties:
+        * you can send the goal `clean test` with parameters as key-value pairs on new line without `-D` like:
+      ````properties
+       env=STAGE
+       browser=chrome
+      ````
+* Click on `Build Now` that will trigger the Jenkins job. In the `Build History` you have the options to:
+    * view logs with `Console Output` to see the current status
+
+#### Jenkins Auto Trigger - SCM Polling
+
+* Click on the Jenkins job, then `Configure` and under `Build Triggers`, choose `Poll SCM` option
+* Click on the question mark icon next to it which will show the detail of cron syntax to specify the polling interval. It will poll the repo for any
+  changes, and trigger the build if it finds any new commits.
+* If there are multiple jobs to be triggered on the same time then to avoid conflicts use `H/20 * * * *` which will trigger build every 20 minutes.
+* Jenkins will also show the prompt below to tell when will the build trigger next.
+* Under `Git Polling Log`, you can see all the logs when Jenkins polled the repo for any changes and commits
+
+#### Jenkins Auto Trigger - Build Frequency
+
+* Under `Build Triggers - Build periodically` - Schedule you can create a schedule (or multiple schedules) for Jenkins to build periodically or on a
+  specific date/time.
+* This option is useful for nightly builds
+* The best approach is to use GitHub web hook trigger so continuous integration can start build as soon as change is made in main repo.
+
+#### Jenkins Auto Trigger - GitHub Web Hooks
+
+* Under `Build Triggers - GitHub hook trigger for GITScm polling`, jenkins will trigger `GIT SCM polling logic` only if it receives push from GitHub
+  that will only be made if there is a change in GitHub repo with a merge or pull-request.
+* To use this option, install the plugin via `Manage Jekins -> Manage plugins` and install `GitHub Integration` plugin.
+* In order for GitHub to communicate to Jenkins, the local jenkins instance must be exposed to internet.
+    * Download and Install the ngrok https://ngrok.com/download
+    * To start an HTTP tunnel on port 80, run this command from where the `ngrok.exe` is downloaded: `ngrok http 80`. It will convert the local
+      jenkins
+      instance to a URL which can be used to access our jenkins online.
+* Now navigate to the GitHub repo online and under GitHub `Settings -> WebHooks -> Add WebHook`, provide the url from ngrok as Payload Url and
+  append `/github-webhook/` at the end of Url
+* Choose Content-type as application/json
+* Choose Enable SSL Verification
+* Choose `Just the push event` to trigger the WebHook
+* Then click on `Add webhook`
+* GitHub will make the post call to Jenkins via URL we provided as Payload URL in Github-webhook whenever there is a change to repo.
+* Confirm the connection by verifying the `re-deliver` option of webhook in GitHub
+* 
 
