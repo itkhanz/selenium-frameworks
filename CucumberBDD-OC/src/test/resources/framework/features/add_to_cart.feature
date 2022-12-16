@@ -1,3 +1,4 @@
+@regression
 Feature: Add to cart
 
   As a customer of AskOmDch app,

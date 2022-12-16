@@ -1,3 +1,4 @@
+@regression
 Feature: Place an order
 
   @smoke
