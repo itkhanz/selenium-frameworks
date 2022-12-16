@@ -1,5 +1,6 @@
 Feature: Place an order
 
+  @smoke
   Scenario: using default payment option
     Given I am a guest customer
     And my billing details are

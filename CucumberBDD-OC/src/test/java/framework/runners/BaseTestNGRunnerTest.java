@@ -7,9 +7,13 @@ import org.testng.annotations.DataProvider;
 @CucumberOptions(
         features = "src/test/resources/framework/features",
         glue = {"framework"},
-        /*tags = "@smoke",*/
+        monochrome=true,
+        dryRun = false,
+        tags = "@smoke",
         plugin = {
+                "pretty",
                 "html:target/cucumber/cucumber.html",
+                "json:target/cucumber/cucumber.json",
                 "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
                 "rerun:target/failed_scenarios.txt"
         }
