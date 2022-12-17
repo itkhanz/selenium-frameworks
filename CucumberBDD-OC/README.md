@@ -1162,7 +1162,7 @@ public void iAmOnTheCheckoutPage(){
 
 ---
 
-#### Extent Reports
+#### Extent Spark HTML and PDF Reports
 
 ##### Resources
 
@@ -1173,7 +1173,7 @@ public void iAmOnTheCheckoutPage(){
 * [Cucumber4 Adapter for Extent Framework](https://github.com/extent-framework/extentreports-cucumber4-adapter)
 * [Capture Screenshots on Failure](https://www.browserstack.com/guide/take-screenshot-for-failed-test-cases-in-cucumber)
 * [Cucumber PDF Report](http://ghchirp.online/2224/)
-*
+* [GitHuBGenerating Extent reports for Cucumber-JVM version 7 using the extentreports-cucumber7-adapter plugin] (https://github.com/grasshopper7/cuke7-extent-adapter-report)
 
 ##### POM Dependency
 
@@ -1285,6 +1285,26 @@ Then I should see 1 "Invalid Product" in the cart
 
 > if you get Fatal error compiling: `java.lang.IllegalAccessError: class lombok.javac.apt.LombokProcessor`, then add the lombok maven dependency in
 > your POM
+
+##### Extent PDF Report
+
+* We will be using Cucumber-JVM 7 Report generation using ExtentReports Adapter plugin.
+* The report contains of six sections – dashboard, summary, tags, features, scenarios and detailed sections.
+* Now that you have already completed the Extent Spark reporter plugin integration with Cucumber, you can enable the generation of PDF reports by
+  adding following two lines in your extent.properties
+
+````properties
+extent.reporter.pdf.start=true
+extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
+````
+
+* The Cucumber JSON report is required for PDF to be generated, so add the `"json:target/cucumber/cucumber.json"` as `plugin` in `@CucumberOptions`
+  annotation in your Test Runner.
+
+* <img src="doc/pdf-report-dashboard.JPG" alt="extent report PDF dashboard" width="1569">
+* <img src="doc/pdf-report-summary.JPG" alt="extent report PDF dashboard" width="885">
+* <img src="doc/pdf-report-details.JPG" alt="extent report PDF dashboard" width="910">
+
 
 ### Framework - Rerun Failed Scenarios
 
@@ -1474,9 +1494,11 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 * This plugin requires that you use cucumber library to generate a json report. The plugin uses the json report to produce html reports that are
   available from jenkins on the build page after a build has run. So to do this, just add the following line in your `@CucumberOptions` annotation
   inside `plugin`
+
 ````java
 "json:target/cucumber/cucumber.json"
 ````
+
 * Make sure to push the changes to GitHub so Jenkins can fetch these changes from git before triggering the build.
 * In Jenkins, Go to your project, click on Configure and at the very bottom in Post-build Actions, choose Cucumber reports from dropdown selector.
 * In JSON Report Location options, specify the following 2 options:
