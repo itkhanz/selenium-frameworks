@@ -1324,6 +1324,9 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
 * <img src="doc/pdf-report-summary.JPG" alt="extent report PDF dashboard" width="885">
 * <img src="doc/pdf-report-details.JPG" alt="extent report PDF dashboard" width="910">
 
+> Do not use this report if the setup contains multiple runners as concurrent modification of the same PDF will result in errors. Better solution
+> would be use a Maven plugin for [creating just the PDF report](https://ghchirp.online/2224/) or the complete ExtentReport suite(https://ghchirp.online/2114/).
+
 ### Framework - Rerun Failed Scenarios
 
 * Dealing with Test Flakiness is often challenging and the test framework should be robust to it. Cucumber provides a rerun
@@ -1469,10 +1472,14 @@ public void setup(Scenario scenario){
 
 * Use Extent Spark Reports for viewing the test results. There is no additional configuration settings required for parallel execution with a single
   or multiple runners. This is also true for single threaded multiple runner execution. The complete test report can be viewed in console or Extent
-  Spark report. 
+  Spark report.
 * Read More:
-  * https://ghchirp.online/3196/
-  * https://ghchirp.online/466/
+    * https://ghchirp.online/3196/
+    * https://ghchirp.online/466/
+
+> PDF report generation is not supported for multiple runners due to concurrent modification of the pdf file. This is mentioned in the
+> article https://ghchirp.online/2098/, look for the “PDF Extent Report”. You should use the report generation plugin using JSON
+> – https://ghchirp.online/2114/
 
 ---
 

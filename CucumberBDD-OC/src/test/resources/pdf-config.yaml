@@ -67,10 +67,10 @@ detailedStepHookConfig:
   durationColor: FF0000
   errorMsgColor: 000000
   logMsgColor: 000000
-  #skipHooks: true
-  #skipScenarioHooks: false
-  #skipStepHooks: false
-  #skipScenarioBeforeHooks: false
-  #skipScenarioAfterHooks: false
-  #skipStepBeforeHooks: false
-  #skipStepAfterHooks: false
+  skipHooks: false
+  skipScenarioHooks: false
+  skipStepHooks: false
+  skipScenarioBeforeHooks: false
+  skipScenarioAfterHooks: false
+  skipStepBeforeHooks: false
+  skipStepAfterHooks: false

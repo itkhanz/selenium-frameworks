@@ -116,6 +116,14 @@
       <version>5.7.4</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/tech.grasshopper/extentreports-cucumberjson-plugin -->
+    <dependency>
+      <groupId>tech.grasshopper</groupId>
+      <artifactId>extentreports-cucumberjson-plugin</artifactId>
+      <version>2.15.0</version>
+    </dependency>
+
+
 
   </dependencies>
 
@@ -133,6 +141,25 @@
                 <suiteXmlFiles>
                   <suiteXmlFile>test-suites/smoke-tests.xml</suiteXmlFile>
                 </suiteXmlFiles>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>tech.grasshopper</groupId>
+              <artifactId>extentreports-cucumberjson-plugin</artifactId>
+              <version>2.15.0</version>
+              <executions>
+                <execution>
+                  <id>report</id>
+                  <phase>post-integration-test</phase>
+                  <goals>
+                    <goal>extentreport</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <cucumberJsonReportDirectory>${project.build.directory}/cucumber</cucumberJsonReportDirectory>
+                <displayAllHooks>false</displayAllHooks>
+                <strictCucumber6Behavior>true</strictCucumber6Behavior>
               </configuration>
             </plugin>
           </plugins>
