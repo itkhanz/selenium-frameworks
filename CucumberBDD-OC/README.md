@@ -1286,8 +1286,22 @@ Then I should see 1 "Invalid Product" in the cart
 > if you get Fatal error compiling: `java.lang.IllegalAccessError: class lombok.javac.apt.LombokProcessor`, then add the lombok maven dependency in
 > your POM
 
+* To change settings like theme, title, encoding, offlineMode etc, a separate xml file
+  eg. [html-config.xml](https://github.com/grasshopper7/cuke5-extent-adapter-report/blob/master/cuke5-extent-adapter-report/src/test/resources/spark-config.xml)
+  is required. The location for this file eg.
+  html report needs to be mentioned as value for the key `extent.reporter.html.config`.
+
+````properties
+extent.reporter.html.config=src/test/resources/html-config.xml
+````
+
+* It is now possible to add environment or system info properties in the extent.properties or pass them in the maven command line. These key value
+  pairs are displayed in the ‘Environment’ section of the dashboard page. The key string should begin with the prefix – `systeminfo.`. Be careful of
+  the dot at the end. These can be added to the extent.properties as following – `systeminfo.os=windows`.
+
 ##### Extent PDF Report
 
+* [Cucumber PDF Report] (https://ghchirp.online/2224/)
 * We will be using Cucumber-JVM 7 Report generation using ExtentReports Adapter plugin.
 * The report contains of six sections – dashboard, summary, tags, features, scenarios and detailed sections.
 * Now that you have already completed the Extent Spark reporter plugin integration with Cucumber, you can enable the generation of PDF reports by
@@ -1300,11 +1314,15 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
 
 * The Cucumber JSON report is required for PDF to be generated, so add the `"json:target/cucumber/cucumber.json"` as `plugin` in `@CucumberOptions`
   annotation in your Test Runner.
+* The report settings can be used to toggle on and off optional report sections, change report title, text color for various data, background color
+  and other options. The settings are stored in a YAML file with the name `pdf-config.yaml`, located in the src/test/resources folder of the project.
+  If the file is not present or any settings are not set, the default values are used. To change the default values, add
+  a [pdf-config.yaml file](https://github.com/grasshopper7/cuke7-extent-adapter-report/blob/master/cuke7-extent-adapter-report/src/test/resources/pdf-config1.yaml)
+  in the `src/test/resources` folder of the project with only the settings with new values.
 
 * <img src="doc/pdf-report-dashboard.JPG" alt="extent report PDF dashboard" width="1569">
 * <img src="doc/pdf-report-summary.JPG" alt="extent report PDF dashboard" width="885">
 * <img src="doc/pdf-report-details.JPG" alt="extent report PDF dashboard" width="910">
-
 
 ### Framework - Rerun Failed Scenarios
 
@@ -1357,6 +1375,106 @@ public class FailedRunnerTest extends AbstractTestNGCucumberTests {
 
 * Now we can simply run the FailedRun class after automation suite execution in case of test failures. It will execute only the failed scenarios and
   update the text file again.
+
+---
+
+### Framework - Cross Browser Parallel Testing
+
+* We will use TestNG suite XML files. This allows flexible configuration of the tests to be run. These files are created in the normal way, and then
+  added to the Surefire Plugin configuration.
+* Create a folder in your root directory test-suites and inside the folder create a file smoke-tests.xml. We will create a file based on testng.xml
+  and add our tests to it. Since we want to execute our tests parallelly in both browsers, we will create two tests and add a browser parameter to
+  each of the test. The test suite will have attribute parallel set to tests, which means that both the tests will run in parallel. The class tag
+  should contain your Test runner in the form of package.class. My test runner is under the packages framework and runners and is named
+  BaseTestNGRunnerTest therefore I have written it like this `framework.runners.BaseTestNGRunnerTest`
+
+````xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Smoke Test Suite" thread-count="10" parallel="tests">
+    <test name="Chrome Browser Test">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <test name="Firefox Browser Test">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+</suite> <!-- Suite -->
+````
+
+* The next step you have to do is to create a maven build profile in your POM.xml, copy and paste the following code into your POM.xml. The
+  tag <suiteXmlFiles> should contain the path to your TestNG suit XML file. Read more about using Maven build profiles here:
+
+````xml
+
+<profiles>
+    <profile>
+        <id>Smoke</id>   <!--To tun this profile through command line, mvn test -PSmoke-->
+        <build>
+            <pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.0.0-M7</version>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>test-suites/smoke-tests.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </pluginManagement>
+        </build>
+    </profile>
+</profiles>
+````
+
+* Now you can run this profile simply with the following command. Give the id of thr profile after -P, this will run the tests specified in your suite
+  xml file with `mvn clean test -PSmoke`.
+* The first part of the equation is already done. Now you have to pass the TestNG suite XML file browser parameter to the tests and initialize the
+  WebDriver based on it. Previously we were receiving the browser parameter through maven command line or jenkins, and if no browser is set as system
+  variable then we were setting it as chrome in our Hooks.
+* Fortunately TestNG gives us a way to access the parameters from suite XML files. We will read this parameter and if it is set we will set it as
+  context browser variable, else we will use the browser parameter from system variable. Finally we will pass this browser context variable to
+  initializeDriver() method.
+
+````java
+@Before
+public void setup(Scenario scenario){
+
+        //Reads the browser parameter from TestNG suite xml file
+        String browserParam=Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("browser");
+
+        //Initializes the browser driver in order of following preferences
+        //First it looks for the browserParam which is coming from TestNG suite xml files
+        //Then it looks for the system variables from the maven command line or Jenkins
+        //Lastly it sets the chrome as default browser for driver initialization
+
+        context.browser=browserParam!=null?browserParam:System.getProperty("browser","chrome");
+
+        driver=DriverFactory.initializeDriver(context.browser);
+        context.driver=driver;
+        }
+````
+
+> Default Cucumber report will not work with this configuration and will only show the results of last test runner.
+
+* Use Extent Spark Reports for viewing the test results. There is no additional configuration settings required for parallel execution with a single
+  or multiple runners. This is also true for single threaded multiple runner execution. The complete test report can be viewed in console or Extent
+  Spark report. 
+* Read More:
+  * https://ghchirp.online/3196/
+  * https://ghchirp.online/466/
+
+---
 
 ### Framework - Maven Command Line
 

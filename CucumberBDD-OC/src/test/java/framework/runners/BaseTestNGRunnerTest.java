@@ -21,6 +21,7 @@ import org.testng.annotations.DataProvider;
         ,tags = "@smoke"
 )
 public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
+
     /*The default thread count of the dataprovider in parallel mode is 10.
     * To change this the dataproviderthreadcount property needs to be added to the configuration section of the Surefire plugin in the POM.
     * https://cucumber.io/docs/guides/parallel-execution/?lang=java#testng
@@ -30,4 +31,5 @@ public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
     public Object[][] scenarios() {
         return super.scenarios();
     }
+
 }

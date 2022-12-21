@@ -15,6 +15,7 @@ public class TestContext {
     public Cookies cookies;
     public ProductList productList = new ProductList();
     public Product product;
+    public String browser;
 
     public TestContext() throws IOException {
         cookies = new Cookies();
