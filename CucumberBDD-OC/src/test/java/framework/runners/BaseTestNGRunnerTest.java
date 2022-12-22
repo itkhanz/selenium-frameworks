@@ -2,7 +2,10 @@ package framework.runners;
 
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 
 //Comment the @smoke tag in @CucumberOptions plugin to run all the scenarios
 
@@ -31,5 +34,18 @@ public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
     public Object[][] scenarios() {
         return super.scenarios();
     }
+
+    public static String browser;
+
+    //@Parameters and @Optional annotations in TestNG
+    //In this annotation, if the defined parameter is not found in the testng.xml file, Then Test method will receive the default value from the @Optional annotation.
+    @Parameters("browser")
+    @BeforeTest
+    public void beforeTest(@Optional("chrome") String browser) {
+        if (browser!=null) {
+            BaseTestNGRunnerTest.browser=browser;
+        }
+    }
+
 
 }

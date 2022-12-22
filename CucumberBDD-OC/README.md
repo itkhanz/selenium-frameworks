@@ -1325,7 +1325,8 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
 * <img src="doc/pdf-report-details.JPG" alt="extent report PDF dashboard" width="910">
 
 > Do not use this report if the setup contains multiple runners as concurrent modification of the same PDF will result in errors. Better solution
-> would be use a Maven plugin for [creating just the PDF report](https://ghchirp.online/2224/) or the complete ExtentReport suite(https://ghchirp.online/2114/).
+> would be use a Maven plugin for [creating just the PDF report](https://ghchirp.online/2224/) or the complete ExtentReport
+> suite(https://ghchirp.online/2114/).
 
 ### Framework - Rerun Failed Scenarios
 
@@ -1480,6 +1481,98 @@ public void setup(Scenario scenario){
 > PDF report generation is not supported for multiple runners due to concurrent modification of the pdf file. This is mentioned in the
 > article https://ghchirp.online/2098/, look for the “PDF Extent Report”. You should use the report generation plugin using JSON
 > – https://ghchirp.online/2114/
+
+---
+
+### Framework - On Demand Browser Testing
+
+* It is indeed possible to run the tests on-demand only on Chrome or only on FF, without updating the TestNG.xml. **TestNG has the capability built
+  into
+  it wherein it also queries the System properties (JVM arguments) and tries to read the values of parameters whose name matches with what was given
+  in the suite xml file.**
+* Create a new TestNG suite xml for example for regression tests
+
+````xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Regression Test Suite" thread-count="10" parallel="tests">
+    <test name="Cross Browser Tests">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+</suite> <!-- Suite -->
+````
+
+* As you can see, I am passing the browser parameter as firefox here, so if you do not pass any any JVM arggument from maven commands, then the tests
+  will run on firefox. Let's say we want to pass chrome as browser parameter: `mvn clean install -D"browser=chrome" -D"ondemand=true" -PRegression
+  `
+* Now we need to capture this JVM argument in our TestNG Hook (not the Cucumber hook), so I declared a static class variable browser and used TestNG
+  @BeforeTest Hook inside my runner. I also tried initially with ThreadLocal but the Cucumber Hook @Before and Runner @BeforeTest both were getting
+  run in different threads, so ThreadLocal was null therefore I chose to use static keyword. Since in on-demand broswer testing, the static browser is
+  fixed so it is fine for our use case.
+
+````java
+public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
+
+    @Override
+    @DataProvider(parallel = true)
+    public Object[][] scenarios() {
+        return super.scenarios();
+    }
+
+    public static String browser;
+
+    @Parameters("browser")
+    @BeforeTest
+    public void beforeTest(@Optional("chrome") String browser) {
+        BaseTestNGRunnerTest.browser = browser;
+    }
+}
+````
+
+* The next step now comes is to use this browser parameter in our Cucumber Hook where we are initializing webdriver. Previously I was reading this
+  browser parameter from my testng suite xml and setting it as a `context.browser` in Cucumber @Before Hook.
+* Now we have the additional requirement to check if any browser parameter is set as TestNG parameter in command line argument and if it is provided
+  then we will not read the browser parameter from suite xml file. Moreover, I added an extra check with a command line argument ondemand that will
+  ensure to only read the static browser variable the tests are to be executed on single browser, otherwise it will ignore it and read the browser
+  value from suite xml in case of cross browser testing.
+
+````java
+@Before
+public void setup(Scenario scenario){
+
+//Reads the browser static value from @BeforeTest that was set as command line argument in TestNG Parameter
+        if(BaseTestNGRunnerTest.browser!=null&&Objects.equals(System.getProperty("ondemand"),"true")){
+        context.browser=BaseTestNGRunnerTest.browser;
+        };
+
+        //Reads the browser parameter from TestNG suite xml file
+        if(context.browser==null){
+        String browserParam=Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("browser");
+        context.browser=browserParam!=null?browserParam:System.getProperty("browser","chrome");
+        }
+
+        driver=DriverFactory.initializeDriver(context.browser);
+        context.driver=driver;
+
+        }
+````
+
+* Thats's it, now if you want to run the tests on-damand only on FireFox or Chrome, give following command
+    * `mvn clean install -Dbrowser=firefox -Dondemand=true -PRegression`
+    * `mvn clean install -Dbrowser=chrome -Dondemand=true -PRegression`
+* If you want to run cross browser tests in parallel on both FireFox and Chrome, then give following command
+  *` mvn clean install -PSmoke`
+* Alternatively you can just provide the command line arguments to run tests without any specifc profile
+    * `mvn clean test -Denv=STAGE -Dbrowser=chrome -Dcucumber.filter.tags=@smoke`
+* or just give this command since browser Param is set @Optional
+    * `mvn clean test`
+
+* If you want more control over parallelism and instead only want to run features in parallel instead of scenarios, then one way is to create a
+  multiple runners classes for features and set the parallel attribute to classes. This will then run all the features in parallel and scenarios
+  sequentially.
 
 ---
 

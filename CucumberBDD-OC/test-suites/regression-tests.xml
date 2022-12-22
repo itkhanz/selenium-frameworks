@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Regression Test Suite" thread-count="10" parallel="false">
+    <test  name="On-damand Browser Regression Test">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+</suite> <!-- Suite -->
