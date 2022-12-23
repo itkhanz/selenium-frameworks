@@ -1469,6 +1469,90 @@ public void setup(Scenario scenario){
         }
 ````
 
+* with command `mvn clean test -PSmoke` will run the following test suite in parallel on firefox and chrome. I have 2 @smoke scenarios in cart
+  feature, and 1 @smoke scenario in order feature so in total 3 scenarios for each test (browser). The above command will opens the 3 browser
+  instances for Chrome, and 3 browser instances for FF and run all 6 tests in parallel. The thread-count property in testng suite xml controls how
+  many browser instances will get opened. This can also be controlled through command line.
+* If you wish to control the execution of tests running in parallel, then TestNG provides a way to pass this as command line argument that will
+  override the parallel attribute in suite xml:
+  `mvn clean install -D"parallel=false" -PSmoke`
+* This will run the tests for both of the browsers sequentially, but the tests belonging to single browser will be run in parallel because this is how
+  they are configured in suite xml.
+* [TestNG-Parallel attribute](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#parallel)
+* [TestNG-thread-count attribute](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#threadcount)
+* To achieve fine grain control of running scenarios in parallel or sequentially through maven CLI can bve achieved by implementing a custom
+  annotation
+  transformer listener that will transform the parallel attribute of @DataProvider annotation to the value provided from CLI.
+* I created a custom Listener that will read the scenariosInParallel system property and set it to `@DataProvider` annotation.
+
+````java
+package framework.listeners;
+
+import org.testng.IAnnotationTransformer;
+import org.testng.annotations.IDataProviderAnnotation;
+
+import java.lang.reflect.Method;
+
+public class ScenariosParallelTransformer implements IAnnotationTransformer {
+
+    @Override
+    public void transform(IDataProviderAnnotation annotation, Method method) {
+        boolean runInParallel = Boolean.getBoolean("scenariosInParallel");
+        if (runInParallel) {
+            annotation.setParallel(true);
+        }
+    }
+}
+````
+* [IDataProviderAnnotation](https://github.com/cbeust/testng/blob/master/testng-core-api/src/main/java/org/testng/annotations/IDataProviderAnnotation.java)
+* [IAnnotationTransformer](https://github.com/cbeust/testng/blob/master/testng-core-api/src/main/java/org/testng/IAnnotationTransformer.java)
+* 
+* Now in the test-suite we just need to add this listener before our tests:
+
+````xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Smoke Test Suite" thread-count="10" parallel="tests">
+    <listeners>
+        <listener class-name="framework.listeners.ScenariosParallelTransformer"/>
+    </listeners>
+    <test name="Chrome Browser Test">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <test name="Firefox Browser Test">
+        <parameter name="browser" value="firefox"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+</suite> <!-- Suite -->
+````
+
+* Now if you want to run the Browsers In Parallel then set `-Dparallel=tests`, and if not, then set -`Dparallel=false`
+* Run the scenarios in feature files in Parallel then set `-DscenariosInParallel=true`, and if not then you can skp this parameter.
+* So now you can remove the below snippet from Test Runner because you have the control of running scenarios in parallel via CLI therefore it must be
+  removed:
+
+````java
+@Override
+@DataProvider(parallel = true)
+public Object[][]scenarios(){
+        return super.scenarios();
+        }
+````
+
+* To summarize:
+    * `mvn clean install -D"parallel=tests" -D"scenariosInParallel=true" -PSmoke` This will execute the tests in parallel on both browsers, but not
+      the scenarios in feature files.
+    * `mvn clean install -D"parallel=false" -D"scenariosInParallel=true" -PSmoke` This will execute sequentially first the tests for Chrome browser
+      and then the tests for firefox browser, but the scenarios for each browser will run parallel.
+    * `mvn clean install -D"parallel=false" -PSmoke` This will execute the tests for browsers as well as scenarios for each test sequentially.
+    * The default `mvn clean install -PSmoke` will run the tests in parallel for both browsers, but each browser will execute scenarios sequentially.
+
 > Default Cucumber report will not work with this configuration and will only show the results of last test runner.
 
 * Use Extent Spark Reports for viewing the test results. There is no additional configuration settings required for parallel execution with a single
@@ -1487,9 +1571,8 @@ public void setup(Scenario scenario){
 ### Framework - On Demand Browser Testing
 
 * It is indeed possible to run the tests on-demand only on Chrome or only on FF, without updating the TestNG.xml. **TestNG has the capability built
-  into
-  it wherein it also queries the System properties (JVM arguments) and tries to read the values of parameters whose name matches with what was given
-  in the suite xml file.**
+  into it wherein it also queries the System properties (JVM arguments) and tries to read the values of parameters whose name matches with what was
+  given in the suite xml file.**
 * Create a new TestNG suite xml for example for regression tests
 
 ````xml
@@ -1573,6 +1656,7 @@ public void setup(Scenario scenario){
 * If you want more control over parallelism and instead only want to run features in parallel instead of scenarios, then one way is to create a
   multiple runners classes for features and set the parallel attribute to classes. This will then run all the features in parallel and scenarios
   sequentially.
+*
 
 ---
 
