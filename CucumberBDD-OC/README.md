@@ -1162,6 +1162,24 @@ public void iAmOnTheCheckoutPage(){
 
 ---
 
+#### Cucumber Timeline Formatter
+
+* For a **visual representation** of threads, add the **timeline report** using the `plugin` option of `CucumberOptions` annotation on a JUnit or
+  TestNG runner.
+
+````java
+@CucumberOptions(plugin = {"timeline:<report folder>"})
+````
+
+* Below is a sample report when I run the tests in parallel on-demand on  Chrome browser with maven
+  command ` mvn clean install -D"browser=chrome" -D"ondemand=true" -D"scenariosInParallel=true" -PRegression`
+
+<img src="doc/thread-timeline.JPG" alt="Cucumber Tests Timeline Formatter" width="1364">
+
+* This report is available inside the report folder you put in the timeline plugin, and the report can be filtered with tags and scenarios.
+* https://cucumber.io/docs/guides/parallel-execution/?lang=java#timeline-formatter
+---
+
 #### Extent Spark HTML and PDF Reports
 
 ##### Resources
@@ -1504,9 +1522,10 @@ public class ScenariosParallelTransformer implements IAnnotationTransformer {
     }
 }
 ````
+
 * [IDataProviderAnnotation](https://github.com/cbeust/testng/blob/master/testng-core-api/src/main/java/org/testng/annotations/IDataProviderAnnotation.java)
 * [IAnnotationTransformer](https://github.com/cbeust/testng/blob/master/testng-core-api/src/main/java/org/testng/IAnnotationTransformer.java)
-* 
+* [Set (parallel = false/true) from command line for DataProvider in scenarios method AbstractTestNGCucumberTests](https://stackoverflow.com/a/73181904)
 * Now in the test-suite we just need to add this listener before our tests:
 
 ````xml

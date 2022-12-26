@@ -26,8 +26,8 @@ import org.testng.annotations.Parameters;
 public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
 
 
-    //Instead oh hardcording, annotation transformer listener is implemented that will run the scenarios in parallel or sequentially based on CLI argument -DscenariosInParallel
-    /*The default thread count of the dataprovider in parallel mode is 10.
+    //Instead of hardcoding, annotation transformer listener is implemented that will run the scenarios in parallel or sequentially based on CLI argument -DscenariosInParallel
+    /*The default thread count of the data provider in parallel mode is 10.
      * To change this the dataproviderthreadcount property needs to be added to the configuration section of the Surefire plugin in the POM.
      * https://cucumber.io/docs/guides/parallel-execution/?lang=java#testng
      */
@@ -40,6 +40,7 @@ public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
 
     //@Parameters and @Optional annotations in TestNG
     //In this annotation, if the defined parameter is not found in the testng.xml file, Then Test method will receive the default value from the @Optional annotation.
+    //Below method will help to read the browser parameter at run time to run the tests on-demand on any browser for regression test-suite
     @Parameters("browser")
     @BeforeTest
     public void beforeTest(@Optional("chrome") String browser) {
