@@ -1426,107 +1426,123 @@ allure.link.tms.pattern=https://example.org/browse/{}
   the `environment.properties` file has to be created at that location.
 * The `environment.properties` file need to be created programmatically. Instead of hard-coding environment values, it is is better to read the system
   environment variable values and generate the file dynamically. This file will also contain the POM dependency versions of Selenium and Cucumber.
-  * There are three ways to read the Maven properties, I will discuss them both below:
-      * First is to use [Maven resource plugin - copy resources](https://maven.apache.org/plugins/maven-resources-plugin/) that copies the resources to
-        specified output directory.
-        * [Allure: Environment file in target folder](https://stackoverflow.com/a/31479278)
-      * Second way is to use [Maven Filtering](https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html). That will cause Maven to
-        copy that file into your output classes and translate the resource during that copy, interpreting the property.
-        * [Retrieve version from maven pom.xml in code](https://stackoverflow.com/a/3697482)
-        * [Getting maven project version and artifact ID from pom](https://stackoverflow.com/a/26573884)
-        * [How to get the pom properties at runtime?](https://igorski.co/how-to-get-the-pom-properties-at-runtime/)
-      * Third way is to use the [Apache maven model](https://mvnrepository.com/artifact/org.apache.maven/maven-model) that has been used in this project:
-        * [Retrieve version from maven pom.xml in code](https://stackoverflow.com/a/41791885) 
-        * [Access maven properties defined in the pom](https://stackoverflow.com/a/11500619)
-            * Add the following Maven dependency to project
-          ````xml
-          <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
-          <dependency>
-              <groupId>org.apache.maven</groupId>
-              <artifactId>maven-model</artifactId>
-              <version>3.8.6</version>
-          </dependency>
-          ````
-            * Create a new method in **PropertyUtils** class that will read the POM.xml and returns the Properties defined inside it:
-          ````java
-          public static Properties mavenPropsLoader(String filePath) throws IOException, XmlPullParserException {
-            MavenXpp3Reader reader = new MavenXpp3Reader();
-            Model model = reader.read(new FileReader(filePath));
-            return model.getProperties();
-          }
-          ````
-            * Now define a method inside your Hooks with Cucumber @AfterAll annotation that will load the maven properties as well as system properties
-              and then generate `environment.properties` file dynamically at run-time with this information:
-          ````java
-          @AfterAll
-          public static void setAllureEnvVariables() throws IOException, XmlPullParserException {
-            //Instantiating the properties file
-            Properties props = new Properties();
-            //Populating the properties file
-            props.put("OS", System.getProperty("os.name"));
-            props.put("Browser", System.getProperty("browser", "Chrome"));
-            props.put("Environment", System.getProperty("env", "STAGE"));
-            props.put("Java version", System.getProperty("java.version"));
-
-            //Loading the Maven Properties from POM.xml
-            final Properties mavenProps = PropertyUtils.mavenPropsLoader("pom.xml");
-            props.put("Selenium version", mavenProps.getProperty("selenium.java.version"));
-            props.put("Cucumber version", mavenProps.getProperty("cucumber.java.version"));
-
-            //Instantiating the FileInputStream for output file
-            try (FileOutputStream fileOutputStream = new FileOutputStream(System.getProperty("user.dir") + "\\target\\allure-results\\environment.properties")) {
-                //Storing the properties file
-                props.store(fileOutputStream, "Allure Report environment variables");
-            }
-
-          }
-          ````
-      * It is important that you define the `selenium.java.version` and `cucumber.java.version` in your POM.xml properties so they can be read and written into Allure.
+    * There are three ways to read the Maven properties, I will discuss them both below:
+        * First is to use [Maven resource plugin - copy resources](https://maven.apache.org/plugins/maven-resources-plugin/) that copies the resources
+          to
+          specified output directory.
+            * [Allure: Environment file in target folder](https://stackoverflow.com/a/31479278)
+        * Second way is to use [Maven Filtering](https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html). That will cause Maven
+          to
+          copy that file into your output classes and translate the resource during that copy, interpreting the property.
+            * [Retrieve version from maven pom.xml in code](https://stackoverflow.com/a/3697482)
+            * [Getting maven project version and artifact ID from pom](https://stackoverflow.com/a/26573884)
+            * [How to get the pom properties at runtime?](https://igorski.co/how-to-get-the-pom-properties-at-runtime/)
+        * Third way is to use the [Apache maven model](https://mvnrepository.com/artifact/org.apache.maven/maven-model) that has been used in this
+          project:
+            * [Retrieve version from maven pom.xml in code](https://stackoverflow.com/a/41791885)
+            * [Access maven properties defined in the pom](https://stackoverflow.com/a/11500619)
+                * Add the following Maven dependency to project
+              ````xml
+              <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
+              <dependency>
+                  <groupId>org.apache.maven</groupId>
+                  <artifactId>maven-model</artifactId>
+                  <version>3.8.6</version>
+              </dependency>
+              ````
+                * Create a new method in **PropertyUtils** class that will read the POM.xml and returns the Properties defined inside it:
+              ````java
+              public static Properties mavenPropsLoader(String filePath) throws IOException, XmlPullParserException {
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                Model model = reader.read(new FileReader(filePath));
+                return model.getProperties();
+              }
+              ````
+                * Now define a method inside your Hooks with Cucumber @AfterAll annotation that will load the maven properties as well as system
+                  properties
+                  and then generate `environment.properties` file dynamically at run-time with this information:
+              ````java
+              @AfterAll
+              public static void setAllureEnvVariables() throws IOException, XmlPullParserException {
+                //Instantiating the properties file
+                Properties props = new Properties();
+                //Populating the properties file
+                props.put("OS", System.getProperty("os.name"));
+                props.put("Browser", System.getProperty("browser", "Chrome"));
+                props.put("Environment", System.getProperty("env", "STAGE"));
+                props.put("Java version", System.getProperty("java.version"));
+    
+                //Loading the Maven Properties from POM.xml
+                final Properties mavenProps = PropertyUtils.mavenPropsLoader("pom.xml");
+                props.put("Selenium version", mavenProps.getProperty("selenium.java.version"));
+                props.put("Cucumber version", mavenProps.getProperty("cucumber.java.version"));
+    
+                //Instantiating the FileInputStream for output file
+                try (FileOutputStream fileOutputStream = new FileOutputStream(System.getProperty("user.dir") + "\\target\\allure-results\\environment.properties")) {
+                    //Storing the properties file
+                    props.store(fileOutputStream, "Allure Report environment variables");
+                }
+    
+              }
+              ````
+        * It is important that you define the `selenium.java.version` and `cucumber.java.version` in your POM.xml properties so they can be read and
+          written into Allure.
 
 ##### Allure logs and Screenshot attachment
+
 * The logging and screenshot attachment in Allure report is similar to the Extent Reports so now new code need to be added.
 * For logging the browser information, following code is added to the method annotated with @Before in Hooks.
+
 ````java
-    Capabilities cap = ((RemoteWebDriver) context.driver).getCapabilities();
-    
-    //Logging will be available in Extent and Allure Report
-    scenario.log("Webdriver initialized for browser: " + cap.getBrowserName() + " version " + cap.getBrowserVersion());
+    Capabilities cap=((RemoteWebDriver)context.driver).getCapabilities();
+
+        //Logging will be available in Extent and Allure Report
+        scenario.log("Webdriver initialized for browser: "+cap.getBrowserName()+" version "+cap.getBrowserVersion());
 ````
+
 * For screenshot attachment, the following code is added the method annotated with @AfterStep in Hooks.
+
 ````java
     @AfterStep
-    public void AddScreenshot(Scenario scenario) throws IOException {
-        if (scenario.isFailed()) {
-            //screenshot
+public void AddScreenshot(Scenario scenario)throws IOException{
+        if(scenario.isFailed()){
+//screenshot
             /*File sourcePath= 	((TakesScreenshot)context.driver).getScreenshotAs(OutputType.FILE);
             byte[] screenshot = FileUtils.readFileToByteArray(sourcePath);*/
-            final byte[] screenshot = ((TakesScreenshot) context.driver).getScreenshotAs(OutputType.BYTES);
-            scenario.attach(screenshot, "image/png", "image");
+final byte[]screenshot=((TakesScreenshot)context.driver).getScreenshotAs(OutputType.BYTES);
+        scenario.attach(screenshot,"image/png","image");
         }
-    }
+        }
 ````
+
 * This is how the logs and screenshot are visible in Allure Reports
 * <img src="doc/allure-logs-screenshot.png" alt="Allure logs" width="874">
 
 ##### Allure Links
+
 * [Allure links](https://docs.qameta.io/allure/#_links_4)
 * To pass issues to report, just add `@issue=<ISSUE-NUMBER> `on top of Scenario on Feature in your .feature file.
 * To pass TMS links to report, just add `@tmsLink=<TEST-CASE-ID>` on top of Scenario on Feature in your .feature file.
+
 > do not forget to configure allure properties with link patterns.
 
 ##### Allure Severity
+
 * [Allure severity](https://docs.qameta.io/allure/#_severity_4)
-* To set severity, add `@severity=blocker` on top of Scenario on Feature in your .feature file. 
+* To set severity, add `@severity=blocker` on top of Scenario on Feature in your .feature file.
 * If severity has wrong value it will be forced to normal (default).
 
 ##### Allure Test Markers
+
 * [Allure test markers](https://docs.qameta.io/allure/#_test_markers)
 * Every Feature or Scenario can be annotated by following tags: `@flaky`, `@muted`, `@known`
 
 #### Allure Excecutors
+
 * The Executor is display if you have an `executor.json` file in your **allure-results** folder when you generate your report.
 * This file is usually generated by your builder, for example Jenkins with the plugin allure.
 * Typical json configurations looks like this
+
 ````json
 {
   "name": "Jenkins",
@@ -1539,7 +1555,20 @@ allure.link.tms.pattern=https://example.org/browse/{}
   "reportName": "Demo allure report"
 }
 ````
-* 
+
+##### Allure report
+
+* Run the tests with `mvn clean test -Dbrowser=chrome -Denv=STAGE -Dcucumber.filter.tags=@regression` and view the results
+  with `allure serve allure-results` from target folder inside project.
+* Read the [Allure Report Structure](https://docs.qameta.io/allure/#_report_structure) to understand the dashboard widgets and tabs.
+* <img src="doc/allure-dashboard.JPG" alt="allure report dashboard" width="1901">
+* <img src="doc/allure-categories.JPG" alt="allure report categories" width="1910">
+* <img src="doc/allure-suites.JPG" alt="allure report suites" width="1904">
+* <img src="doc/allure-graphs.png" alt="allure report graphs" width="1920">
+* <img src="doc/allure-timeline.JPG" alt="allure report timeline" width="1892">
+* <img src="doc/allure-behaviors.JPG" alt="allure report behaviors" width="1908">
+* <img src="doc/allure-packages.JPG" alt="allure report packages" width="1901">
+
 ---
 
 ### Framework - Rerun Failed Scenarios
@@ -2074,5 +2103,6 @@ public void setup(Scenario scenario){
 * Execute the build, click on **Console Output** to see the result.
   <img src="doc/jenkins-allure-console-output.JPG"  alt="jenkins allure console output" width="1200">
 * Once the execution is completed, we could see a link to view the **Allure Report**.
-  <img src="doc/jenkins-allure-view-report.JPG"  alt="jenkins allure view report" width="1200">
+  <img src="doc/jenkins-allure-view-results.JPG"  alt="jenkins allure view results" width="1200">
 * The Allure Report generated via Jenkins plugin will look like this:
+  <img src="doc/allure-dashboard.JPG"  alt="jenkins allure dashboard" width="1200">
