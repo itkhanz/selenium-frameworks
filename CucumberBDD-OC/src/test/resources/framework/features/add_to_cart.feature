@@ -1,3 +1,7 @@
+@severity=blocker
+@issue=12345
+@tmsLink=45678
+
 @regression
 Feature: Add to cart
 
@@ -7,7 +11,7 @@ Feature: Add to cart
 
   Rule: Add from Store
 
-    @smoke
+    @smoke @flaky
     Scenario Outline: Add one quantity from Store
       Given I'm on the Store Page
       When I add a "<product_name>" to the cart
@@ -17,7 +21,16 @@ Feature: Add to cart
         | Blue Shoes   |
         | Anchor Bracelet |
 
+    @known
+    Scenario: Add product from Store and validate another product
 
+      This scenarios fails because we are asserting against wrong product name.
+
+      Given I'm on the Store Page
+      When I add a "Blue Shoes" to the cart
+      Then I should see 1 "Green Shoes" in the cart
+
+    @known
     Scenario: Add product from Store that does not exist
 
       This scenario fails because it was written to capture the screenshot on failure and attach to Extent Report.

@@ -101,6 +101,9 @@ public class BaseHooks {
         props.put("Cucumber version", mavenProps.getProperty("cucumber.java.version"));
 
         //Instantiating the FileInputStream for output file
+        //In this case, a new file is created when we instantiate the FileOutputStream object. If a file with a given name already exists, it will be overwritten.
+        //If, however, the existing file is a directory or a new file cannot be created for any reason, then we'll get a FileNotFoundException.
+        //Additionally, note we used a try-with-resources statement – to be sure that a stream is properly closed.
         try (FileOutputStream fileOutputStream = new FileOutputStream(System.getProperty("user.dir") + "\\target\\allure-results\\environment.properties")) {
             //Storing the properties file
             props.store(fileOutputStream, "Allure Report environment variables");

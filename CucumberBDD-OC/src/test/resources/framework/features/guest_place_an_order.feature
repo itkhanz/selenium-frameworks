@@ -1,5 +1,13 @@
+@severity=critical
+@issue=123
+@tmsLink=456
+
 @regression
 Feature: Place an order
+
+  Asa guest customer of AskOmDch app,
+  I should be able to provide the billing details,
+  so that I can place the order
 
   @smoke
   Scenario: using default payment option
