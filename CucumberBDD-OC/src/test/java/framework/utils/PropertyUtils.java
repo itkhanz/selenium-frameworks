@@ -1,5 +1,9 @@
 package framework.utils;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
 import java.io.*;
 import java.util.Properties;
 
@@ -36,5 +40,23 @@ public class PropertyUtils {
             e.printStackTrace();
             throw new RuntimeException("properties file not found at " + filePath);
         }*/
+    }
+
+    /**
+     * This method accepts the location of the POM.xml file and returns the Maven properties defined in POM
+     *
+     * @param filePath location of the POM.xml file
+     * @return Properties object from Maven POM.xml file
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    public static Properties mavenPropsLoader(String filePath) throws IOException, XmlPullParserException {
+        MavenXpp3Reader reader = new MavenXpp3Reader();
+        Model model = reader.read(new FileReader(filePath));
+        /*System.out.println(model.getId());
+        System.out.println(model.getGroupId());
+        System.out.println(model.getArtifactId());
+        System.out.println(model.getVersion());*/
+        return model.getProperties();
     }
 }

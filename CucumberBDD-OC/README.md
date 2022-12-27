@@ -1361,17 +1361,18 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
       which have originated from a remote source.
     * Execute `scoop install allure` in the Powershell. **iwr** is short for Invoke Web Request. This
       command starts a session to access something on the internet. Altogether, this command line will download and install Scoop.
-      <img src="doc/scoop-allure-install.JPG" alt="scoop allure installation" width="910">
+      <img src="doc/scoop-allure-install.JPG" alt="scoop allure installation" width="715">
 * Refer to following resources:
-  * [How to Install Scoop in Windows](https://www.makeuseof.com/windows-install-scoop/)
-  * [How to Install Scoop on Windows 10](https://www.youtube.com/watch?app=desktop&v=p9-wnf5RWC8)
-  * [Install Scoop command line package manager on Windows OS](https://www.programsbuzz.com/article/install-scoop-command-line-package-manager-windows-os)
-  * [How to Install Allure in Windows](https://www.programsbuzz.com/article/how-install-allure-windows)
+    * [How to Install Scoop in Windows](https://www.makeuseof.com/windows-install-scoop/)
+    * [How to Install Scoop on Windows 10](https://www.youtube.com/watch?app=desktop&v=p9-wnf5RWC8)
+    * [Install Scoop command line package manager on Windows OS](https://www.programsbuzz.com/article/install-scoop-command-line-package-manager-windows-os)
+    * [How to Install Allure in Windows](https://www.programsbuzz.com/article/how-install-allure-windows)
 
 ##### Cucumber Allure Report
 
 * [Cucumber JVM Allure Documentation](https://docs.qameta.io/allure/#_cucumber_jvm)
 * Add following dependency to your POM.xml. In our case, we are using Cucumber7, so added allure-cucumber7-jvm dependency.
+
 ````xml
 <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-cucumber7-jvm -->
 <dependency>
@@ -1380,10 +1381,14 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
     <version>2.20.1</version>
 </dependency>
 ````
+
 * Later, the project might throw an error at the time of compilation such as:
   _[ERROR] Failures:
-  [ERROR]   BaseTestNGRunnerTest>AbstractTestNGCucumberTests.setUpClass:27 » NoSuchMethod 'java.util.stream.Stream io.cucumber.gherkin.GherkinParser.parse(java.lang.String, java.io.InputStream)'_
-* The above [error](https://stackoverflow.com/a/61095109) occurs because the allure somehow imports the Gherkin dependencies from **info.cukes** instead of **io.cucumber**, so add the following dependency in POM.
+  [ERROR]   BaseTestNGRunnerTest>AbstractTestNGCucumberTests.setUpClass:27 » NoSuchMethod 'java.util.stream.Stream
+  io.cucumber.gherkin.GherkinParser.parse(java.lang.String, java.io.InputStream)'_
+* The above [error](https://stackoverflow.com/a/61095109) occurs because the allure somehow imports the Gherkin dependencies from **info.cukes**
+  instead of **io.cucumber**, so add the following dependency in POM.
+
 ````xml
 <!-- https://mvnrepository.com/artifact/io.cucumber/gherkin -->
 <dependency>
@@ -1392,21 +1397,116 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
     <version>26.0.1</version>
 </dependency>
 ````
+
 * [what is the difference between io.cucumber and info.cukes](https://stackoverflow.com/a/50212219)
 * Add the following plulgin to Test Runner class in @CucumberOptions annotation:
+
 ````java
-plugin = {"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"}
+plugin={"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"}
 ````
+
 * Location of allure-results directory can be configured by adding the `allure.properties` in **src/test/resources folder**
+
 ````properties
 allure.results.directory=target/allure-results
 allure.link.issue.pattern=https://example.org/browse/{}
 allure.link.tms.pattern=https://example.org/browse/{}
 ````
+
 * Then execute `mvn clean test` goal. After tests executed allure JSON files will be placed in **target/allure-results** directory.
 * Navigate to the project build directory **target** and type `allure serve allure-results` which will display the allure report in browser window.
 * [Allure  Report Generation](https://docs.qameta.io/allure/#_report_generation)
-* 
+* The report will look like below
+
+##### Allure Environment Variables
+
+* According to the allure report [documentation](https://docs.qameta.io/allure/#_environment), to add information to Environment widget just create
+  environment.properties (or environment.xml) file to allure-results directory before report generation.
+* Since allure-results are being generated in the **target/allure-results** directory as configured in the `allure.properties` so
+  the `environment.properties` file has to be created at that location.
+* The `environment.properties` file need to be created programmatically. Instead of hard-coding environment values, it is is better to read the system
+  environment variable values and generate the file dynamically. This file will also contain the POM dependency versions of Selenium and Cucumber.
+  * There are three ways to read the Maven properties, I will discuss them both below:
+      * First is to use [Maven resource plugin - copy resources](https://maven.apache.org/plugins/maven-resources-plugin/) that copies the resources to
+        specified output directory.
+        * [Allure: Environment file in target folder](https://stackoverflow.com/a/31479278)
+      * Second way is to use [Maven Filtering](https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html). That will cause Maven to
+        copy that file into your output classes and translate the resource during that copy, interpreting the property.
+        * [Retrieve version from maven pom.xml in code](https://stackoverflow.com/a/3697482)
+        * [Getting maven project version and artifact ID from pom](https://stackoverflow.com/a/26573884)
+        * [How to get the pom properties at runtime?](https://igorski.co/how-to-get-the-pom-properties-at-runtime/)
+      * Third way is to use the [Apache maven model](https://mvnrepository.com/artifact/org.apache.maven/maven-model) that has been used in this project:
+        * [Retrieve version from maven pom.xml in code](https://stackoverflow.com/a/41791885) 
+            * Add the following Maven dependency to project
+          ````xml
+          <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
+          <dependency>
+              <groupId>org.apache.maven</groupId>
+              <artifactId>maven-model</artifactId>
+              <version>3.8.6</version>
+          </dependency>
+          ````
+            * Create a new method in **PropertyUtils** class that will read the POM.xml and returns the Properties defined inside it:
+          ````java
+          public static Properties mavenPropsLoader(String filePath) throws IOException, XmlPullParserException {
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            Model model = reader.read(new FileReader(filePath));
+            return model.getProperties();
+          }
+          ````
+            * Now define a method inside your Hooks with Cucumber @AfterAll annotation that will load the maven properties as well as system properties
+              and then generate `environment.properties` file dynamically at run-time with this information:
+          ````java
+          @AfterAll
+          public static void setAllureEnvVariables() throws IOException, XmlPullParserException {
+            //Instantiating the properties file
+            Properties props = new Properties();
+            //Populating the properties file
+            props.put("OS", System.getProperty("os.name"));
+            props.put("Browser", System.getProperty("browser", "Chrome"));
+            props.put("Environment", System.getProperty("env", "STAGE"));
+            props.put("Java version", System.getProperty("java.version"));
+
+            //Loading the Maven Properties from POM.xml
+            final Properties mavenProps = PropertyUtils.mavenPropsLoader("pom.xml");
+            props.put("Selenium version", mavenProps.getProperty("selenium.java.version"));
+            props.put("Cucumber version", mavenProps.getProperty("cucumber.java.version"));
+
+            //Instantiating the FileInputStream for output file
+            try (FileOutputStream fileOutputStream = new FileOutputStream(System.getProperty("user.dir") + "\\target\\allure-results\\environment.properties")) {
+                //Storing the properties file
+                props.store(fileOutputStream, "Allure Report environment variables");
+            }
+
+          }
+          ````
+      * It is important that you define the `selenium.java.version` and `cucumber.java.version` in your POM.xml properties so they can be read and written into Allure.
+
+##### Allure logs and Screenshot attachment
+* The logging and screenshot attachment in Allure report is similar to the Extent Reports so now new code need to be added.
+* For logging the browser information, following code is added to the method annotated with @Before in Hooks.
+````java
+    Capabilities cap = ((RemoteWebDriver) context.driver).getCapabilities();
+    
+    //Logging will be available in Extent and Allure Report
+    scenario.log("Webdriver initialized for browser: " + cap.getBrowserName() + " version " + cap.getBrowserVersion());
+````
+* For screenshot attachment, the following code is added the method annotated with @AfterStep in Hooks.
+````java
+    @AfterStep
+    public void AddScreenshot(Scenario scenario) throws IOException {
+        if (scenario.isFailed()) {
+            //screenshot
+            /*File sourcePath= 	((TakesScreenshot)context.driver).getScreenshotAs(OutputType.FILE);
+            byte[] screenshot = FileUtils.readFileToByteArray(sourcePath);*/
+            final byte[] screenshot = ((TakesScreenshot) context.driver).getScreenshotAs(OutputType.BYTES);
+            scenario.attach(screenshot, "image/png", "image");
+        }
+    }
+````
+* This is how the logs and screenshot are visible in Allure Reports
+* <img src="doc/allure-logs.JPG" alt="Allure logs" width="850">
+* <img src="doc/allure-screenshot.JPG" alt="Allure screenshot" width="837">
 ---
 
 ### Framework - Rerun Failed Scenarios
@@ -1901,6 +2001,45 @@ public void setup(Scenario scenario){
 * <img src="doc/cucumber-reports-trends.JPG"  alt="cucumber report trends" width="1860">
 * <img src="doc/cucumber-reports-failures.JPG"  alt="cucumber report failures" width="1878">
 
+---
 
+#### Jenkins - Allure reports
 
+* [Allure Jenkins](https://docs.qameta.io/allure/#_jenkins)
+* To generate Allure Report in Jenkins, we need to download [Allure Plugin](https://plugins.jenkins.io/allure-jenkins-plugin/). This plugin allows to
+  automatically generate Allure Report and attach it to build during Jenkins job run.
 
+##### Install Allure Jenkins Plugin
+
+* [How to install Plugins in Jenkins](https://qaautomation.expert/2022/12/12/how-to-install-plugins-in-jenkins/)
+* Click on the **Manage Jenkins**. As soon as we click on the Manage Jenkins link, we will redirect toward the Manage Jenkins page, and here we need
+  to
+  click on “**Manage Plugins**” under the System Configuration section.
+* On the Plugins Page, go to the Available option, and install Allure plugin.
+
+##### Configure Allure Jenkins Plugin
+
+* [Integration of Allure Report with Jenkins](https://qaautomation.expert/2022/12/02/integration-of-allure-report-with-jenkins/)
+* Go back to the **Manage Jenkins** link, and click on the **Global Tool Configuration** option under System Configuration.
+* We need to set the **Allure Commandline** in Jenkins. Click on the **Allure Command line installations** button. By default, “Install Automatically”
+  will be checked, so since we are going to use the Allure installed on our local machine, **Install automatically** will install the latest version
+  of
+  Allure.
+* Provide the Name as **ALLURE_HOME** because that is what is currently installed on my machine, and also provide the path of Allure in the
+  ALLURE_HOME textbox.
+* Click on Apply and Save button.
+
+##### Add Post-Build Action in Jenkins Job for Allure Report
+
+* Scroll down to ‘**Post Build Actions**’ and click on the ‘**Add Post Build Actions**’ drop-down list. Select “**Allure Report**“.
+* Enter the Results Path where the allure-results are getting generated in your project. In my case, it is getting generated under target directory
+  <img src="doc/jenkins-allure-report-post-build.JPG"  alt="jenkins allure report post build action" width="1200">
+* Click on Apply and Save button.
+
+##### Execute Jenkins Job and view Allure Report
+
+* Execute the build, click on **Console Output** to see the result.
+  <img src="doc/jenkins-allure-console-output.JPG"  alt="jenkins allure console output" width="1200">
+* Once the execution is completed, we could see a link to view the **Allure Report**.
+  <img src="doc/jenkins-allure-view-report.JPG"  alt="jenkins allure view report" width="1200">
+* The Allure Report generated via Jenkins plugin will look like this:
