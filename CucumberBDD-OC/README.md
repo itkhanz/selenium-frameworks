@@ -1171,13 +1171,14 @@ public void iAmOnTheCheckoutPage(){
 @CucumberOptions(plugin = {"timeline:<report folder>"})
 ````
 
-* Below is a sample report when I run the tests in parallel on-demand on  Chrome browser with maven
+* Below is a sample report when I run the tests in parallel on-demand on Chrome browser with maven
   command ` mvn clean install -D"browser=chrome" -D"ondemand=true" -D"scenariosInParallel=true" -PRegression`
 
 <img src="doc/thread-timeline.JPG" alt="Cucumber Tests Timeline Formatter" width="1364">
 
 * This report is available inside the report folder you put in the timeline plugin, and the report can be filtered with tags and scenarios.
 * https://cucumber.io/docs/guides/parallel-execution/?lang=java#timeline-formatter
+
 ---
 
 #### Extent Spark HTML and PDF Reports
@@ -1345,6 +1346,68 @@ extent.reporter.pdf.out=PdfReport/ExtentPdf.pdf
 > Do not use this report if the setup contains multiple runners as concurrent modification of the same PDF will result in errors. Better solution
 > would be use a Maven plugin for [creating just the PDF report](https://ghchirp.online/2224/) or the complete ExtentReport
 > suite(https://ghchirp.online/2114/).
+
+---
+
+#### Allure Reports
+
+##### Scoop Commandline and Allure Installation for Windows
+
+* Allure Report requires a web server to view the results. If we directly open the index.html file, we won't see any reports. To install Allure,
+  first download and install Scoop and then install allure using it.
+* [Scoop](https://scoop.sh/) is a command-line package manager for Windows. Installing programs with Scoops removes the graphical interface and
+  eliminates the permission pop-ups. Scoop automatically finds and installs the dependencies for the program you just installed.
+    * Launch Powershell and enter following command `Set-ExecutionPolicy RemoteSigned -scope CurrentUser`.This allows the current user to run scripts
+      which have originated from a remote source.
+    * Execute `scoop install allure` in the Powershell. **iwr** is short for Invoke Web Request. This
+      command starts a session to access something on the internet. Altogether, this command line will download and install Scoop.
+      <img src="doc/scoop-allure-install.JPG" alt="scoop allure installation" width="910">
+* Refer to following resources:
+  * [How to Install Scoop in Windows](https://www.makeuseof.com/windows-install-scoop/)
+  * [How to Install Scoop on Windows 10](https://www.youtube.com/watch?app=desktop&v=p9-wnf5RWC8)
+  * [Install Scoop command line package manager on Windows OS](https://www.programsbuzz.com/article/install-scoop-command-line-package-manager-windows-os)
+  * [How to Install Allure in Windows](https://www.programsbuzz.com/article/how-install-allure-windows)
+
+##### Cucumber Allure Report
+
+* [Cucumber JVM Allure Documentation](https://docs.qameta.io/allure/#_cucumber_jvm)
+* Add following dependency to your POM.xml. In our case, we are using Cucumber7, so added allure-cucumber7-jvm dependency.
+````xml
+<!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-cucumber7-jvm -->
+<dependency>
+    <groupId>io.qameta.allure</groupId>
+    <artifactId>allure-cucumber7-jvm</artifactId>
+    <version>2.20.1</version>
+</dependency>
+````
+* Later, the project might throw an error at the time of compilation such as:
+  _[ERROR] Failures:
+  [ERROR]   BaseTestNGRunnerTest>AbstractTestNGCucumberTests.setUpClass:27 » NoSuchMethod 'java.util.stream.Stream io.cucumber.gherkin.GherkinParser.parse(java.lang.String, java.io.InputStream)'_
+* The above [error](https://stackoverflow.com/a/61095109) occurs because the allure somehow imports the Gherkin dependencies from **info.cukes** instead of **io.cucumber**, so add the following dependency in POM.
+````xml
+<!-- https://mvnrepository.com/artifact/io.cucumber/gherkin -->
+<dependency>
+    <groupId>io.cucumber</groupId>
+    <artifactId>gherkin</artifactId>
+    <version>26.0.1</version>
+</dependency>
+````
+* [what is the difference between io.cucumber and info.cukes](https://stackoverflow.com/a/50212219)
+* Add the following plulgin to Test Runner class in @CucumberOptions annotation:
+````java
+plugin = {"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"}
+````
+* Location of allure-results directory can be configured by adding the `allure.properties` in **src/test/resources folder**
+````properties
+allure.results.directory=target/allure-results
+allure.link.issue.pattern=https://example.org/browse/{}
+allure.link.tms.pattern=https://example.org/browse/{}
+````
+* Then execute `mvn clean test` goal. After tests executed allure JSON files will be placed in **target/allure-results** directory.
+* Navigate to the project build directory **target** and type `allure serve allure-results` which will display the allure report in browser window.
+* [Allure  Report Generation](https://docs.qameta.io/allure/#_report_generation)
+* 
+---
 
 ### Framework - Rerun Failed Scenarios
 

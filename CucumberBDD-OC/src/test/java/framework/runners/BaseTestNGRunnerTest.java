@@ -19,6 +19,7 @@ import org.testng.annotations.Parameters;
                 "json:target/cucumber/cucumber.json",
                 "timeline:target/test-output-thread",
                 "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm",
                 "rerun:target/failed_scenarios.txt"
         }
         , tags = "@smoke"
