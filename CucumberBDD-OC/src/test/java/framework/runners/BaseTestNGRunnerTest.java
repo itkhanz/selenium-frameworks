@@ -50,5 +50,4 @@ public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
         }
     }
 
-
 }

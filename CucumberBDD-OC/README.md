@@ -1569,6 +1569,17 @@ final byte[]screenshot=((TakesScreenshot)context.driver).getScreenshotAs(OutputT
 * <img src="doc/allure-behaviors.JPG" alt="allure report behaviors" width="1908">
 * <img src="doc/allure-packages.JPG" alt="allure report packages" width="1901">
 
+##### Issues in Allure Report
+
+* [No Support for Allure Cucumber Jvm Report for Cross browser and Parallel execution](https://stackoverflow.com/questions/58417607/allure-cucumber-jvm-report-for-cross-browser-and-parallel-execution)
+    * If the test suite has multiple tests with same Runner classes running on different browsers, then the test results will show for only one of the
+      browser and remaining tests will get added to the Retries tab. This happens because the feature and scenario names are same.
+    * [Allure2 report do NOT support for cross browser testing - GitHub Issue](https://github.com/allure-framework/allure-java/issues/381)
+    * [If classes with the same names are used in the tests run by TestNG, then only the last result will be recorded. - GitHub issue](https://github.com/allure-framework/allure-java/issues/632)
+    * [TestNG - Mutiple Test are there in the xml file ..TC count not displayed in the report properly -GitHub issue](https://github.com/allure-framework/allure-java/issues/576)
+* [Using @flaky or @muted or @known tags in Cucumber Scenarios or Feature doesn't reflect in Allure report - GitHub Issue](https://github.com/allure-framework/allure2/issues/1611)
+  * The scenarios or features marked as @flaky does not show up in the test report with corresponding marker.
+
 ---
 
 ### Framework - Rerun Failed Scenarios
