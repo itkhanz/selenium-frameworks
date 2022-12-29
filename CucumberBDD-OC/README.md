@@ -1578,7 +1578,115 @@ final byte[]screenshot=((TakesScreenshot)context.driver).getScreenshotAs(OutputT
     * [If classes with the same names are used in the tests run by TestNG, then only the last result will be recorded. - GitHub issue](https://github.com/allure-framework/allure-java/issues/632)
     * [TestNG - Mutiple Test are there in the xml file ..TC count not displayed in the report properly -GitHub issue](https://github.com/allure-framework/allure-java/issues/576)
 * [Using @flaky or @muted or @known tags in Cucumber Scenarios or Feature doesn't reflect in Allure report - GitHub Issue](https://github.com/allure-framework/allure2/issues/1611)
-  * The scenarios or features marked as @flaky does not show up in the test report with corresponding marker.
+    * The scenarios or features marked as @flaky does not show up in the test report with corresponding marker.
+
+---
+
+#### Master Thought Cucumber Reports
+
+* This is a Java report publisher primarily created to publish [cucumber reports](https://github.com/damianszczepanik/cucumber-reporting) on the
+  Jenkins build server. It publishes pretty html reports with charts showing the results of cucumber runs. It has been split out into a standalone 
+  package, so it can be used for Jenkins and maven command line as well as any other packaging that might be useful. Generated report has no 
+  dependency so can be viewed offline.
+* This project allows you to publish the results of a cucumber run as pretty html reports. In order for this to work you must generate a cucumber json
+  report. The project converts the json report into an overview html linking to separate feature files with stats and results.
+* Add a [maven dependency](https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting) to your project
+
+````xml
+<!-- https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting -->
+<dependency>
+    <groupId>net.masterthought</groupId>
+    <artifactId>cucumber-reporting</artifactId>
+    <version>5.7.4</version>
+</dependency>
+````
+
+* Add `Masterthought` plugin in pom.xml. In the plugin section, we can configure details like project name, output directory, build version. Note that
+  since our generate json report is saved as `cucumber.json`, therefore we specified the name pattern as `<param>**/cucumber.json</param>`.
+
+````xml
+
+<plugin>
+    <groupId>net.masterthought</groupId>
+    <artifactId>maven-cucumber-reporting</artifactId>
+    <version>5.7.4</version>
+    <executions>
+        <execution>
+            <id>execution</id>
+            <phase>test</phase>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <projectName>cucumberReporting</projectName>
+                <skip>false</skip>
+                <outputDirectory>${project.build.directory}</outputDirectory>
+                <inputDirectory>${project.build.directory}</inputDirectory>
+                <jsonFiles>
+                    <param>**/cucumber.json</param>
+                </jsonFiles>
+                <mergeFeaturesById>false</mergeFeaturesById>
+                <mergeFeaturesWithRetest>false</mergeFeaturesWithRetest>
+                <checkBuildResult>false</checkBuildResult>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+````
+
+* If the build is failed due to failing scenario then the report will not get generated. To overcome
+  this [issue](https://stackoverflow.com/a/47904940), Add the following configuration to the sure fire plugin. It will not stop the maven execution
+  after the failure. Then it will generate the report.`<testFailureIgnore>true</testFailureIgnore>`
+* as given below with your existing configuration.
+
+````xml
+
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.0.0-M7</version>
+    <configuration>
+        <testFailureIgnore>true</testFailureIgnore>
+    </configuration>
+</plugin>
+````
+
+* It will generate the report but the build will mark as BUILD SUCCESSS. To solve this [issue](https://stackoverflow.com/a/52206782), add the
+  following flag to your plugin configuration.
+
+````xml
+
+<checkBuildResult>true</checkBuildResult>
+
+        <!-- Set true to fail build on test failures -->
+        <!-- Set false to pass build on test failures -->
+````
+
+* You need to set in the configuration tag as below:
+
+````xml
+
+<configuration>
+    <projectName>cucumberReporting</projectName>
+    <skip>false</skip>
+    <outputDirectory>${project.build.directory}</outputDirectory>
+    <inputDirectory>${project.build.directory}</inputDirectory>
+    <jsonFiles>
+        <param>**/cucumber.json</param>
+    </jsonFiles>
+    <mergeFeaturesById>false</mergeFeaturesById>
+    <mergeFeaturesWithRetest>false</mergeFeaturesWithRetest>
+    <checkBuildResult>true</checkBuildResult>
+</configuration>
+````
+
+* Execute project using `mvn clean test -D"cucumber.filter.tags=@regression"` command. Console will show the status of report generation.
+* <img src="doc/masterthought-console.png" alt="masterthought cucumber report console output" width="984">
+
+* Refresh your project and check inside `target\cucumber-html-reports` that report generated with name feature-overview.
+* <img src="doc/masterthought-features.png" alt="masterthought cucumber report features" width="1885">
+* <img src="doc/masterthought-scenario-error.png" alt="masterthought cucumber report scenario error" width="1642">
+* <img src="doc/masterthought-scenario-attachment.png" alt="masterthought cucumber report scenario attachment" width="1590">
 
 ---
 

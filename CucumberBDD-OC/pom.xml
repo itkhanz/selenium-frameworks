@@ -299,6 +299,9 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>3.0.0-M7</version>
+            <configuration>
+              <testFailureIgnore>true</testFailureIgnore>
+            </configuration>
             <!--Thread count Configuration for TestNG Runner-->
             <!--<configuration>
               <properties>
@@ -330,7 +333,7 @@
                 </jsonFiles>
                 <mergeFeaturesById>false</mergeFeaturesById>
                 <mergeFeaturesWithRetest>false</mergeFeaturesWithRetest>
-                <checkBuildResult>false</checkBuildResult>
+                <checkBuildResult>true</checkBuildResult> <!-- Set true to fail build on test failures -->
               </configuration>
             </execution>
           </executions>
