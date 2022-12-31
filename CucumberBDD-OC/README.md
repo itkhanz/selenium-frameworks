@@ -1585,8 +1585,8 @@ final byte[]screenshot=((TakesScreenshot)context.driver).getScreenshotAs(OutputT
 #### Master Thought Cucumber Reports
 
 * This is a Java report publisher primarily created to publish [cucumber reports](https://github.com/damianszczepanik/cucumber-reporting) on the
-  Jenkins build server. It publishes pretty html reports with charts showing the results of cucumber runs. It has been split out into a standalone 
-  package, so it can be used for Jenkins and maven command line as well as any other packaging that might be useful. Generated report has no 
+  Jenkins build server. It publishes pretty html reports with charts showing the results of cucumber runs. It has been split out into a standalone
+  package, so it can be used for Jenkins and maven command line as well as any other packaging that might be useful. Generated report has no
   dependency so can be viewed offline.
 * This project allows you to publish the results of a cucumber run as pretty html reports. In order for this to work you must generate a cucumber json
   report. The project converts the json report into an overview html linking to separate feature files with stats and results.
@@ -1651,7 +1651,7 @@ final byte[]screenshot=((TakesScreenshot)context.driver).getScreenshotAs(OutputT
 </plugin>
 ````
 
-* It will generate the report but the build will mark as BUILD SUCCESSS. To solve this [issue](https://stackoverflow.com/a/52206782), add the
+* It will generate the report but the build will mark as BUILD SUCCESS. To solve this [issue](https://stackoverflow.com/a/52206782), add the
   following flag to your plugin configuration.
 
 ````xml
@@ -1687,6 +1687,15 @@ final byte[]screenshot=((TakesScreenshot)context.driver).getScreenshotAs(OutputT
 * <img src="doc/masterthought-features.png" alt="masterthought cucumber report features" width="1885">
 * <img src="doc/masterthought-scenario-error.png" alt="masterthought cucumber report scenario error" width="1642">
 * <img src="doc/masterthought-scenario-attachment.png" alt="masterthought cucumber report scenario attachment" width="1590">
+
+* [Maven mojo](https://github.com/damianszczepanik/maven-cucumber-reporting) for the cucumber-reporting - put this into your pom.xml and run mvn
+  verify so cucumber reports will be generated in `target/cucumber-html-reports`. I changed the execution phase to test, so I can generate reports and
+  run tests with `mvn clean test`.
+* An external [plugin](https://gitlab.com/jamietanna/cucumber-reporting-plugin) is also available that wraps `damianszczepanik/cucumber-reporting` in
+  a Cucumber plug-in so it can be used directly when running Cucumber.
+* It delegates to the CucumberJsonReporter on-the-fly and finally passes the JSON `todamianszczepanik/cucumber-reporting`.
+* https://gitlab.com/jamietanna/cucumber-reporting-plugin
+* https://mvnrepository.com/artifact/me.jvt.cucumber/reporting-plugin
 
 ---
 
@@ -2020,6 +2029,314 @@ public void setup(Scenario scenario){
   multiple runners classes for features and set the parallel attribute to classes. This will then run all the features in parallel and scenarios
   sequentially.
 *
+
+---
+
+### Framework - Cucumber cross-platform parallel browser execution using Selenium Grid
+
+* Create a new test suite and add its profile in maven POM.xml. The test suite allows to run smoke tests parallel on different browsers and platforms:
+
+````xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Smoke Test Suite - Distributed Grid" thread-count="10" parallel="tests">
+    <listeners>
+        <listener class-name="framework.listeners.ScenariosParallelTransformer"/>
+    </listeners>
+    <test name="Google Chrome Browser Test">
+        <parameter name="browser" value="chrome"/>
+        <parameter name="browserVersion" value="108"/>
+        <parameter name="platformName" value="windows 10"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <test name="Mozilla Firefox Browser Test">
+        <parameter name="browser" value="firefox"/>
+        <parameter name="browserVersion" value="108"/>
+        <parameter name="platformName" value="windows 10"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <test name="Microsoft Edge Browser Test">
+        <parameter name="browser" value="edge"/>
+        <parameter name="browserVersion" value="108"/>
+        <parameter name="platformName" value="windows 10"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <!--<test  name="Safari Browser Test">
+        <parameter name="browser" value="safari"/>
+        <parameter name="browserVersion" value="108"/>
+        <parameter name="platformName" value="mac"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test>--> <!-- Test -->
+</suite> <!-- Suite -->
+````
+
+* Create the `grid.properties` file in **src\test\resources\framework\properties** directory. This file serves the primary purpose of storing grid
+  properties e.g. HUB URL. Add your IP address against the `hubUrl` property and the default port is 4444. Change the port also if you wish to start
+  the hub on another port.
+
+````properties
+hubURL=http://192.168.50.152:4444/
+````
+
+* The Grid support is to be integrarted along with the existing framework, and should be able to control executions via maven commandline. Therefore,
+  a system property `gridMode` must be sent to distinguish between tests running locally or remote. Previously the driver was getting initialized
+  localy with following command in Hooks `driver = DriverFactory.initializeDriver(context.browser);` which is now changed to:
+
+````java
+//Initializes the remote webdriver for Selenium Grid distributed parallel testing
+//Make sure to pass the maven command line argument -DgridMode e.g.  mvn clean test -D"gridMode=true" -PsmokeDistributed
+//Start the selenium hub and nodes on machines separately before running the tests on remote webdriver
+if(Objects.equals(System.getProperty("gridMode","false"),"true")){
+        String browserVersion=Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("browserVersion");
+        String platform=Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("platformName");
+        try{
+            driver=DriverFactory.initializeRemoteDriver(context.browser,browserVersion,platform);
+        }catch(MalformedURLException e){
+            e.printStackTrace();
+            throw new RuntimeException("unable to initialize Remote Webdriver for "+context.browser+" version: "+browserVersion+" Platform: "+platform+" "+e.getMessage());
+        }
+}
+else{
+        driver=DriverFactory.initializeDriver(context.browser);
+}
+````
+
+* A new method `initializeRemoteDriver` is defined in the DriverFactory class that will initialize remote webdriver with browser options. We are using
+  Browser options which is the latest recommendation from selenium. Use of Desired capabilities is deprecated now.
+* The [Remote Webdriver Options](https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/) are described in selenium documentation.
+* [Browsers custome capabilities](https://www.selenium.dev/documentation/webdriver/browsers/)
+* [Firefox Options](https://developer.mozilla.org/en-US/docs/Web/WebDriver/Capabilities/firefoxOptions)
+* [Chrome Options](https://chromedriver.chromium.org/capabilities)
+* [Edge Options](https://learn.microsoft.com/en-us/microsoft-edge/webdriver-chromium/capabilities-edge-options)
+
+````java
+    /**
+ * This method initializes the remote webdriver with browser capabilities defined in Test Suite parameters.
+ * If the tests are to be executed on Selenium Grid with remote drivers and tests are run with gridMode= true then we initialize remote webdriver
+ *
+ * @param browserName Name of the browser is set in smoke-tests-distributed.xml file as test parameter "browser" e.g. chrome, firefox, edge, safari
+ * @param browserVersion Browser version is set in smoke-tests-distributed.xml file as test parameter "browserVersion"
+ * @param platform platform is set in smoke-tests-distributed.xml file as test parameter "platformName" e.g. windows mac, linux
+ * @return RemoteWebDriver on hubURL configured in grid.properties with corresponding browser options
+ * @throws MalformedURLException
+ */
+public static WebDriver initializeRemoteDriver(String browserName,String browserVersion,String platform)throws MalformedURLException{
+        WebDriver driver;
+        Properties gridProps=PropertyUtils.propertyLoader("src/test/resources/framework/properties/grid.properties");
+        String hubAddress=gridProps.getProperty("hubURL");
+        switch(browserName){
+        case"chrome"->{
+          ChromeOptions chromeOptions=new ChromeOptions();
+          chromeOptions.setCapability("browserVersion",browserVersion);
+          chromeOptions.setCapability("platformName",platform);
+          driver=new RemoteWebDriver(new URL(hubAddress),chromeOptions);
+        }
+        case"firefox"->{
+          FirefoxOptions firefoxOptions=new FirefoxOptions();
+          firefoxOptions.setCapability("browserVersion",browserVersion);
+          firefoxOptions.setCapability("platformName",platform);
+          driver=new RemoteWebDriver(new URL(hubAddress),firefoxOptions);
+        }
+        case"edge"->{
+          EdgeOptions edgeOptions=new EdgeOptions();
+          edgeOptions.setCapability("browserVersion",browserVersion);
+          edgeOptions.setCapability("platformName",platform);
+          driver=new RemoteWebDriver(new URL(hubAddress),edgeOptions);
+        }
+        case"safari"->{
+          SafariOptions safariOptions=new SafariOptions();
+          DesiredCapabilities caps=new DesiredCapabilities();
+          safariOptions.setCapability("browserVersion",browserVersion);
+          safariOptions.setCapability("platformName",platform);
+          driver=new RemoteWebDriver(new URL(hubAddress),safariOptions);
+        }
+        default ->throw new IllegalStateException("INVALID BROWSER: "+browserName);
+        }
+
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        return driver;
+        }
+````
+
+* Download the latest [Selenium Server (Grid)](https://www.selenium.dev/downloads/) and place in your machine. Latest Stable version is 4.7.2
+* Ensure the following browsers are installed and updated on your machines where nodes will run. Download the web drivers for your browsers:
+    * [ChromeDriver](https://chromedriver.chromium.org/downloads)
+    * [Firefox-geckodriver](https://github.com/mozilla/geckodriver/releases)
+    * [Microsoft Edge WebDriver](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/)
+
+#### Standalone
+
+* [Standalone mode](https://www.selenium.dev/documentation/grid/getting_started/#standalone)  is also the easiest mode to spin up a Selenium Grid. By
+  default, the server will listen for **RemoteWebDriver** requests on `http://localhost:4444`. By default, the server will detect the available
+  drivers that
+  it can use from the System PATH.
+
+````java
+java-jar selenium-server-<version>.jar standalone
+````
+
+#### Hub and Node
+
+* [Hub and Node](https://www.selenium.dev/documentation/grid/getting_started/#hub-and-node) is the most used role because it allows to:
+    * Combine different machines in a single Grid
+        * Machines with different operating systems and/or browser versions.
+
+* Navigate to the directory where selenium server jar is downloaded and run `java -jar selenium-server-4.7.2.jar hub`
+* Since we have multiple browsers and multiple platforms, therefore we will configure our nodes wíth **Toml** files as recommended by Selenium.
+
+> We recommend the use of Toml files to configure a Grid. Configuration files improve readability, and you can also check them in source control.
+> When needed, you can combine a Toml file configuration with CLI arguments.
+
+* Selenium provides a good [documentation](https://www.selenium.dev/documentation/grid/configuration/cli_options/) for different configurations and
+  CLI options in the Selenium Grid.
+* The [Info commands](https://www.selenium.dev/documentation/grid/configuration/help/) provide details of possible options for any component. For our
+  use, you can try following commands:
+````java
+java -jar selenium-server-<version>.jar info config
+java -jar selenium-server-<version>.jar --config-help
+java -jar selenium-server-<version>.jar hub --help
+java -jar selenium-server-<version>.jar node --help
+````
+* Before moving on to node configuration with Toml files, here is a brief summary of important options used:
+
+##### [Events](https://www.selenium.dev/documentation/grid/configuration/cli_options/#events)
+
+`--publish-events` Connection string for publishing events to the event bus
+`--subscribe-events` Connection string for subscribing to events from the event bus
+
+##### [Node](https://www.selenium.dev/documentation/grid/configuration/cli_options/#node)
+
+`--detect-drivers` Autodetect which drivers are available on the current system, and add them to the Node.
+`--driver-configuration` List of configured drivers a Node supports. It is recommended to provide this type of configuration through a toml config file to improve readability
+`--grid-url` 	Public URL of the Grid as a whole (typically the address of the Hub or the Router)
+`--max-sessions` Maximum number of concurrent sessions. Default value is the number of available processors.
+`--override-max-sessions` 	Maximum number of concurrent sessions. Default value is the number of available processors.
+`--session-timeout` Let X be the session-timeout in seconds. The Node will automatically kill a session that has not had any activity in the last X seconds. This will release the slot for other tests.
+`--hub` The address of the Hub in a Hub-and-Node configuration.
+
+##### [Server](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
+
+`--port` Port to listen on. There is no default as this parameter is used by different components.
+
+> maxInstance is used to limit the number of browser initialization in a node.
+> maxSession is used to configure how many numbers of browsers can be used parallel in the remote system.
+
+* [Selenium Grid 4 complete guide to configuration flags](https://www.webelement.click/en/selenium_grid_4_complete_guide_to_configuration_flags)
+* create the toml files for each of the node with desired browser and platform. Start each node on different port and mention the hub url.
+* Also specify the path of downloaded webdrivers in `webdriver-path`
+* The firefox browser may not pick up the browser binary from default installation location, so we also specified it under binary option.
+
+##### Node Configuration for Chrome Browser on Windows 10
+* Here is how my `nodeConfigChrome.toml` file looks like:
+````toml
+[events]
+publish = "tcp://localhost:4442"
+subscribe = "tcp://localhost:4443"
+
+[server]
+port = 5555
+
+[node]
+hub = "http://localhost:4444"
+detect-drivers = false
+override-max-sessions = true
+session-timeout = 60
+drain-after-session-count = 0
+
+[[node.driver-configuration]]
+display-name = "firefox"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "firefox", "platformName": "windows 10", "browserVersion":"108", "maxInstances":"2", "networkname:applicationName":"node_firefox", "nodename:applicationName":"AskOmDch"}'
+max-sessions = 2
+
+````
+##### Node Configuration for FireFox Browser on Windows 10
+* Here is how my `nodeConfigFirefox.toml` file looks like:
+````toml
+[events]
+publish = "tcp://localhost:4442"
+subscribe = "tcp://localhost:4443"
+
+[server]
+port = 5556
+
+[node]
+hub = "http://localhost:4444"
+detect-drivers = false
+override-max-sessions = true
+session-timeout = 60
+drain-after-session-count = 0
+
+[[node.driver-configuration]]
+display-name = "firefox"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "firefox", "platformName": "windows 10", "browserVersion":"108", "maxInstances":"2", "networkname:applicationName":"node_firefox", "nodename:applicationName":"AskOmDch", "moz:firefoxOptions":{"binary":"C:\\Program Files\\Mozilla Firefox\\firefox.exe"}}'
+max-sessions = 2
+
+````
+
+##### Node Configuration for Edge Browser on Windows 10
+* Here is how my `nodeConfigEdge.toml` file looks like:
+````toml
+[events]
+publish = "tcp://localhost:4442"
+subscribe = "tcp://localhost:4443"
+
+[server]
+port = 5557
+
+[node]
+hub = "http://localhost:4444"
+detect-drivers = false
+override-max-sessions = true
+session-timeout = 60
+drain-after-session-count = 0
+
+[[node.driver-configuration]]
+display-name = "edge"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "MicrosoftEdge", "platformName": "windows 10", "browserVersion":"108", "maxInstances":"2", "networkname:applicationName":"node_msedge", "nodename:applicationName":"AskOmDch" }'
+max-sessions = 2
+````
+
+#### Start Selenium Grid Hub and Node
+* Navigate to the directory where selenium server jar is placed and run following commands:
+* To start Selenium Grid Hub
+`java -jar selenium-server-4.7.2.jar hub`
+
+* To start Selenium Grid nodes
+````java
+java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigChrome.toml
+java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigFirefox.toml
+java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigEdge.toml
+````
+* <img src="doc/hub-node-cmd.png"  alt="selenium grid hub and node" width="1908">
+
+##### [Querying Selenium Grid](https://www.selenium.dev/documentation/grid/getting_started/#querying-selenium-grid)
+* After starting a Grid, there are mainly two ways of querying its status, through the Grid UI or via an API call.
+* The Grid UI can be reached by opening your preferred browser and heading to http://localhost:4444.
+* <img src="doc/selenium-grid-overview.png"  alt="selenium grid overview" width="1899">
+
+##### Run Tests in Parallel on different browsers and platforms
+* Run your tests with `gridMode` setTo true and by referring to your maven profile e.eg.  `mvn clean test -D"gridMode=true" -PsmokeDistributed`
+* If you want scenarios in feature to also run in parallel, `mvn clean test -D"gridMode=true" -D"scenariosInParallel=true" -PsmokeDistributed`
+* Below you can see in image tests running in parallel on different browsers
+* <img src="doc/selenium-grid-sessions.png"  alt="selenium grid sessions" width="1617">
+
+* In Allure report timeline, you can see that all 9 tests with `@smoke` tag ran in parallel i.e. 3 tests on each of the browser
+* <img src="doc/selenium-grid-timeline-allure-smoke-tests-parallel.png"  alt="selenium grid timeline allure" width="1905">
 
 ---
 

@@ -1,0 +1,19 @@
+[events]
+publish = "tcp://localhost:4442"
+subscribe = "tcp://localhost:4443"
+
+[server]
+port = 5555
+
+[node]
+hub = "http://localhost:4444"
+detect-drivers = false
+override-max-sessions = true
+session-timeout = 60
+drain-after-session-count = 0
+
+[[node.driver-configuration]]
+display-name = "firefox"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "firefox", "platformName": "windows 10", "browserVersion":"108", "maxInstances":"2", "networkname:applicationName":"node_firefox", "nodename:applicationName":"AskOmDch"}'
+max-sessions = 2

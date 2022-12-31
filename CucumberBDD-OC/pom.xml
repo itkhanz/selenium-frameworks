@@ -240,6 +240,45 @@
         </pluginManagement>
       </build>
     </profile>
+
+    <profile>
+      <id>smokeDistributed</id>   <!--To tun this profile through command line, mvn test -PsmokeDistributed-->
+      <build>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>3.0.0-M7</version>
+              <configuration>
+                <suiteXmlFiles>
+                  <suiteXmlFile>test-suites/smoke-tests-distributed.xml</suiteXmlFile>
+                </suiteXmlFiles>
+              </configuration>
+            </plugin>
+            <!--<plugin>
+              <groupId>tech.grasshopper</groupId>
+              <artifactId>extentreports-cucumberjson-plugin</artifactId>
+              <version>2.15.0</version>
+              <executions>
+                <execution>
+                  <id>report</id>
+                  <phase>post-integration-test</phase>
+                  <goals>
+                    <goal>extentreport</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <cucumberJsonReportDirectory>${project.build.directory}/cucumber</cucumberJsonReportDirectory>
+                <displayAllHooks>false</displayAllHooks>
+                <strictCucumber6Behavior>true</strictCucumber6Behavior>
+              </configuration>
+            </plugin>-->
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
   </profiles>
 
   <build>

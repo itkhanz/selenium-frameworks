@@ -16,6 +16,7 @@ import org.testng.Reporter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -48,9 +49,23 @@ public class BaseHooks {
         }
 
 
-        driver = DriverFactory.initializeDriver(context.browser);
-        context.driver = driver;
+        //Initializes the remote webdriver for Selenium Grid distributed parallel testing
+        //Make sure to pass the maven command line argument -DgridMode e.g.  mvn clean test -D"gridMode=true" -PsmokeDistributed
+        //Start the selenium hub and nodes on machines separately before running the tests on remote webdriver
+        if(Objects.equals(System.getProperty("gridMode", "false"), "true")) {
+            String browserVersion =  Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("browserVersion");
+            String platform =  Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("platformName");
+            try {
+                driver = DriverFactory.initializeRemoteDriver(context.browser, browserVersion, platform);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("unable to initialize Remote Webdriver for " + context.browser + " version: " + browserVersion + " Platform: " + platform + " " + e.getMessage());
+            }
+        } else {
+            driver = DriverFactory.initializeDriver(context.browser);
+        }
 
+        context.driver = driver;
 
         Capabilities cap = ((RemoteWebDriver) context.driver).getCapabilities();
 
@@ -60,6 +75,8 @@ public class BaseHooks {
         //Tests will be categorised in Extent Report based on browser
         ExtentCucumberAdapter.getCurrentScenario().assignCategory(cap.getBrowserName());
 
+        //TODO: Till now cross-browser tests are put under Retries tab and there is no way to categorize the tests based on browser and display separately
+        //One solution is to change the allure results directory for different browsers and then serve the results of both reports together
     }
 
     @After
@@ -78,6 +95,7 @@ public class BaseHooks {
             scenario.attach(screenshot, "image/png", "image");
         }
     }
+
 
     /**
      * This method generates environment.properties file in the allure-results directory to display the environment variables in allure report ENVIRONMENT widget.
@@ -110,6 +128,5 @@ public class BaseHooks {
         }
 
     }
-
 
 }
