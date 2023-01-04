@@ -8,7 +8,6 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
@@ -67,26 +66,34 @@ public class DriverFactory {
         switch (browserName) {
             case "chrome" -> {
                 ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.setCapability("browserVersion", browserVersion);
+                //chromeOptions.setCapability("browserVersion", browserVersion);
                 chromeOptions.setCapability("platformName", platform);
                 driver = new RemoteWebDriver(new URL(hubAddress), chromeOptions);
+                /*DesiredCapabilities caps = new DesiredCapabilities();
+                caps.setBrowserName(Browser.CHROME.browserName());
+                caps.setVersion(browserVersion);
+                caps.setPlatform(Platform.LINUX);
+                driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
             }
             case "firefox" -> {
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
-                firefoxOptions.setCapability("browserVersion", browserVersion);
+                //firefoxOptions.setCapability("browserVersion", "browserVersion");
                 firefoxOptions.setCapability("platformName", platform);
                 driver = new RemoteWebDriver(new URL(hubAddress), firefoxOptions);
             }
             case "edge" -> {
                 EdgeOptions edgeOptions = new EdgeOptions();
-                edgeOptions.setCapability("browserVersion", browserVersion);
+                //edgeOptions.setCapability("browserVersion", "browserVersion");
                 edgeOptions.setCapability("platformName", platform);
                 driver = new RemoteWebDriver(new URL(hubAddress), edgeOptions);
+                /*DesiredCapabilities caps = new DesiredCapabilities();
+                caps.setBrowserName(Browser.EDGE.browserName());
+                caps.setVersion(browserVersion);
+                caps.setPlatform(Platform.LINUX);
+                driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
             }
             case "safari" -> {
                 SafariOptions safariOptions = new SafariOptions();
-                DesiredCapabilities caps = new DesiredCapabilities();
-                safariOptions.setCapability("browserVersion", browserVersion);
                 safariOptions.setCapability("platformName", platform);
                 driver = new RemoteWebDriver(new URL(hubAddress), safariOptions);
             }

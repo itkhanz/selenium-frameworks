@@ -2101,15 +2101,15 @@ if(Objects.equals(System.getProperty("gridMode","false"),"true")){
         String browserVersion=Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("browserVersion");
         String platform=Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter("platformName");
         try{
-            driver=DriverFactory.initializeRemoteDriver(context.browser,browserVersion,platform);
+        driver=DriverFactory.initializeRemoteDriver(context.browser,browserVersion,platform);
         }catch(MalformedURLException e){
-            e.printStackTrace();
-            throw new RuntimeException("unable to initialize Remote Webdriver for "+context.browser+" version: "+browserVersion+" Platform: "+platform+" "+e.getMessage());
+        e.printStackTrace();
+        throw new RuntimeException("unable to initialize Remote Webdriver for "+context.browser+" version: "+browserVersion+" Platform: "+platform+" "+e.getMessage());
         }
-}
-else{
+        }
+        else{
         driver=DriverFactory.initializeDriver(context.browser);
-}
+        }
 ````
 
 * A new method `initializeRemoteDriver` is defined in the DriverFactory class that will initialize remote webdriver with browser options. We are using
@@ -2137,31 +2137,31 @@ public static WebDriver initializeRemoteDriver(String browserName,String browser
         String hubAddress=gridProps.getProperty("hubURL");
         switch(browserName){
         case"chrome"->{
-          ChromeOptions chromeOptions=new ChromeOptions();
-          chromeOptions.setCapability("browserVersion",browserVersion);
-          chromeOptions.setCapability("platformName",platform);
-          driver=new RemoteWebDriver(new URL(hubAddress),chromeOptions);
+        ChromeOptions chromeOptions=new ChromeOptions();
+        chromeOptions.setCapability("browserVersion",browserVersion);
+        chromeOptions.setCapability("platformName",platform);
+        driver=new RemoteWebDriver(new URL(hubAddress),chromeOptions);
         }
         case"firefox"->{
-          FirefoxOptions firefoxOptions=new FirefoxOptions();
-          firefoxOptions.setCapability("browserVersion",browserVersion);
-          firefoxOptions.setCapability("platformName",platform);
-          driver=new RemoteWebDriver(new URL(hubAddress),firefoxOptions);
+        FirefoxOptions firefoxOptions=new FirefoxOptions();
+        firefoxOptions.setCapability("browserVersion",browserVersion);
+        firefoxOptions.setCapability("platformName",platform);
+        driver=new RemoteWebDriver(new URL(hubAddress),firefoxOptions);
         }
         case"edge"->{
-          EdgeOptions edgeOptions=new EdgeOptions();
-          edgeOptions.setCapability("browserVersion",browserVersion);
-          edgeOptions.setCapability("platformName",platform);
-          driver=new RemoteWebDriver(new URL(hubAddress),edgeOptions);
+        EdgeOptions edgeOptions=new EdgeOptions();
+        edgeOptions.setCapability("browserVersion",browserVersion);
+        edgeOptions.setCapability("platformName",platform);
+        driver=new RemoteWebDriver(new URL(hubAddress),edgeOptions);
         }
         case"safari"->{
-          SafariOptions safariOptions=new SafariOptions();
-          DesiredCapabilities caps=new DesiredCapabilities();
-          safariOptions.setCapability("browserVersion",browserVersion);
-          safariOptions.setCapability("platformName",platform);
-          driver=new RemoteWebDriver(new URL(hubAddress),safariOptions);
+        SafariOptions safariOptions=new SafariOptions();
+        DesiredCapabilities caps=new DesiredCapabilities();
+        safariOptions.setCapability("browserVersion",browserVersion);
+        safariOptions.setCapability("platformName",platform);
+        driver=new RemoteWebDriver(new URL(hubAddress),safariOptions);
         }
-        default ->throw new IllegalStateException("INVALID BROWSER: "+browserName);
+default ->throw new IllegalStateException("INVALID BROWSER: "+browserName);
         }
 
         driver.manage().window().maximize();
@@ -2203,12 +2203,14 @@ java-jar selenium-server-<version>.jar standalone
   CLI options in the Selenium Grid.
 * The [Info commands](https://www.selenium.dev/documentation/grid/configuration/help/) provide details of possible options for any component. For our
   use, you can try following commands:
+
 ````java
-java -jar selenium-server-<version>.jar info config
-java -jar selenium-server-<version>.jar --config-help
-java -jar selenium-server-<version>.jar hub --help
-java -jar selenium-server-<version>.jar node --help
+java-jar selenium-server-<version>.jar info config
+        java-jar selenium-server-<version>.jar--config-help
+        java-jar selenium-server-<version>.jar hub--help
+        java-jar selenium-server-<version>.jar node--help
 ````
+
 * Before moving on to node configuration with Toml files, here is a brief summary of important options used:
 
 ##### [Events](https://www.selenium.dev/documentation/grid/configuration/cli_options/#events)
@@ -2219,11 +2221,13 @@ java -jar selenium-server-<version>.jar node --help
 ##### [Node](https://www.selenium.dev/documentation/grid/configuration/cli_options/#node)
 
 `--detect-drivers` Autodetect which drivers are available on the current system, and add them to the Node.
-`--driver-configuration` List of configured drivers a Node supports. It is recommended to provide this type of configuration through a toml config file to improve readability
-`--grid-url` 	Public URL of the Grid as a whole (typically the address of the Hub or the Router)
+`--driver-configuration` List of configured drivers a Node supports. It is recommended to provide this type of configuration through a toml config
+file to improve readability
+`--grid-url`    Public URL of the Grid as a whole (typically the address of the Hub or the Router)
 `--max-sessions` Maximum number of concurrent sessions. Default value is the number of available processors.
-`--override-max-sessions` 	Maximum number of concurrent sessions. Default value is the number of available processors.
-`--session-timeout` Let X be the session-timeout in seconds. The Node will automatically kill a session that has not had any activity in the last X seconds. This will release the slot for other tests.
+`--override-max-sessions`    Maximum number of concurrent sessions. Default value is the number of available processors.
+`--session-timeout` Let X be the session-timeout in seconds. The Node will automatically kill a session that has not had any activity in the last X
+seconds. This will release the slot for other tests.
 `--hub` The address of the Hub in a Hub-and-Node configuration.
 
 ##### [Server](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
@@ -2239,7 +2243,9 @@ java -jar selenium-server-<version>.jar node --help
 * The firefox browser may not pick up the browser binary from default installation location, so we also specified it under binary option.
 
 ##### Node Configuration for Chrome Browser on Windows 10
+
 * Here is how my `nodeConfigChrome.toml` file looks like:
+
 ````toml
 [events]
 publish = "tcp://localhost:4442"
@@ -2262,8 +2268,11 @@ stereotype = '{"browserName": "firefox", "platformName": "windows 10", "browserV
 max-sessions = 2
 
 ````
+
 ##### Node Configuration for FireFox Browser on Windows 10
+
 * Here is how my `nodeConfigFirefox.toml` file looks like:
+
 ````toml
 [events]
 publish = "tcp://localhost:4442"
@@ -2288,7 +2297,9 @@ max-sessions = 2
 ````
 
 ##### Node Configuration for Edge Browser on Windows 10
+
 * Here is how my `nodeConfigEdge.toml` file looks like:
+
 ````toml
 [events]
 publish = "tcp://localhost:4442"
@@ -2312,24 +2323,29 @@ max-sessions = 2
 ````
 
 #### Start Selenium Grid Hub and Node
+
 * Navigate to the directory where selenium server jar is placed and run following commands:
 * To start Selenium Grid Hub
-`java -jar selenium-server-4.7.2.jar hub`
+  `java -jar selenium-server-4.7.2.jar hub`
 
 * To start Selenium Grid nodes
+
 ````java
-java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigChrome.toml
-java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigFirefox.toml
-java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigEdge.toml
+java-jar selenium-server-4.7.2.jar node--config C:\selenium\grid\nodeConfigChrome.toml
+        java-jar selenium-server-4.7.2.jar node--config C:\selenium\grid\nodeConfigFirefox.toml
+        java-jar selenium-server-4.7.2.jar node--config C:\selenium\grid\nodeConfigEdge.toml
 ````
+
 * <img src="doc/hub-node-cmd.png"  alt="selenium grid hub and node" width="1908">
 
 ##### [Querying Selenium Grid](https://www.selenium.dev/documentation/grid/getting_started/#querying-selenium-grid)
+
 * After starting a Grid, there are mainly two ways of querying its status, through the Grid UI or via an API call.
 * The Grid UI can be reached by opening your preferred browser and heading to http://localhost:4444.
 * <img src="doc/selenium-grid-overview.png"  alt="selenium grid overview" width="1899">
 
 ##### Run Tests in Parallel on different browsers and platforms
+
 * Run your tests with `gridMode` setTo true and by referring to your maven profile e.eg.  `mvn clean test -D"gridMode=true" -PsmokeDistributed`
 * If you want scenarios in feature to also run in parallel, `mvn clean test -D"gridMode=true" -D"scenariosInParallel=true" -PsmokeDistributed`
 * Below you can see in image tests running in parallel on different browsers
@@ -2337,6 +2353,227 @@ java -jar selenium-server-4.7.2.jar node --config C:\selenium\grid\nodeConfigEdg
 
 * In Allure report timeline, you can see that all 9 tests with `@smoke` tag ran in parallel i.e. 3 tests on each of the browser
 * <img src="doc/selenium-grid-timeline-allure-smoke-tests-parallel.png"  alt="selenium grid timeline allure" width="1905">
+
+---
+
+### Framework - Integrating Selenium Grid with Docker
+
+#### why Docker
+
+* Firing up Selenium Grid architecture can be lengthy process. Selenium JAR will have to be downloaded in hub and each of the node. After this you
+  have to fire the command in the hub to get the server up. From that, you can get the IP address. In the nodes, you can get the server up by adding
+  the IP of the hub and port number. This is very time-consuming and tedious process.
+* Things become more difficult to manage when tests are required to be run on different versions of a browser. Managing multiple browser versions on a
+  system and running tests on them is an exhausting process.
+* Docker manages these tasks with relative ease.
+* Docker is an open-source containerization platform that makes it easy to create, deploy, and run applications in a secure manner using containers.
+* Container in Docker is a stand unit of software that packages the code and all the required dependencies so that the application can run more
+  quickly and reliably from one computing environment to another.
+* Read more on:
+    * [Selenium Grid With Docker](https://nitinbhardwaj6.medium.com/selenium-grid-with-docker-c8ecb0d8404)
+    * [Testing a website with Selenium and Docker](https://blog.logrocket.com/testing-website-selenium-docker/)
+    * [How To Run Selenium Tests In Docker?](https://www.lambdatest.com/blog/run-selenium-tests-in-docker/)
+    * [How to run Selenium Tests in Docker](https://www.browserstack.com/guide/run-selenium-tests-in-docker)
+    * [Parallel Execution of Tests using Selenium Grid 4 with Docker Compose](https://medium.com/@iamfaisalkhatri/parallel-execution-of-tests-using-selenium-grid-4-with-docker-compose-2dc243f4fe8b)
+
+#### Docker Installation and Setup
+
+* Download the [Docker Desktop](https://docs.docker.com/desktop/)
+* Before Installing the Docker Desktop, Your Windows machine must meet the
+  following [requirements](https://docs.docker.com/desktop/install/windows-install/#system-requirements) to successfully install Docker Desktop.
+    * Make sure the system RAM, windows version,processor and the BIOS virtualization is enabled.
+    * Enable the WSL 2 feature on Windows. For detailed instructions, refer to
+      the [Microsoft documentation](https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-4---download-the-linux-kernel-update-package).
+        * [Download the Linux kernel update package](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)
+        * [Set WSL 2 as your default version](https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-5---set-wsl-2-as-your-default-version)
+            * Open PowerShell and run this command to set WSL 2 as the default version when installing a new Linux
+              distribution: `wsl --set-default-version 2`
+        * [Install your Linux distribution of choice](https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-5---set-wsl-2-as-your-default-version)
+* Now install the Docker-Desktop. After Installation, check by running the following command to see if the Docker is successfully
+  installed `docker -v`
+* Restart the machine after installing Docker
+  <img src="doc/docker-version.png"  alt="docker version" width="400">
+* Following articles offer summary of insallation steps:
+    * [Installing Docker (Docker Made Easy - Part 2)](https://www.evernote.com/shard/s433/client/snv?noteGuid=bb14b240-dd58-4916-9c3b-da56f3eee2f5&noteKey=fee22191532adef8&sn=https%3A%2F%2Fwww.evernote.com%2Fshard%2Fs433%2Fsh%2Fbb14b240-dd58-4916-9c3b-da56f3eee2f5%2Ffee22191532adef8&title=Installing%2BDocker%2B%2528Docker%2BMade%2BEasy%2B-%2BPart%2B2%2529)
+    * [How to install and setup the Docker on Windows](https://www.lambdatest.com/blog/run-selenium-tests-in-docker/#Howtoinstall)
+
+#### Docker Images for the Selenium Grid
+
+* [Read the Official Documentation of docker-selenium](https://github.com/SeleniumHQ/docker-selenium)
+* These images are published to the Docker Hub registry at [Selenium Docker Hub](https://hub.docker.com/u/selenium).
+* Since we will be running our Selenium Grid in Hub and Node configuration and each node needs to be configured for different browser so we need to
+  download docker images foe the node.
+* Run the following commands in CMD:
+    * For [Hub](https://hub.docker.com/r/selenium/hub), run `docker pull selenium/hub`
+    * For [Chrome Browser Node](https://hub.docker.com/r/selenium/node-chrome), run `docker pull selenium/node-chrome`
+    * For [Firefox Browser Node](https://hub.docker.com/r/selenium/node-firefox), run `docker pull selenium/node-firefox`
+    * For [Edge Browser Node](https://hub.docker.com/r/selenium/node-edge), run `docker pull selenium/node-edge`
+* It is also possible to download the node with specific version of Selenium and browser by speciying the tag e.g. `docker pull selenium/hub:4.7.2`.
+  By default, it will pull the latest version when no tag is specified.
+* Run the command `docker images`, that will show the images downloaded in your system.
+  <img src="doc/docker-images.png"  alt="docker images commandline" width="1200">
+* Alternatively, open the docker desktop and downloaded images are listed under Images tab.
+  <img src="doc/docker-images-desktop.png"  alt="docker images desktop" width="1200">
+
+#### Selenium Grid configuration with docker-compose.yml
+
+* [Compose](https://docs.docker.com/compose/) is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML
+  file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
+* The easiest and recommended way to get Docker Compose is to install Docker Desktop. Docker Desktop includes Docker Compose along with Docker Engine
+  and Docker CLI which are Compose prerequisites.
+* [Docker Compose](https://github.com/SeleniumHQ/docker-selenium#docker-compose) is the simplest way to start a Grid. Use the linked resources below,
+  save them locally, and check the execution instructions on top of each file.
+* Example configuration for [docker-compose-v3.yml](https://github.com/SeleniumHQ/docker-selenium#docker-compose)
+* In the root directory of the project, create the `docker-compose.yml` and add the following code
+
+````yaml
+version: "3"
+services:
+  chrome:
+    image: selenium/node-chrome
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_INSTANCES=3
+      - SE_NODE_MAX_SESSIONS=3
+
+  edge:
+    image: selenium/node-edge
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_INSTANCES=3
+      - SE_NODE_MAX_SESSIONS=3
+
+  firefox:
+    image: selenium/node-firefox
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_INSTANCES=3
+      - SE_NODE_MAX_SESSIONS=3
+
+  selenium-hub:
+    image: selenium/hub
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+````
+
+* Check out [Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3) to find out the meaning of parameters
+  specified in YAML file. Here I have linked the resources for parameters in our docker-compose.vml with a brief info:
+    * [version](https://docs.docker.com/compose/compose-file/compose-versioning/) There are several versions of the Compose file format – 1, 2, 2.x,
+      and 3.x
+    * [services](https://docs.docker.com/compose/compose-file/#the-compose-application-model) Computing components of an application are defined as
+      Services.
+    * [image](https://docs.docker.com/compose/compose-file/compose-file-v3/#image) Specify the image to start the container from.
+    * [shm_size](https://docs.docker.com/compose/compose-file/compose-file-v3/#shm_size) Set the size of the /dev/shm partition for this build’s
+      containers
+    * [depends_on](https://docs.docker.com/compose/compose-file/compose-file-v3/#depends_on) Express dependency between services.
+    * [container_name](https://docs.docker.com/compose/compose-file/compose-file-v3/#container_name) Specify a custom container name, rather than a
+      generated default name.
+    * [ports](https://docs.docker.com/compose/compose-file/compose-file-v3/#ports) Expose ports. Specify both ports (HOST:CONTAINER)
+    * [environment](https://docs.docker.com/compose/compose-file/compose-file-v3/#environment) Add environment variables.
+* [Configuration](https://github.com/SeleniumHQ/docker-selenium/wiki/Getting-Started-with-Docker-Compose#step-3-customizing-with-environment-variables)
+  of the selenium hub and nodes is handled primarily through docker environment variables. For a full list of environment variables
+  supported on each image, find your image at Docker and check the "Selenium Configuration" section of the "Dockerfile"
+    * [NODE Environment Variables](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/NodeBase/Dockerfile)
+    * [HUB Environment variables](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/Hub/Dockerfile)
+    * [Selenium Grid 4 Environment variables](https://www.webelement.click/en/selenium_grid_4_complete_guide_to_configuration_flags#_mind_this_for_docker_images)
+
+#### Running Cross Browser tests on Dockerized Grid
+
+* Add the following property in `grid.properties`. This is the IP address of the hub where hub docker node is operating.
+
+````properties
+hubURL=http://localhost:4444/
+````
+
+* Create TestNG suite xml file `smoke-tests-dockerized-grid.xml` and also add its profile in POM.xml so we can later run it through maven.
+* Add the following code to above suite xml file. Note that we have set the platform to linux because docker images provided by Selenium are based on
+  Linux OS
+
+````xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Smoke Test Suite - Dockerized Selenium Grid" thread-count="10" parallel="tests">
+    <listeners>
+        <listener class-name="framework.listeners.ScenariosParallelTransformer"/>
+    </listeners>
+    <test name="Google Chrome Browser Test">
+        <parameter name="browser" value="chrome"/>
+        <parameter name="platformName" value="linux"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <test name="Mozilla Firefox Browser Test">
+        <parameter name="browser" value="firefox"/>
+        <parameter name="platformName" value="linux"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+    <test name="Microsoft Edge Browser Test">
+        <parameter name="browser" value="edge"/>
+        <parameter name="platformName" value="linux"/>
+        <classes>
+            <class name="framework.runners.BaseTestNGRunnerTest"/>
+        </classes>
+    </test> <!-- Test -->
+
+</suite> <!-- Suite -->
+````
+
+* Remove the `chromeOptions.setCapability("browserVersion", browserVersion);` from `initializeRemoteDriver()` in `DriverFactory` class for all the
+  browsers since we are not specifying the browser version in our docker compose so this line will result in error if the browser version does not
+  match.
+* [Overview of docker compose CLI](https://docs.docker.com/compose/reference/) provides the explanation of various Docker CMD commands.
+    * `docker-compose -f /path/to/docker-compose.yml up -d` will start the docker services in containers.
+        * -d : Detach mode.It means that you can still use the CMD window after executing above command.
+          -f /path/to/docker-compose.yml : It is only required if docker-compose.yml is not present in project root directory and you have to specify
+          the path of file. If the yml file is in root directory then you can simply enter `docker-compose up -d`
+    * `docker ps` List containers
+    * `docker-compose -f /path/to/docker-compose.yml down` Containers will be stopped. Grid network will be destroyed.
+    * `docker-compose -f /path/to/docker-compose.yml restart` Containers will be restarted
+* Now it is time to start the docker grid containers for Hub and Nodes. Run the command `docker compose -f docker-compose.yml up -d`
+* Verify the status of Grid by running command `docker ps`
+* <img src="doc/docker-containers.png"  alt="docker containers running" width="1287">
+* And by visiting the URl http://localhost:4444/, it should list the created nodes that are attached to the Hub in Selenium Grid running in docker
+  containers.
+  <img src="doc/docker-grid-overview.png"  alt="docker grid overview" width="1900">
+* Run the tests with `mvn clean test -D"gridMode=true" -D"scenariosInParallel=true" -PsmokeDockergrid` which will run the 9 tests in parallel on 3
+  different docker containers. Total of 3 smoke tests will run in parallel on Edge, Chrome and Firefox browsers.
+  <img src="doc/docker-grid-sessions.png"  alt="docker grid sessions" width="1900">
+* `noVNC` comes bundled with the Selenium 4 Docker Grid so you can view what is happening in a browser session in any container by clicking on video
+  icon next to the browser session name. Enter password "secret" and it will open up the window showing tests running inside docker container in
+  browser.
+  <img src="doc/docker-grid-vnc.png"  alt="docker grid vnc" width="1300">
+* The Docker grid can be scaled up and down by command line:
+    * `docker-compose up --scale chrome=5 -d` to scale up (here chrome is the name of service)
+    * `docker-compose up --scale chrome=1 -d` to scale Down (here chrome is the name of service)
+* The grid can be stopped by the command `docker compose -f docker-compose.yml down`
+* If there are hundreds of tests that need to run in parallel then there is only a limited resources that a single machine/VM/Cloud instance can
+  offer, and it is not possible to spin so many containers on single machine. So it is recommended to start hub and nodes on different machines inside 
+  Docker and network them. Tools to manage, scale, and maintain containerized applications are called orchestrators, and the most common examples of 
+  these are [Docker Swarm](https://docs.docker.com/get-started/swarm-deploy/) and [Kubernetes](https://docs.docker.com/get-started/kube-deploy/)
+* [Scaling Tests with Docker](https://testautomationu.applitools.com/scaling-tests-with-docker/index.html)
 
 ---
 
