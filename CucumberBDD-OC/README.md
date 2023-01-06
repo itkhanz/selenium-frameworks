@@ -2375,6 +2375,8 @@ java-jar selenium-server-4.7.2.jar node--config C:\selenium\grid\nodeConfigChrom
     * [How To Run Selenium Tests In Docker?](https://www.lambdatest.com/blog/run-selenium-tests-in-docker/)
     * [How to run Selenium Tests in Docker](https://www.browserstack.com/guide/run-selenium-tests-in-docker)
     * [Parallel Execution of Tests using Selenium Grid 4 with Docker Compose](https://medium.com/@iamfaisalkhatri/parallel-execution-of-tests-using-selenium-grid-4-with-docker-compose-2dc243f4fe8b)
+* Now you can test on Google Chrome, Mozilla Firefox, and Microsoft Edge on the Dev and Beta channels using Docker
+  Selenium. [Dev and Beta Channel Browsers via Docker Selenium](https://www.selenium.dev/blog/2022/dev-and-beta-channel-browsers-via-docker-selenium/)
 
 #### Docker Installation and Setup
 
@@ -2440,6 +2442,11 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_MAX_INSTANCES=3
       - SE_NODE_MAX_SESSIONS=3
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "5900"
+      - "7900"
+
 
   edge:
     image: selenium/node-edge
@@ -2452,6 +2459,10 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_MAX_INSTANCES=3
       - SE_NODE_MAX_SESSIONS=3
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "5900"
+      - "7900"
 
   firefox:
     image: selenium/node-firefox
@@ -2464,6 +2475,10 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_MAX_INSTANCES=3
       - SE_NODE_MAX_SESSIONS=3
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "5900"
+      - "7900"
 
   selenium-hub:
     image: selenium/hub
@@ -2494,6 +2509,70 @@ services:
     * [NODE Environment Variables](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/NodeBase/Dockerfile)
     * [HUB Environment variables](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/Hub/Dockerfile)
     * [Selenium Grid 4 Environment variables](https://www.webelement.click/en/selenium_grid_4_complete_guide_to_configuration_flags#_mind_this_for_docker_images)
+* If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=1`.
+* You can download a VNC client like [Real VNC](https://www.realvnc.com/en/) and connect to the Port in Docker container where tests are running to
+  see what is happening in browsers.
+  [The VNC server is listening to port 5900, you can use a VNC client and connect to it](https://github.com/SeleniumHQ/docker-selenium#using-a-vnc-client)
+* [Port Mapping in Docker Containers](https://www.youtube.com/watch?v=C-wTVx4WWGs)
+* Selenium Grid 4 also supports noVNC which means you can connect to the docker container VNC service from within the browser itself without having
+  to install any external VNC viewer client. Port 7900 is used to start noVNC, so you will need to connect to that port with your browser.
+* Using the docker-compose.yml file, the containers can be scaled up and down i.e. multiple containers can be created from same image at the same
+  time. Therefore, it is better not to map specific port of the host machine to Docker container like "7901:7900" because Docker will automatically
+  publish the port which is free at the time to corresponding VNC (5900) and noVNC (7900) ports.
+* For accessing the VNC service use VNC viewer client and go to `127.0.0.1:<PORT>`, and for viewing noVNC service, go to browser and
+  hit `localhost:<PORT>`
+* You can view which port is VNC using by typing `docker ps` in commandline and connect to the port in your browser
+  <img src="doc/docker-novnc-cmd.png"  alt="docker novnc cmd" width="1200">
+  <img src="doc/docker-novnc-browser.png"  alt="docker novnc browser" width="1200">
+* Open the Docker Desktop and click on the container for example, node chrome to and see its logs and inspect tabs to see the configurations' node is
+  started with:
+  <img src="doc/docker-node-logs.png"  alt="docker node logs" width="900">
+  <img src="doc/docker-node-inspect.png"  alt="docker node inspect" width="900">
+* `docker stats` command will show the CPU usage and memory utilization of docker containers. Alternatively stats tab of individual docker container
+  in
+  Docker desktop will also show the stats of that container.
+* Tests execution can be recorded by using the selenium/video:ffmpeg-4.3.1-20221219 Docker image. One container is needed per each container where a
+  browser is running. This means if you are running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is
+  1-1. [Read More](https://github.com/SeleniumHQ/docker-selenium#video-recording)
+* Add the following lines to `docker-compose.yml` which will add the video recording for each of the nodes. The recordings will be displayed in the
+  directory where `docker-compose.yml` file is located and inside **test-recordings** directory, you will get 3 separate recorded videos.
+
+````yaml
+chrome_video:
+  image: selenium/video:ffmpeg-4.3.1-20221219
+  volumes:
+    - ./test-recordings:/videos
+  depends_on:
+    - chrome
+  environment:
+    - DISPLAY_CONTAINER_NAME=chrome
+    - FILE_NAME=chrome_video.mp4
+
+  edge_video:
+    image: selenium/video:ffmpeg-4.3.1-20221219
+    volumes:
+      - ./test-recordings:/videos
+    depends_on:
+      - edge
+    environment:
+      - DISPLAY_CONTAINER_NAME=edge
+      - FILE_NAME=edge_video.mp4
+
+  firefox_video:
+    image: selenium/video:ffmpeg-4.3.1-20221219
+    volumes:
+      - ./test-recordings:/videos
+    depends_on:
+      - firefox
+    environment:
+      - DISPLAY_CONTAINER_NAME=firefox
+      - FILE_NAME=firefox_video.mp4
+````
+
+* The above approach has one issue that in case of parallel scenarios executions for each browser, the recorded video will only capture singe browser
+  which is at the front of screen and the other browser instances will be hidden in background.
+* To solve this, either use Dynamic Grid or a container per test. With the current setup there is no way to break a video per test because ffmpeg records the
+  visible screen, not each browser apart.
 
 #### Running Cross Browser tests on Dockerized Grid
 
@@ -2570,8 +2649,8 @@ hubURL=http://localhost:4444/
     * `docker-compose up --scale chrome=1 -d` to scale Down (here chrome is the name of service)
 * The grid can be stopped by the command `docker compose -f docker-compose.yml down`
 * If there are hundreds of tests that need to run in parallel then there is only a limited resources that a single machine/VM/Cloud instance can
-  offer, and it is not possible to spin so many containers on single machine. So it is recommended to start hub and nodes on different machines inside 
-  Docker and network them. Tools to manage, scale, and maintain containerized applications are called orchestrators, and the most common examples of 
+  offer, and it is not possible to spin so many containers on single machine. So it is recommended to start hub and nodes on different machines inside
+  Docker and network them. Tools to manage, scale, and maintain containerized applications are called orchestrators, and the most common examples of
   these are [Docker Swarm](https://docs.docker.com/get-started/swarm-deploy/) and [Kubernetes](https://docs.docker.com/get-started/kube-deploy/)
 * [Scaling Tests with Docker](https://testautomationu.applitools.com/scaling-tests-with-docker/index.html)
 
