@@ -2772,9 +2772,42 @@ public void AddVideo(Scenario scenario){
 * The latest version of Selenium 4.7.2-20221219 is having some issues related to crashing of browser containers and content length that will be fixed
   in the next release so I tested the Dynamic Grid with older version Selenium 4.4.0.
 * Resources:
-  * [Selenium Dynamic Grid](https://github.com/SeleniumHQ/docker-selenium#dynamic-grid)
-  * [Selenium Grid 4 — Getting Started with the Dynamic Grid](https://bamtests.medium.com/selenium-grid-4-getting-started-with-the-dynamic-grid-f77b6bf109b3)
-  * [Understanding all-new Dynamic Selenium Grid 4 along with video support!](https://www.youtube.com/watch?v=nEyo8cNhZb4)
+    * [Selenium Dynamic Grid](https://github.com/SeleniumHQ/docker-selenium#dynamic-grid)
+    * [Selenium Grid 4 — Getting Started with the Dynamic Grid](https://bamtests.medium.com/selenium-grid-4-getting-started-with-the-dynamic-grid-f77b6bf109b3)
+    * [Understanding all-new Dynamic Selenium Grid 4 along with video support!](https://www.youtube.com/watch?v=nEyo8cNhZb4)
+
+#### Invoke Selenium Grid on Docker Environment using Batch file
+
+* Add the batch files in your project root directory
+    * **start_dockergrid.bat** contains the command to start docker containers: `docker-compose -f docker-compose.yml up`
+    * **stop_dockergrid.bat** contains the command to stop docker containers: `docker-compose -f docker-compose.yml down`
+* Add the following lines of code in Test Runner i.e. BaseTestNGRunnerTest that will run the cmd batch scripts to spin up and down docker containers
+  before and after test suite:
+
+````java
+//Starts the docker containers before test suite
+@BeforeSuite
+public void startDockerGrid()throws IOException,InterruptedException{
+        Runtime.getRuntime().exec("cmd /c start start_dockergrid.bat");
+        Thread.sleep(15000);
+        }
+
+//stops the docker containers after test suite
+@AfterSuite
+public void stopDockerGrid()throws IOException,InterruptedException{
+        Runtime.getRuntime().exec("cmd /c start stop_dockergrid.bat");
+        Thread.sleep(5000);
+
+        Runtime.getRuntime().exec("taskkill /f /im cmd.exe"); //closes command prompt
+        }
+````
+
+* Now execute the tests wih `mvn clean test -D"gridMode=true" -PsmokeDockergrid` which will start the command prompt windows and run the commands to
+  spin up docker containers before test suite and stop the containers automatically after the test suite.
+* Make sure the Docker Daemon is up and running on host environment. Now you do not need to start and stop docker containers manually.
+* Resources:
+  * [How to Invoke Selenium Grid on Docker Environment using Batch file](https://www.youtube.com/watch?v=CVFYaz9E2lo)
+  * [How to Integrate Docker,Selenium Grid with Jenkins](https://www.youtube.com/watch?v=JgrJhRxO-6Q)
 
 ---
 
