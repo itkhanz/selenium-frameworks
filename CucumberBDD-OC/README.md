@@ -1143,8 +1143,8 @@ public void iAmOnTheCheckoutPage(){
   Runner.
 * It will generate a cucumber.html report inside target/cucumber folder
 
-  <img src="doc/cucumber-report-summary.png" alt="cucumber report summary" width="765">
-  <img src="doc/cucumber-report-scenarios.png" alt="cucumber report scenarios" width="900">
+  <img src="doc/cucumber-report-summary.png" alt="cucumber report summary" width="1632">
+  <img src="doc/cucumber-report-scenarios.png" alt="cucumber report scenarios" width="1630">
 
 #### Cucumber Cloud Reports
 
@@ -2416,6 +2416,8 @@ java-jar selenium-server-4.7.2.jar node--config C:\selenium\grid\nodeConfigChrom
   <img src="doc/docker-images.png"  alt="docker images commandline" width="1200">
 * Alternatively, open the docker desktop and downloaded images are listed under Images tab.
   <img src="doc/docker-images-desktop.png"  alt="docker images desktop" width="1200">
+* The command `docker images -f "reference=selenium/*:latest"` will filter out the images and only show images that start with selenium/.
+*
 
 #### Selenium Grid configuration with docker-compose.yml
 
@@ -2524,6 +2526,7 @@ services:
 * You can view which port is VNC using by typing `docker ps` in commandline and connect to the port in your browser
   <img src="doc/docker-novnc-cmd.png"  alt="docker novnc cmd" width="1200">
   <img src="doc/docker-novnc-browser.png"  alt="docker novnc browser" width="1200">
+* `docker ps -a` it will also show the containers that are stopped
 * Open the Docker Desktop and click on the container for example, node chrome to and see its logs and inspect tabs to see the configurations' node is
   started with:
   <img src="doc/docker-node-logs.png"  alt="docker node logs" width="900">
@@ -2571,7 +2574,8 @@ chrome_video:
 
 * The above approach has one issue that in case of parallel scenarios executions for each browser, the recorded video will only capture singe browser
   which is at the front of screen and the other browser instances will be hidden in background.
-* To solve this, either use Dynamic Grid or a container per test. With the current setup there is no way to break a video per test because ffmpeg records the
+* To solve this, either use Dynamic Grid or a container per test. With the current setup there is no way to break a video per test because ffmpeg
+  records the
   visible screen, not each browser apart.
 
 #### Running Cross Browser tests on Dockerized Grid
@@ -2631,6 +2635,13 @@ hubURL=http://localhost:4444/
     * `docker ps` List containers
     * `docker-compose -f /path/to/docker-compose.yml down` Containers will be stopped. Grid network will be destroyed.
     * `docker-compose -f /path/to/docker-compose.yml restart` Containers will be restarted
+    * `docker start CONTAINER_ID` starts the container
+    * `docker stop CONTAINER_ID` terminates the container
+    * `docker rm CONTAINER_ID` deletes the container
+    * `docker rmi IMAGE_ID` removes the docker image
+    * `docker exec -ti <CONTAINER_ID> /bin/bash` will allows us to use command line within the docker container. The selenium jars will be placed
+      in **opt/seleium** folder as well as config.json
+
 * Now it is time to start the docker grid containers for Hub and Nodes. Run the command `docker compose -f docker-compose.yml up -d`
 * Verify the status of Grid by running command `docker ps`
 * <img src="doc/docker-containers.png"  alt="docker containers running" width="1287">
@@ -2648,11 +2659,122 @@ hubURL=http://localhost:4444/
     * `docker-compose up --scale chrome=5 -d` to scale up (here chrome is the name of service)
     * `docker-compose up --scale chrome=1 -d` to scale Down (here chrome is the name of service)
 * The grid can be stopped by the command `docker compose -f docker-compose.yml down`
+* Test run fails when a container crashes,
+  therefore [restart policy](https://docs.docker.com/config/containers/start-containers-automatically/#use-a-restart-policy) is used.
+    * No (default)
+    * On-failure (restart on non-zero exit code)
+    * Always (unless docker daemon is stopped)
+    * Unless-Stopped (Restarts always except manually stopped)
 * If there are hundreds of tests that need to run in parallel then there is only a limited resources that a single machine/VM/Cloud instance can
   offer, and it is not possible to spin so many containers on single machine. So it is recommended to start hub and nodes on different machines inside
   Docker and network them. Tools to manage, scale, and maintain containerized applications are called orchestrators, and the most common examples of
   these are [Docker Swarm](https://docs.docker.com/get-started/swarm-deploy/) and [Kubernetes](https://docs.docker.com/get-started/kube-deploy/)
 * [Scaling Tests with Docker](https://testautomationu.applitools.com/scaling-tests-with-docker/index.html)
+
+#### Run Cucumber Tests on Dynamic Selenium Grid with Video Recording
+
+* In the previous section ,we set up Selenium Grid on Docker in Hub and Node configuration. So before the test execution docker containers need to be
+  setup. Also, the problem was that the test recording was specific to the docker node and not for each of the browser session so if multiple tests
+  were executing in parallel on same node then the test recording will capture only one browser test and other executions were going in background and
+  could not be recorded. To overcome this issue, we have dynamic grid which runs each test on separate container and records the video for each test
+  separately.
+* Grid 4 has the ability to start Docker containers on demand, this means that it starts a Docker container in the background for each new session
+  request, the test gets executed there, and when the test completes, the container gets thrown
+  away. [Read More](https://github.com/SeleniumHQ/docker-selenium#dynamic-grid)
+* Create a toml configuration file and specify the browser and selenium docker images to be used to set up containers. In a nutshell, the config.toml
+  file is telling the node which browser container type to spin up when it sends a request to the event bus based on the browserName option that is
+  sent in the capabilities. There is also a docker image that gives the ability to generate a video of the test run — this .mp4 is placed where the
+  ./assets folder is after test run.
+
+````toml
+configs = [
+    "selenium/standalone-firefox:4.4.0", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.4.0", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-edge:4.4.0", "{\"browserName\": \"MicrosoftEdge\"}"
+]
+
+# URL for connecting to the docker daemon
+# Most simple approach, leave it as http://127.0.0.1:2375, and mount /var/run/docker.sock.
+# 127.0.0.1 is used because interally the container uses socat when /var/run/docker.sock is mounted
+# If var/run/docker.sock is not mounted:
+# Windows: make sure Docker Desktop exposes the daemon via tcp, and use http://host.docker.internal:2375.
+# macOS: install socat and run the following command, socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock,
+# then use http://host.docker.internal:2375.
+# Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
+url = "http://host.docker.internal:2375"
+# Docker image used for video recording
+video-image = "selenium/video:ffmpeg-4.3.1-20221219"
+
+# Uncomment the following section if you are running the node on a separate VM
+# Fill out the placeholders with appropriate values
+#[server]
+#host = <ip-from-node-machine>
+#port = <port-from-node-machine>
+````
+
+* This can be expanded to a full Grid deployment, all components deployed individually. The overall idea is to have the Hub in one virtual machine,
+  and each of the Nodes in separate and more powerful virtual machines.
+* Create a docker compose file e.g. I named it `docker-compose-v3-dynamic-grid.yml` and map the path and ports of the node configurations.
+
+````yaml
+# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-dynamic-grid.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-dynamic-grid.yml down`
+version: "3"
+services:
+  node-docker:
+    image: selenium/node-docker:4.4.0
+    volumes:
+      - ./assets/test-recordings:/opt/selenium/assets
+      - ./src/test/resources/framework/selenium-grid-config/dynamic-grid-config.toml:/opt/bin/config.toml
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  selenium-hub:
+    image: selenium/hub:4.4.0
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+````
+
+* To record your WebDriver session, you need to add a se:recordVideo field set to
+  true. [Read More](https://github.com/SeleniumHQ/docker-selenium#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid)
+* So in the DriverFactory class add the following option for each of the browser request `options.setCapability("se:recordVideo", true);`
+* Start the dynamic grid with `docker-compose -f docker-compose-v3-dynamic-grid.yml up`. After test execution the grid can be stopped by
+  running ` docker-compose -f docker-compose-v3-dynamic-grid.yml down`
+* Run the tests with `mvn clean test -D"gridMode=true" -PsmokeDockergrid`. This will spin up the containers dynamically best on session requests from
+  selenium hub.
+* As specified in the yml file, the videos will be generated in root project folder under directory `assets/test-recordings`
+* <img src="doc/docker-test-recordings.png"  alt="docker test recordings" width="517">
+* A step ahead you can also add the video recording in your allure reports but note thatVideo recording is a CPU intensive operation adn requires a
+  strong machine to handle the CPU load.
+
+````java
+    @After
+public void AddVideo(Scenario scenario){
+        SessionId sID=((RemoteWebDriver)context.driver).getSessionId();
+        try{
+        String videoPath=System.getProperty("user.dir")+"\\assets\\test-recordings\\"+sID.toString()+"video.mp4";
+        byte[]byteArr=IOUtils.toByteArray(new FileInputStream(videoPath));
+        Allure.addAttachment(scenario.getName(),"video/mp4",new ByteArrayInputStream(byteArr),"mp4");
+        }catch(IOException e){
+        e.printStackTrace();
+        }
+        }
+````
+
+* The latest version of Selenium 4.7.2-20221219 is having some issues related to crashing of browser containers and content length that will be fixed
+  in the next release so I tested the Dynamic Grid with older version Selenium 4.4.0.
+* Resources:
+  * [Selenium Dynamic Grid](https://github.com/SeleniumHQ/docker-selenium#dynamic-grid)
+  * [Selenium Grid 4 — Getting Started with the Dynamic Grid](https://bamtests.medium.com/selenium-grid-4-getting-started-with-the-dynamic-grid-f77b6bf109b3)
+  * [Understanding all-new Dynamic Selenium Grid 4 along with video support!](https://www.youtube.com/watch?v=nEyo8cNhZb4)
 
 ---
 

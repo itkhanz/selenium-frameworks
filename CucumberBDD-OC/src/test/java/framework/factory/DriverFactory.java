@@ -65,10 +65,17 @@ public class DriverFactory {
         String hubAddress  = gridProps.getProperty("hubURL");
         switch (browserName) {
             case "chrome" -> {
-                ChromeOptions chromeOptions = new ChromeOptions();
-                //chromeOptions.setCapability("browserVersion", browserVersion);
-                chromeOptions.setCapability("platformName", platform);
-                driver = new RemoteWebDriver(new URL(hubAddress), chromeOptions);
+                ChromeOptions options = new ChromeOptions();
+                //options.setCapability("browserVersion", browserVersion);
+                //options.setCapability("platformName", platform);
+
+                //Video recording, screen resolution, and time zones in a Dynamic Grid
+                //https://github.com/SeleniumHQ/docker-selenium#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid
+
+                options.setCapability("se:recordVideo", true);
+                //options.setCapability("se:timeZone", "US/Pacific");
+                //options.setCapability("se:screenResolution", "1920x1080");
+                driver = new RemoteWebDriver(new URL(hubAddress), options);
                 /*DesiredCapabilities caps = new DesiredCapabilities();
                 caps.setBrowserName(Browser.CHROME.browserName());
                 caps.setVersion(browserVersion);
@@ -76,16 +83,18 @@ public class DriverFactory {
                 driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
             }
             case "firefox" -> {
-                FirefoxOptions firefoxOptions = new FirefoxOptions();
-                //firefoxOptions.setCapability("browserVersion", "browserVersion");
-                firefoxOptions.setCapability("platformName", platform);
-                driver = new RemoteWebDriver(new URL(hubAddress), firefoxOptions);
+                FirefoxOptions options = new FirefoxOptions();
+                //options.setCapability("browserVersion", "browserVersion");
+                //options.setCapability("platformName", platform);
+                options.setCapability("se:recordVideo", true);
+                driver = new RemoteWebDriver(new URL(hubAddress), options);
             }
             case "edge" -> {
-                EdgeOptions edgeOptions = new EdgeOptions();
-                //edgeOptions.setCapability("browserVersion", "browserVersion");
-                edgeOptions.setCapability("platformName", platform);
-                driver = new RemoteWebDriver(new URL(hubAddress), edgeOptions);
+                EdgeOptions options = new EdgeOptions();
+                //options.setCapability("browserVersion", "browserVersion");
+                //options.setCapability("platformName", platform);
+                options.setCapability("se:recordVideo", true);
+                driver = new RemoteWebDriver(new URL(hubAddress), options);
                 /*DesiredCapabilities caps = new DesiredCapabilities();
                 caps.setBrowserName(Browser.EDGE.browserName());
                 caps.setVersion(browserVersion);
@@ -93,9 +102,10 @@ public class DriverFactory {
                 driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
             }
             case "safari" -> {
-                SafariOptions safariOptions = new SafariOptions();
-                safariOptions.setCapability("platformName", platform);
-                driver = new RemoteWebDriver(new URL(hubAddress), safariOptions);
+                SafariOptions options = new SafariOptions();
+                //options.setCapability("platformName", platform);
+                options.setCapability("se:recordVideo", true);
+                driver = new RemoteWebDriver(new URL(hubAddress), options);
             }
             default -> throw new IllegalStateException("INVALID BROWSER: " + browserName);
         }

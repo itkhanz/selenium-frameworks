@@ -1,11 +1,21 @@
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-.yml up`
+# To execute this docker-compose yml file use `docker-compose -f docker-compose.yml up`
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose.yml down`
 version: "3"
 services:
+  selenium-hub:
+    image: selenium/hub
+    container_name: selenium-hub
+    restart: always
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
   chrome:
     image: selenium/node-chrome
     shm_size: 2gb
+    restart: on-failure
     depends_on:
       - selenium-hub
     environment:
@@ -23,6 +33,7 @@ services:
   edge:
     image: selenium/node-edge
     shm_size: 2gb
+    restart: on-failure
     depends_on:
       - selenium-hub
     environment:
@@ -39,6 +50,7 @@ services:
   firefox:
     image: selenium/node-firefox
     shm_size: 2gb
+    restart: on-failure
     depends_on:
       - selenium-hub
     environment:
@@ -81,11 +93,3 @@ services:
     environment:
       - DISPLAY_CONTAINER_NAME=firefox
       - FILE_NAME=firefox_video.mp4
-
-  selenium-hub:
-    image: selenium/hub
-    container_name: selenium-hub
-    ports:
-      - "4442:4442"
-      - "4443:4443"
-      - "4444:4444"

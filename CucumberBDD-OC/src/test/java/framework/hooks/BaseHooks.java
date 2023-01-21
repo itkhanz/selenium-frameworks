@@ -6,14 +6,18 @@ import framework.factory.DriverFactory;
 import framework.runners.BaseTestNGRunnerTest;
 import framework.utils.PropertyUtils;
 import io.cucumber.java.*;
+import io.qameta.allure.Allure;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.SessionId;
 import org.testng.Reporter;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -93,6 +97,19 @@ public class BaseHooks {
             byte[] screenshot = FileUtils.readFileToByteArray(sourcePath);*/
             final byte[] screenshot = ((TakesScreenshot) context.driver).getScreenshotAs(OutputType.BYTES);
             scenario.attach(screenshot, "image/png", "image");
+        }
+    }
+
+    //TODO Add video recording from assets/sessionID/video.mp4
+    @After
+    public void AddVideo(Scenario scenario) {
+        SessionId sID = ((RemoteWebDriver) context.driver).getSessionId();
+        try {
+            String videoPath = System.getProperty("user.dir") + "\\assets\\test-recordings\\" + sID.toString() + "video.mp4";
+            byte[] byteArr = IOUtils.toByteArray(new FileInputStream(videoPath));
+            Allure.addAttachment(scenario.getName(), "video/mp4", new ByteArrayInputStream(byteArr), "mp4");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
