@@ -4,7 +4,7 @@
 version: "3"
 services:
   node-docker:
-    image: selenium/node-docker:4.4.0
+    image: selenium/node-docker:4.8.0-20230210
     volumes:
       - ./assets/test-recordings:/opt/selenium/assets
       - ./src/test/resources/framework/selenium-grid-config/dynamic-grid-config.toml:/opt/bin/config.toml

@@ -2811,20 +2811,6 @@ public void stopDockerGrid()throws IOException,InterruptedException{
     * [How to Integrate Docker,Selenium Grid with Jenkins](https://www.youtube.com/watch?v=JgrJhRxO-6Q)
     * [Docker : How to run selenium grid in docker using Jenkins](https://www.youtube.com/watch?v=O9zbuQuLpMU)
 
----
-
-### Framework - Maven Command Line
-
-* We can use maven commands in Jenkins to run the tests as a part of CI pipeline.
-* `mvn clean test` will execute the tests in default environment i.e. STAGE and default browser i.e. chrome.
-* To customize the test run, we can add parameters like `mvn clean test -Denv=STAGE -Dbrowser=chrome`.
-* If we want to run specific scenarios, then we can provide the tags like `mvn clean test -Denv=STAGE -Dbrowser=chrome -Dcucumber.filter.tags=@smoke`,
-  this will run only the scenarios that are tagged as `@smoke`.
-* If we want to use run through CLI runner, then we can give the following command as below. The
-  `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --threads 2" -Dcucumber.filter.tags=@smoke`
-* Another way is to provide cucumber tags directly as part of args:
-  `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --tags @smoke --threads 2"`
-
 #### Cucumber Tests on Selenoid Grid
 
 * Dynamic Grid that comes with Selenium has currently open issues and is not stable. An alternative to Dynamic Gris is Selenoid which is a powerful
@@ -3195,6 +3181,21 @@ public boolean waitForSelenoidVideoToRename(String filePath,long maxWaitInMillis
 * [Selenium in Kubernetes: Moon vs Selenoid by Personio](https://www.youtube.com/watch?v=13OxAUuQ5q4)
 * [Scalable Selenium Cluster: Up & Running | Ivan Krutov](https://www.youtube.com/watch?v=TGjpc32my0Y)
 * [Master-class: Bulletproof Selenium cluster by Ivan Krutov #SeConf2020](https://www.youtube.com/watch?v=v3uvpAvdSq8)
+
+
+---
+
+### Framework - Maven Command Line
+
+* We can use maven commands in Jenkins to run the tests as a part of CI pipeline.
+* `mvn clean test` will execute the tests in default environment i.e. STAGE and default browser i.e. chrome.
+* To customize the test run, we can add parameters like `mvn clean test -Denv=STAGE -Dbrowser=chrome`.
+* If we want to run specific scenarios, then we can provide the tags like `mvn clean test -Denv=STAGE -Dbrowser=chrome -Dcucumber.filter.tags=@smoke`,
+  this will run only the scenarios that are tagged as `@smoke`.
+* If we want to use run through CLI runner, then we can give the following command as below. The
+  `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --threads 2" -Dcucumber.filter.tags=@smoke`
+* Another way is to provide cucumber tags directly as part of args:
+  `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --tags @smoke --threads 2"`
 
 ---
 

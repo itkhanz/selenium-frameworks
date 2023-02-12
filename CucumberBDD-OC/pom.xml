@@ -15,20 +15,20 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <selenium.java.version>4.6.0</selenium.java.version>
-    <testng.version>7.7.0</testng.version>
-    <cucumber.java.version>7.9.0</cucumber.java.version>
-    <cucumber.testng.version>7.9.0</cucumber.testng.version>
-    <cuccumber.picocontainer.version>7.9.0</cuccumber.picocontainer.version>
+    <selenium.java.version>4.8.0</selenium.java.version>
+    <testng.version>7.7.1</testng.version>
+    <cucumber.java.version>7.11.1</cucumber.java.version>
+    <cucumber.testng.version>7.11.1</cucumber.testng.version>
+    <cuccumber.picocontainer.version>7.11.1</cuccumber.picocontainer.version>
     <rest-assured.version>5.3.0</rest-assured.version>
     <extentreports.version>5.0.9</extentreports.version>
-    <extentreports-cucumber7-adapter.version>1.9.2</extentreports-cucumber7-adapter.version>
+    <extentreports-cucumber7-adapter.version>1.10.1</extentreports-cucumber7-adapter.version>
     <commons-io.version>2.11.0</commons-io.version>
     <lombok.version>1.18.24</lombok.version>
     <jackson-databind.version>2.14.1</jackson-databind.version>
     <cucumber-reporting.version>5.7.4</cucumber-reporting.version>
-    <allure-cucumber.version>2.20.1</allure-cucumber.version>
-    <gherkin.version>26.0.1</gherkin.version>
+    <allure-cucumber.version>2.21.0</allure-cucumber.version>
+    <gherkin.version>26.0.3</gherkin.version>
     <maven-model.version>3.8.6</maven-model.version>
   </properties>
 
