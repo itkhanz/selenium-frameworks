@@ -1,0 +1,1 @@
+Webdriver initialized for browser: msedge version 108.0.1462.54

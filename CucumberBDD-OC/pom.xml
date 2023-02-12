@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.itkhan</groupId>
+  <artifactId>CucumberBDD-OC</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>CucumberBDD-OC</name>
+  <url>https://askomdch.com/</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <selenium.java.version>4.8.0</selenium.java.version>
+    <testng.version>7.7.1</testng.version>
+    <cucumber.java.version>7.11.1</cucumber.java.version>
+    <cucumber.testng.version>7.11.1</cucumber.testng.version>
+    <cuccumber.picocontainer.version>7.11.1</cuccumber.picocontainer.version>
+    <rest-assured.version>5.3.0</rest-assured.version>
+    <extentreports.version>5.0.9</extentreports.version>
+    <extentreports-cucumber7-adapter.version>1.10.1</extentreports-cucumber7-adapter.version>
+    <commons-io.version>2.11.0</commons-io.version>
+    <lombok.version>1.18.24</lombok.version>
+    <jackson-databind.version>2.14.1</jackson-databind.version>
+    <cucumber-reporting.version>5.7.4</cucumber-reporting.version>
+    <allure-cucumber.version>2.21.0</allure-cucumber.version>
+    <gherkin.version>26.0.3</gherkin.version>
+    <maven-model.version>3.8.6</maven-model.version>
+  </properties>
+
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>${selenium.java.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-java -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <version>${cucumber.java.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>${testng.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-testng -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-testng</artifactId>
+      <version>${cucumber.testng.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-junit -->
+    <!--<dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-junit</artifactId>
+      <version>7.9.0</version>
+      <scope>test</scope>
+    </dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-picocontainer -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-picocontainer</artifactId>
+      <version>${cuccumber.picocontainer.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>${rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.aventstack/extentreports -->
+    <dependency>
+      <groupId>com.aventstack</groupId>
+      <artifactId>extentreports</artifactId>
+      <version>${extentreports.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/tech.grasshopper/extentreports-cucumber7-adapter -->
+    <dependency>
+      <groupId>tech.grasshopper</groupId>
+      <artifactId>extentreports-cucumber7-adapter</artifactId>
+      <version>${extentreports-cucumber7-adapter.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-databind.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting -->
+    <dependency>
+      <groupId>net.masterthought</groupId>
+      <artifactId>cucumber-reporting</artifactId>
+      <version>${cucumber-reporting.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/tech.grasshopper/extentreports-cucumberjson-plugin -->
+    <!--<dependency>
+      <groupId>tech.grasshopper</groupId>
+      <artifactId>extentreports-cucumberjson-plugin</artifactId>
+      <version>2.15.0</version>
+    </dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-cucumber7-jvm -->
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-cucumber7-jvm</artifactId>
+      <version>${allure-cucumber.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.cucumber/gherkin -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>gherkin</artifactId>
+      <version>${gherkin.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <version>${maven-model.version}</version>
+    </dependency>
+
+
+
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>Smoke</id>   <!--To tun this profile through command line, mvn test -PSmoke-->
+      <build>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>3.0.0-M7</version>
+              <configuration>
+                <suiteXmlFiles>
+                  <suiteXmlFile>test-suites/smoke-tests.xml</suiteXmlFile>
+                </suiteXmlFiles>
+              </configuration>
+            </plugin>
+            <!--<plugin>
+              <groupId>tech.grasshopper</groupId>
+              <artifactId>extentreports-cucumberjson-plugin</artifactId>
+              <version>2.15.0</version>
+              <executions>
+                <execution>
+                  <id>report</id>
+                  <phase>post-integration-test</phase>
+                  <goals>
+                    <goal>extentreport</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <cucumberJsonReportDirectory>${project.build.directory}/cucumber</cucumberJsonReportDirectory>
+                <displayAllHooks>false</displayAllHooks>
+                <strictCucumber6Behavior>true</strictCucumber6Behavior>
+              </configuration>
+            </plugin>-->
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>Regression</id>   <!--To tun this profile through command line, mvn test -PSmoke-->
+      <build>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>3.0.0-M7</version>
+              <configuration>
+                <suiteXmlFiles>
+                  <suiteXmlFile>test-suites/regression-tests.xml</suiteXmlFile>
+                </suiteXmlFiles>
+              </configuration>
+            </plugin>
+            <!--<plugin>
+              <groupId>tech.grasshopper</groupId>
+              <artifactId>extentreports-cucumberjson-plugin</artifactId>
+              <version>2.15.0</version>
+              <executions>
+                <execution>
+                  <id>report</id>
+                  <phase>post-integration-test</phase>
+                  <goals>
+                    <goal>extentreport</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <cucumberJsonReportDirectory>${project.build.directory}/cucumber</cucumberJsonReportDirectory>
+                <displayAllHooks>false</displayAllHooks>
+                <strictCucumber6Behavior>true</strictCucumber6Behavior>
+              </configuration>
+            </plugin>-->
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>smokeDistributed</id>   <!--To tun this profile through command line, mvn test -PsmokeDistributed-->
+      <build>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>3.0.0-M7</version>
+              <configuration>
+                <suiteXmlFiles>
+                  <suiteXmlFile>test-suites/smoke-tests-distributed.xml</suiteXmlFile>
+                </suiteXmlFiles>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>smokeDockergrid</id>   <!--To tun this profile through command line, mvn test -PsmokeDockergrid-->
+      <build>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>3.0.0-M7</version>
+              <configuration>
+                <suiteXmlFiles>
+                  <suiteXmlFile>test-suites/smoke-tests-dockerized-grid.xml</suiteXmlFile>
+                </suiteXmlFiles>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+      <plugins>
+        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>15</source>
+                  <target>15</target>
+              </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M7</version>
+            <configuration>
+              <testFailureIgnore>true</testFailureIgnore>
+            </configuration>
+            <!--Thread count Configuration for TestNG Runner-->
+            <!--<configuration>
+              <properties>
+                <property>
+                  <name>dataproviderthreadcount</name>
+                  <value>2</value>
+                </property>
+              </properties>
+            </configuration>-->
+          </plugin>
+        <plugin>
+          <groupId>net.masterthought</groupId>
+          <artifactId>maven-cucumber-reporting</artifactId>
+          <version>5.7.4</version>
+          <executions>
+            <execution>
+              <id>execution</id>
+              <phase>test</phase>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+              <configuration>
+                <projectName>cucumberReporting</projectName>
+                <skip>false</skip>
+                <outputDirectory>${project.build.directory}</outputDirectory>
+                <inputDirectory>${project.build.directory}</inputDirectory>
+                <jsonFiles>
+                  <param>**/cucumber.json</param>
+                </jsonFiles>
+                <mergeFeaturesById>false</mergeFeaturesById>
+                <mergeFeaturesWithRetest>false</mergeFeaturesWithRetest>
+                <checkBuildResult>true</checkBuildResult> <!-- Set true to fail build on test failures -->
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
+</project>

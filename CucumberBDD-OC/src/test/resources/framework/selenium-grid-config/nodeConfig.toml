@@ -1,0 +1,33 @@
+[events]
+publish = "tcp://192.168.50.152:4442"
+subscribe = "tcp://192.168.50.152:4443"
+
+[node]
+detect-drivers = false
+session-timeout = "300"
+override-max-sessions = false
+drain-after-session-count = 0
+
+[[node.driver-configuration]]
+display-name = "chrome"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "chrome", "platformName": "windows 10", "browserVersion":"108", "networkname:applicationName":"node_chrome", "nodename:applicationName":"AskOmDch" }'
+max-sessions = 2
+hub = "http://192.168.50.152:4444"
+port = 5555
+
+[[node.driver-configuration]]
+display-name = "firefox"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "firefox", "platformName": "windows 10", "browserVersion":"108", "networkname:applicationName":"node_firefox", "nodename:applicationName":"AskOmDch", "moz:firefoxOptions":{"binary":"C:\\Program Files\\Mozilla Firefox"}}'
+max-sessions = 2
+hub = "http://192.168.50.152:4444"
+port = 5556
+
+[[node.driver-configuration]]
+display-name = "edge"
+webdriver-path = "C:\\selenium\\webdrivers"
+stereotype = '{"browserName": "MicrosoftEdge", "platformName": "windows 10", "browserVersion":"108", "networkname:applicationName":"node_msedge", "nodename:applicationName":"AskOmDch" }'
+max-sessions = 2
+hub = "http://192.168.50.152:4444"
+port = 5557
