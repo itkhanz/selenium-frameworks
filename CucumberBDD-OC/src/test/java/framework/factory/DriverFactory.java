@@ -8,6 +8,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
@@ -15,6 +16,7 @@ import org.openqa.selenium.safari.SafariOptions;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class DriverFactory {
@@ -63,47 +65,27 @@ public class DriverFactory {
         WebDriver driver;
         Properties gridProps = PropertyUtils.propertyLoader("src/test/resources/framework/properties/grid.properties");
         String hubAddress  = gridProps.getProperty("hubURL");
+        //selenoid grid have url of localhost:4444/wd/hub while Docker grid have url of localhost:44444
+        hubAddress += gridProps.getProperty("selenoid").equals("true") ? "wd/hub" : "";
         switch (browserName) {
             case "chrome" -> {
                 ChromeOptions options = new ChromeOptions();
-                //options.setCapability("browserVersion", browserVersion);
-                //options.setCapability("platformName", platform);
-
-                //Video recording, screen resolution, and time zones in a Dynamic Grid
-                //https://github.com/SeleniumHQ/docker-selenium#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid
-
-                options.setCapability("se:recordVideo", true);
-                //options.setCapability("se:timeZone", "US/Pacific");
-                //options.setCapability("se:screenResolution", "1920x1080");
+                setBrowserOptions(options);
                 driver = new RemoteWebDriver(new URL(hubAddress), options);
-                /*DesiredCapabilities caps = new DesiredCapabilities();
-                caps.setBrowserName(Browser.CHROME.browserName());
-                caps.setVersion(browserVersion);
-                caps.setPlatform(Platform.LINUX);
-                driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
             }
             case "firefox" -> {
                 FirefoxOptions options = new FirefoxOptions();
-                //options.setCapability("browserVersion", "browserVersion");
-                //options.setCapability("platformName", platform);
-                options.setCapability("se:recordVideo", true);
+                setBrowserOptions(options);
                 driver = new RemoteWebDriver(new URL(hubAddress), options);
             }
             case "edge" -> {
                 EdgeOptions options = new EdgeOptions();
-                //options.setCapability("browserVersion", "browserVersion");
-                //options.setCapability("platformName", platform);
-                options.setCapability("se:recordVideo", true);
+                setBrowserOptions(options);
                 driver = new RemoteWebDriver(new URL(hubAddress), options);
-                /*DesiredCapabilities caps = new DesiredCapabilities();
-                caps.setBrowserName(Browser.EDGE.browserName());
-                caps.setVersion(browserVersion);
-                caps.setPlatform(Platform.LINUX);
-                driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
             }
             case "safari" -> {
+                //Docker grid and selenoid does not provide safari images
                 SafariOptions options = new SafariOptions();
-                //options.setCapability("platformName", platform);
                 options.setCapability("se:recordVideo", true);
                 driver = new RemoteWebDriver(new URL(hubAddress), options);
             }
@@ -113,6 +95,45 @@ public class DriverFactory {
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         return driver;
+    }
+
+    public static <T extends AbstractDriverOptions<?>> void setBrowserOptions(T options) {
+        //options.setCapability("browserVersion", browserVersion);
+        //options.setCapability("platformName", platform);
+
+        //**************************************//
+        //selenoid video recording capabilities
+        //**************************************//
+        options.setCapability("selenoid:options", new HashMap<String, Object>() {{
+            /* How to enable vnc Live Browser Screen */
+            put("enableVNC", true);
+
+            /* How to enable video recording */
+            put("enableVideo", true);
+
+            /* How To enable saving logs for a session */
+            put("enableLog", true);
+
+            /* How to set session timeout */
+            put("sessionTimeout", "5m");
+        }});
+
+        //*************************************************************************************************************//
+        //Docker Grid video recording capabilities: Video recording, screen resolution, and time zones in a Dynamic Grid
+        //https://github.com/SeleniumHQ/docker-selenium#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid
+        //*************************************************************************************************************//
+        //options.setCapability("se:recordVideo", true);
+        //options.setCapability("se:timeZone", "US/Pacific");
+        //options.setCapability("se:screenResolution", "1920x1080");
+
+        //**************************************//
+        //DesiredCapabilities is deprecated
+        //**************************************//
+        /*DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setBrowserName(Browser.CHROME.browserName());
+        caps.setVersion(browserVersion);
+        caps.setPlatform(Platform.LINUX);
+        driver = new RemoteWebDriver(new URL(hubAddress), caps);*/
     }
 
 }

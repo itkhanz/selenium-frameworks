@@ -2805,9 +2805,11 @@ public void stopDockerGrid()throws IOException,InterruptedException{
 * Now execute the tests wih `mvn clean test -D"gridMode=true" -PsmokeDockergrid` which will start the command prompt windows and run the commands to
   spin up docker containers before test suite and stop the containers automatically after the test suite.
 * Make sure the Docker Daemon is up and running on host environment. Now you do not need to start and stop docker containers manually.
+* This will also enable us to start and stop docker containers when running tests via Jenkins CI
 * Resources:
-  * [How to Invoke Selenium Grid on Docker Environment using Batch file](https://www.youtube.com/watch?v=CVFYaz9E2lo)
-  * [How to Integrate Docker,Selenium Grid with Jenkins](https://www.youtube.com/watch?v=JgrJhRxO-6Q)
+    * [How to Invoke Selenium Grid on Docker Environment using Batch file](https://www.youtube.com/watch?v=CVFYaz9E2lo)
+    * [How to Integrate Docker,Selenium Grid with Jenkins](https://www.youtube.com/watch?v=JgrJhRxO-6Q)
+    * [Docker : How to run selenium grid in docker using Jenkins](https://www.youtube.com/watch?v=O9zbuQuLpMU)
 
 ---
 
@@ -2822,6 +2824,377 @@ public void stopDockerGrid()throws IOException,InterruptedException{
   `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --threads 2" -Dcucumber.filter.tags=@smoke`
 * Another way is to provide cucumber tags directly as part of args:
   `mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=io.cucumber.core.cli.Main -Dexec.args="src/test/resources/framework/features --glue framework --tags @smoke --threads 2"`
+
+#### Cucumber Tests on Selenoid Grid
+
+* Dynamic Grid that comes with Selenium has currently open issues and is not stable. An alternative to Dynamic Gris is Selenoid which is a powerful
+  implementation of Selenium hub using Docker containers to launch browsers.
+* It gives us options to record videos and capture logs and also has updated images for different browsers.
+* Lightweight and Lightning Fast
+  Suitable for personal usage and in big clusters:
+    * Consumes 10 times less memory than Java-based Selenium server under the same load
+    * Small 6 Mb binary with no external dependencies (no need to install Java)
+    * Browser consumption API working out of the box
+    * Ability to send browser logs to centralized log storage (e.g. to the ELK-stack)
+    * Fully isolated and reproducible environment
+* Read More on:
+    * [Selenoid GitHub](https://github.com/aerokube/selenoid)
+    * [Selenoid UI GitHub](https://github.com/aerokube/selenoid-ui)
+    * [Selenoid Repo](https://aerokube.com/selenoid/latest/)
+* I will briefly go through the steps needed to integrate the framework with Selenoid and how I configured the hooks to attach selenoid video
+  recordings to Allure reports.
+* Download and Install the latest Selenoid configuration manager according to your operating system. At the moment v1.10.9 is the latest release
+  [Selenoid Release](https://github.com/aerokube/selenoid/releases/tag/1.10.9)
+  [Selenoid Configuration Manager](https://aerokube.com/cm/latest/)
+* Extract and rename the downloaded exe to whatever name you prefer, I renamed it to **cm.exe**
+* On Windows run this command in powershell to start selenoid. It will start selenoid and automatically pull the latest browser images for chrome,
+  firefox and opera.
+
+```
+./cm.exe selenoid start --vnc
+```
+
+* <img src="doc/selenoid-start.png"  alt="selenoid" width="863">
+* If you want to start the selenoid grid with custom browser binaries and versions, then you need to start the selenoid with **--browsers.json**
+  command line parameter and specify path to your browser configuration file. I added the following configuration:
+* [Browser Configuration File](https://aerokube.com/selenoid/latest/#_browsers_configuration_file)
+
+```json
+{
+  "MicrosoftEdge": {
+    "default": "108.0",
+    "versions": {
+      "108.0": {
+        "image": "browsers/edge:108.0",
+        "port": "4444",
+        "path": "/"
+      }
+    }
+  },
+  "chrome": {
+    "default": "108.0",
+    "versions": {
+      "108.0": {
+        "image": "selenoid/chrome:108.0",
+        "port": "4444",
+        "path": "/"
+      }
+    }
+  },
+  "firefox": {
+    "default": "108.0",
+    "versions": {
+      "108.0": {
+        "image": "selenoid/firefox:108.0",
+        "port": "4444",
+        "path": "/wd/hub"
+      }
+    }
+  }
+}
+```
+
+* Selenoid was not pulling the docker image for edge automatically so I had to fetch the image manually with `docker pull browsers/edge:108.0`
+* <img src="doc/selenoid-pull-edge.png"  alt="selenoid pull edge" width="845">
+* [Docker Hub Selenoid Images](https://hub.docker.com/u/selenoid)
+* [Browser Images available for Selenoid](https://aerokube.com/images/latest/)
+* In some cases you may want to configure Selenoid to use an existing `browsers.json` configuration file. This is mainly needed to always use the same
+  browser versions instead of downloading latest versions. To achieve this:
+    * Prepare a desired browsers.json configuration file
+    * Launch cm with `--browsers-json` flag:
+    * [Using Existing Configuration File](https://aerokube.com/cm/latest/#_using_existing_configuration_file)
+
+```
+./cm selenoid start --browsers-json /path/to/browsers.json
+```
+
+* To quickly run Selenoid UI type:
+
+```json
+./cm selenoid-ui start
+```
+
+* [Starting Selenoid UI](https://aerokube.com/cm/latest/#_starting_selenoid_ui)
+* [Run Selenoid Tests](https://aerokube.com/cm/latest/#_starting_selenoid_ui)
+    * Run your tests against Selenoid like you do with regular Selenium hub. Test Endpoint
+  ```
+  http://localhost:4444/wd/hub
+  ```
+    * If something does not work, you can easily check that Selenoid is running with opening status url:
+    * Current Selenoid Status
+  ```
+  http://localhost:4444/status
+  ```
+    * To open Selenoid UI navigate to the following page in your browser:
+  ```
+  http://localhost:8080/
+  ```
+* <img src="doc/selenoid-start-browser-config.png"  alt="selenoid start browser config" width="997">
+* <img src="doc/selenoid-capabilities.png"  alt="selenoid capabilities" width="1900">
+* Since the endpoint of selenoid grid has `wd/hub` at the end, so I defined a separate property in my `grid.property` file for **selenoid**. If it is
+  set to true, I will append the suffix to grid url
+
+```java
+Properties gridProps=PropertyUtils.propertyLoader("src/test/resources/framework/properties/grid.properties");
+        String hubAddress=gridProps.getProperty("hubURL");
+//selenoid grid have url of localhost:4444/wd/hub while Docker grid have url of localhost:44444
+        hubAddress+=gridProps.getProperty("selenoid").equals("true")?"wd/hub":"";
+```
+
+* As seen in the above image, we need to add the browser options/capabilities to enable VNC and video recording option for selenoid containers.
+* [Selenoid Video Recording](https://aerokube.com/selenoid/latest/#_video_recording)
+* [Selenoid saving Session Logs](https://aerokube.com/selenoid/latest/#_saving_session_logs)
+* Instead of using DesiredCapabilities, I used browser options which is now supported and recommended way of adding options to remote browsers. The
+  problem was that ew the classes for browser options are separate like EdgeOptions, ChromeOptions etc. So I applied the DRY (Do not Repeat Yourself)
+  clean coding priniciple with the help of Java generics to use the `AbstractDriverOptions` that is the parent class of all the browser options class.
+
+```java
+    /**
+ * This method initializes the remote webdriver with browser capabilities defined in Test Suite parameters.
+ * If the tests are to be executed on Selenium Grid with remote drivers and tests are run with gridMode= true then we initialize remote webdriver
+ *
+ * @param browserName Name of the browser is set in smoke-tests-distributed.xml file as test parameter "browser" e.g. chrome, firefox, edge, safari
+ * @param browserVersion Browser version is set in smoke-tests-distributed.xml file as test parameter "browserVersion"
+ * @param platform platform is set in smoke-tests-distributed.xml file as test parameter "platformName" e.g. windows mac, linux
+ * @return RemoteWebDriver on hubURL configured in grid.properties with corresponding browser options
+ * @throws MalformedURLException
+ */
+public static WebDriver initializeRemoteDriver(String browserName,String browserVersion,String platform)throws MalformedURLException{
+        WebDriver driver;
+        Properties gridProps=PropertyUtils.propertyLoader("src/test/resources/framework/properties/grid.properties");
+        String hubAddress=gridProps.getProperty("hubURL");
+        //selenoid grid have url of localhost:4444/wd/hub while Docker grid have url of localhost:44444
+        hubAddress+=gridProps.getProperty("selenoid").equals("true")?"wd/hub":"";
+        switch(browserName){
+        case"chrome"->{
+        ChromeOptions options=new ChromeOptions();
+        setBrowserOptions(options);
+        driver=new RemoteWebDriver(new URL(hubAddress),options);
+        }
+        case"firefox"->{
+        FirefoxOptions options=new FirefoxOptions();
+        setBrowserOptions(options);
+        driver=new RemoteWebDriver(new URL(hubAddress),options);
+        }
+        case"edge"->{
+        EdgeOptions options=new EdgeOptions();
+        setBrowserOptions(options);
+        driver=new RemoteWebDriver(new URL(hubAddress),options);
+        }
+        case"safari"->{
+        //Docker grid and selenoid does not provide safari images
+        SafariOptions options=new SafariOptions();
+        options.setCapability("se:recordVideo",true);
+        driver=new RemoteWebDriver(new URL(hubAddress),options);
+        }
+default ->throw new IllegalStateException("INVALID BROWSER: "+browserName);
+        }
+
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        return driver;
+        }
+
+public static<T extends AbstractDriverOptions<?>> void setBrowserOptions(T options){
+        //options.setCapability("browserVersion", browserVersion);
+        //options.setCapability("platformName", platform);
+
+        //**************************************//
+        //selenoid video recording capabilities
+        //**************************************//
+        options.setCapability("selenoid:options",new HashMap<String, Object>(){{
+        /* How to enable vnc Live Browser Screen */
+        put("enableVNC",true);
+
+        /* How to enable video recording */
+        put("enableVideo",true);
+
+        /* How To enable saving logs for a session */
+        put("enableLog",true);
+
+        /* How to set session timeout */
+        put("sessionTimeout","5m");
+        }});
+        }
+```
+
+* [Selenoid with Docker Compose](https://aerokube.com/selenoid/latest/#_browsers_configuration_file)
+* Now I created a new docker compose file named **docker-compose-selenoid.yml** with the following configuration. The videos and logs will get
+  captured in project root directory under a new **selenoid** folder. I added the limit and timeout properties for my needs which may not be necessary
+  for you if you are following.
+
+```yaml
+version: '3'
+services:
+  selenoid:
+    network_mode: bridge
+    image: aerokube/selenoid:latest-release
+    volumes:
+      - ./src/test/resources/framework/selenoid:/etc/selenoid
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./selenoid/video:/opt/selenoid/video
+      - ./selenoid/logs:/opt/selenoid/logs
+    environment:
+      - OVERRIDE_VIDEO_OUTPUT_DIR=$PWD/selenoid/video
+      - TZ=Europe/Berlin
+    command: [ "-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-limit", "6", "-timeout", "5m0s", "-session-attempt-timeout", "5m0s" ]
+    ports:
+      - "4444:4444"
+
+  selenoid-ui:
+    image: aerokube/selenoid-ui:latest-release
+    command: [ "--selenoid-uri", "http://selenoid:4444" ]
+    network_mode: bridge
+    links:
+      - selenoid
+    depends_on:
+      - selenoid
+    ports:
+      - "8080:8080"
+```
+
+* Start the selenoid docker grid with `docker-compose -f docker-compose-selenoid.yml up`. It will start the selenoid and selenoid-ui.
+* Now run the tests with `mvn clean test -D"gridMode=true" -D"scenariosInParallel=true" -PsmokeDockergrid` which will run the tests in chrome,
+  firefox, and edge selenoid containers in parallel.
+* <img src="doc/selenoid-containers.png"  alt="selenoid docker containers" width="1269">
+* <img src="doc/selenoid-sessions.png"  alt="selenoid parallel sessions UI" width="1902">
+* <img src="doc/selenoid-chrome-vnc.png"  alt="selenoid chrome session VNC" width="1919">
+
+##### Add Selenoid Recordings to Allure Report
+
+* Since I mentioned in one of the previous posts that we can add the recording videos from dynamic grid to allure report, so I implemented this use
+  case for selenoid grid.
+* The problem was that the selenoid recordings are generated inside a folder that gets renamed after the session is closed with a name of session ID.
+* If you call Allure attachment method before, then it will generate error because Allure could not find the designated directory path.
+* I had to hack around this problem with a bit of complex logic. I called the video attachment from the same method in hooks which waits for specied
+  duration until the recording directory gets renamed to session ID and then it adds the video to allure report.
+* I have also added the link to video file for th=e test case which gets stored on the host where selenoid is running
+* Listing All Video Files `http://selenoid-host.example.com:4444/video/`
+  *[Downloading Video Files from Selenoid](https://aerokube.com/selenoid/latest/#_downloading_video_files_from_selenoid)
+* In my `BaseHooks.java` class inside the method where driver is shutdown, I added my custom
+  method `AddVideo(sessionID, scenarioName, sessionBrowser);` to attach video
+
+```java
+    @After(order = 1)
+public void teardown(Scenario scenario)throws InterruptedException{
+        Capabilities cap=((RemoteWebDriver)context.driver).getCapabilities();
+        String sessionBrowser=cap.getBrowserName();
+        SessionId sID=((RemoteWebDriver)context.driver).getSessionId();
+        String sessionID=sID.toString();
+        String scenarioName=scenario.getName();
+
+        if(driver!=null)driver.quit();
+
+        //This method waits for driver session to be closed which will result in renaming of selenoid video so we can attach it to report
+        //This method is intentionally placed in hook otherwise if placed in separate hook the session won't close
+        AddVideo(sessionID,scenarioName,sessionBrowser);
+        }
+```
+
+* The `addVideo()` method embeds the video to allure report and add some other properties like scenario name, browser info, session ID, local
+  recording
+  path, and the URL to video recording. It waits for the specified time until it finds the directory with name of session ID.
+
+```java
+    /**
+ * Adds test video recording to allure report.
+ * Order of 1 indicates that it will execute after driver is shutdown in the After hook with order 0
+ * This order is necessary because selenoid recordings get renamed after the browser session is stopped
+ * @param sessionID
+ * @param scenarioName
+ * @param sessionBrowser
+ * @throws InterruptedException
+ */
+public void AddVideo(String sessionID,String scenarioName,String sessionBrowser)throws InterruptedException{
+
+        //use this path for Dynamic Grid
+        //String videoPath = System.getProperty("user.dir") + "\\assets\\test-recordings\\" + sID.toString() + "video.mp4";
+        //use this path for Selenoid Grid
+        String videoPath=System.getProperty("user.dir")+"\\selenoid\\video\\"+sessionID+".mp4";
+
+        //Link to Video Recording on Selenoid server
+        Properties gridProps=PropertyUtils.propertyLoader("src/test/resources/framework/properties/grid.properties");
+        String hubAddress=gridProps.getProperty("hubURL");
+        String selenoidRecordingUrl=hubAddress+"video/"+sessionID+".mp4";
+        Allure.addAttachment("Selenoid Video Recording",
+        "text/html",
+        "<html><head></head><body>"+
+        "<p><b>Scenario:</b> "+scenarioName+"</p>"+
+        "<p><b>Browser:</b> "+sessionBrowser+"</p>"+
+        "<p><b>Session ID:</b> "+sessionID+"</p>"+
+        "<p><b>Session recording root path :</b> /selenoid/video/"+sessionID+".mp4</p>"+
+        "Video Url: <a href='"+selenoidRecordingUrl+"' target='_blank'>"+selenoidRecordingUrl+"</a>"+
+        "</body></html>",
+        ".html");
+
+        //Embedded mp4 video recording in Allure report
+        if(waitForSelenoidVideoToRename(videoPath,30000)){
+        try{
+        byte[]byteArr=IOUtils.toByteArray(new FileInputStream(videoPath));
+        Allure.addAttachment("Embedded mp4 recording "+sessionID+".mp4","video/mp4",new ByteArrayInputStream(byteArr),"mp4");
+        }catch(IOException e){
+        e.printStackTrace();
+        }
+        }else{
+        System.out.println("Unable to add video recording to allure report for test: "+scenarioName);
+        System.out.println("Selenoid video recording not found for session ID: "+sessionID+" , Browser: "+sessionBrowser);
+        }
+        }
+```
+
+* This method `waitForSelenoidVideoToRename` waits for the specified file with the specified duratiuon before returning:
+
+```java
+/**
+ * Selenoid video file name by default is <session-id>.mp4.
+ * Example - selenoid7a408b66263ee21c5e896514aa938105.mp4 is temporary file name which is renamed to correct one when browser session is stopped.
+ * This method waits for 30 seconds and performs check for presence of renamed file in specified path. If found it will return true.
+ * If renamed file is not found in specified path then method will return false after waiting for a maximum of 30 seconds.
+ * @param filePath File path string where selenoid session recording is downloaded
+ * @param maxWaitInMillis maximum waiting time in milliseconds to check the presence of renamed file before returning false
+ * @return true if file is found within 10 seconds else false
+ * @throws InterruptedException
+ */
+public boolean waitForSelenoidVideoToRename(String filePath,long maxWaitInMillis)throws InterruptedException{
+        File file=new File(filePath);
+        //Start time
+        Instant start=Instant.now();
+        while(!file.exists()){
+        Thread.sleep(1000);
+        //End time
+        Instant finish=Instant.now();
+        long timeElapsed=Duration.between(start,finish).toMillis();
+        if(timeElapsed>maxWaitInMillis)return false;
+        }
+        return true;
+        }
+```
+
+* And here is the result where you can see the attached video recording of selenoid session to test in allure report:
+* <img src="doc/selenoid-video-allure.png"  alt="selenoid recording attachment in allure report" width="844">
+* Further Readings:
+    * [Selenoid Tutorial | Docker-Selenium Alternative for Parallel Testing](https://www.swtestacademy.com/selenoid-tutorial/)
+    * [Execute Tests in Docker Containers using Selenoid](https://docs.bellatrix.solutions/web-automation/execute-tests-selenoid/)
+    * [Execute Tests in Docker Containers Using Selenoid](https://www.automatetheplanet.com/execute-webdriver-tests-docker-selenoid/)
+    * [How to install Selenoid with Docker Compose](https://devopslite.com/how-to-install-selenoid-with-docker-compose/)
+
+##### Scaling Selenoid Tests with GGR and Moon
+
+* **Ggr**
+    * Go Grid Router (aka Ggr) is a lightweight active load balancer used to create scalable and highly-available Selenium clusters.
+    * [Ggr GitHub](https://github.com/aerokube/ggr)
+* **Moon - Selenoid on Kubernetes**
+    * Moon is a commercial closed-source solution for organizing browser automation infrastructure. It is fully compatible with Selenium, Playwright,
+      Cypress and Puppeteer. Moon is using Kubernetes or Openshift to launch browsers.
+    * [Moon GitHub](https://github.com/aerokube/moon)
+    * [Moon Aerokube](https://aerokube.com/moon/)
+  
+* **Further Readings**
+* [Selenium Grid 4: Do you really need it?](https://blog.aerokube.com/selenium-grid-4-do-you-really-need-it-ab03366625b0)
+* [Next Mission to Moon: Cross Browser Selenium Testing in Kubernetes](https://blog.aerokube.com/next-mission-to-moon-cross-browser-selenium-testing-in-kubernetes-e2721144591a)
+* [Selenium in Kubernetes: Moon vs Selenoid by Personio](https://www.youtube.com/watch?v=13OxAUuQ5q4)
+* [Scalable Selenium Cluster: Up & Running | Ivan Krutov](https://www.youtube.com/watch?v=TGjpc32my0Y)
+* [Master-class: Bulletproof Selenium cluster by Ivan Krutov #SeConf2020](https://www.youtube.com/watch?v=v3uvpAvdSq8)
 
 ---
 

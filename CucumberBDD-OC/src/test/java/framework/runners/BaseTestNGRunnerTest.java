@@ -2,9 +2,9 @@ package framework.runners;
 
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
-import org.testng.annotations.*;
-
-import java.io.IOException;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 
 //Comment the @smoke tag in @CucumberOptions plugin to run all the scenarios
 
@@ -50,7 +50,8 @@ public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
         }
     }
 
-    //Starts the docker containers before test suite
+    //Uncomment the below Before and After Suite methods if you want to run the tests on docker grid and setup and teardown containers automatically
+    /*//Starts the docker containers before test suite
     @BeforeSuite
     public void startDockerGrid() throws IOException, InterruptedException {
         Runtime.getRuntime().exec("cmd /c start start_dockergrid.bat");
@@ -64,5 +65,5 @@ public class BaseTestNGRunnerTest extends AbstractTestNGCucumberTests {
         Thread.sleep(5000);
 
         Runtime.getRuntime().exec("taskkill /f /im cmd.exe"); //closes command prompt
-    }
+    }*/
 }
