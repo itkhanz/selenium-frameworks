@@ -1,0 +1,14 @@
+{
+  "qa": {
+    "username": "testuser@gmail.com",
+    "password": "testuser123"
+  },
+  "dev": {
+    "username": "johnDoe",
+    "password": "johnDoe123"
+  },
+  "stage": {
+    "username": "peterpan",
+    "password": "peterpan123"
+  }
+}

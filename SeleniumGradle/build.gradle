@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.itkhanz'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+ext {
+    // Define your dependency versions here
+    versions = [
+            seleniumJava: '4.11.0',
+            testng: '7.8.0',
+            log4j: '2.20.0',
+            owner: '1.0.12',
+            gson: '2.10.1',
+            javafaker: '1.0.2'
+    ]
+}
+
+dependencies {
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: versions.seleniumJava
+    implementation group: 'org.testng', name: 'testng', version: versions.testng
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: versions.log4j
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: versions.log4j
+    implementation group: 'org.aeonbits.owner', name: 'owner', version: versions.owner
+    implementation group: 'com.google.code.gson', name: 'gson', version: versions.gson
+    implementation group: 'com.github.javafaker', name: 'javafaker', version: versions.javafaker
+}
+
+test {
+    useTestNG() {
+        outputDirectory = file("test-output")
+        useDefaultListeners = true
+
+        def parallelMode = System.getProperty('parallel', 'methods') // Default to 'methods'. Set to 'methods', 'classes', or 'tests'
+        def threadCount = System.getProperty('threadCount', '2') // Default to 2
+        setParallel(parallelMode)
+        setThreadCount(threadCount as Integer)
+
+        systemProperties(System.getProperties())
+        if (System.properties.containsKey('suiteName')) {
+            def suitePath = "src/test/resources/test-suites/${System.properties['suiteName']}.xml"
+            suites suitePath
+        } else {
+            suites 'src/test/resources/test-suites/testng.xml'
+        }
+    }
+
+    reports.html.destination(file("$projectDir/gradle-reports"))
+
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
+}
