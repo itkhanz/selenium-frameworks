@@ -5,6 +5,12 @@ plugins {
 group = 'com.itkhanz'
 version = '1.0-SNAPSHOT'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -33,9 +39,20 @@ dependencies {
 }
 
 test {
+    //Use TestNG as test framework
     useTestNG() {
-        outputDirectory = file("test-output")
+
+        //set TestNG output dir
+        outputDirectory = file("$projectDir/test-output")
+
+        // To generate reports by TestNG library
         useDefaultListeners = true
+
+        //includeGroups 'smoke', 'sanity'
+        //excludeGroups 'regression'
+        //Pass the groups from commandline -Dgroups=smoke, default is regression
+        def groups = System.getProperty('groups', 'regression')
+        includeGroups groups
 
         def parallelMode = System.getProperty('parallel', 'methods') // Default to 'methods'. Set to 'methods', 'classes', or 'tests'
         def threadCount = System.getProperty('threadCount', '2') // Default to 2
@@ -51,11 +68,16 @@ test {
         }
     }
 
+    //gradle report output
+    //The default location for gradle html report $buildDir/reports/tests/test
     reports.html.destination(file("$projectDir/gradle-reports"))
 
+
     testLogging {
+        //we want display the following test events
         events "passed", "skipped", "failed", "standardOut", "standardError"
 
+        //print the test results summary to console output
         afterSuite { desc, result ->
             if (!desc.parent) { // will match the outermost suite
                 def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"

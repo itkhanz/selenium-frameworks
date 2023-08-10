@@ -27,13 +27,13 @@ public class BaseTest {
     protected HomePage homePage;
 
     @Parameters({"browser"})
-    @BeforeTest
-    public void setup(String browserName) {
+    @BeforeTest(alwaysRun = true)
+    public void setup(@Optional("chrome") String browserName) {
         setLogsRouting(browserName);
         BrowserManager.setBrowser(browserName);
     }
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void beforeMethod(Method method) {
         if (Objects.equals(System.getProperty("suiteName"), "single-browser")) {
             setLogsRouting(System.getProperty("browser"));
@@ -44,7 +44,7 @@ public class BaseTest {
         logger.info("Starting Test: {}", method.getName());
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void teardown() {
         String sessionID = DriverManager.getSessionId();
         DriverManager.shutdownDriver();
